@@ -162,7 +162,7 @@ void main(void)
 		{	vec3 r = -reflect(normalize(-vVertPos), normalize(varyingNormal));
 			fragColor = texture(t,r);
 		}
-		else if (colorSplashPointer == 1){	//this works fine, lighting turns it grey
+		else if (colorSplashPointer == 1){
 			fragColor = varyingColor;
 		}
 		else
@@ -182,7 +182,8 @@ void main(void)
 		else if (has_texture == 0)
 		{	fragColor = min(0.5 * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
 		}
-		else if (colorSplashPointer == 1){						//This is just a reflective grey no matter what. Need to figure out what's causing that
+		else if (colorSplashPointer == 1){
+//This is just a reflective grey no matter what. Need to figure out what's causing that
 			fragColor = min((varyingColor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 		}
 		else

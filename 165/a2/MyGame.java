@@ -144,7 +144,7 @@ public class MyGame extends VariableFrameRateGame
 		crystal.setLocalTranslation(initialTranslation);
 		crystal.setLocalScale(initialScale);
 		crystal.getRenderStates().setPositionalColor(true);
-//		crystal.getRenderStates().hasLighting(false);
+		crystal.getRenderStates().hasLighting(false);			//TODO: Once PositionalColor works with lighting this won't be needed
 
 		crystal.setParent(torus);
 		crystal.propagateScale(false);

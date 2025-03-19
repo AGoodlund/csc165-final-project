@@ -22,6 +22,7 @@ import tage.*;
 public class RenderObjectStandard
 {	private GLCanvas myCanvas;
 	private Engine engine;
+	private GL4 gl;
 
 	// allocate variables for display() function
 	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
@@ -43,7 +44,7 @@ public class RenderObjectStandard
 
 	/** for engine use only. */
 	public void render(GameObject go, int renderingProgram, Matrix4f pMat, Matrix4f vMat)
-	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+	{	gl = (GL4) GLContext.getCurrentGL();
 
 		gl.glUseProgram(renderingProgram);
 

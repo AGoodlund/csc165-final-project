@@ -75,8 +75,8 @@ void main(void)
 	gl_Position = p_matrix * v_matrix * m_matrix * p;
 	
 //	varyingColor = vec4(1.0, 0.0, 0.0, 1.0);							//works as expected without lighting
-//	varyingColor = vec4(vertPos,1.0)*0.5 + vec4(0.5, 0.5, 0.5, 0.5);	//works acceptably without lighting. Each point maintains a color, so it does not change color with the camera angle
-//TumblingCube is p_mat * mv_mat * (vertPos,1)
+	varyingColor = vec4(vertPos,1.0)*0.5 + vec4(0.5, 0.5, 0.5, 0.5);	//works acceptably without lighting. Each point maintains a color, so it does not change color with the camera angle
+//need to alter ObjShape class so you can get the largest number of x, y, z of objects to make it work with objects whose model matrix does not fall between -1 and 1
 
 //	varyingColor = vec4(vertPos, 1.0);									//uses the raw vertices as colors, so very saturated and looks a bit off 
 //	varyingColor = vec4(vVertPos, 1.0);									//no

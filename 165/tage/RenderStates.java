@@ -30,6 +30,7 @@ public class RenderStates
 	private int tileFactor = 1;
 	private int primitive = 3;  // 1=point, 2=line, 3=triangle
 	private boolean solidColor = false;
+	private boolean positionalColor = false;
 	private Vector3f color = new Vector3f(1f,0f,0f);
 	private boolean wireframe = false;
 	private boolean renderHiddenFaces = false;
@@ -85,6 +86,12 @@ public class RenderStates
 
 	/** returns a boolean that is true if this object responds to lighting */
 	public boolean hasLighting() { return hasLighting; }
+
+/** return a boolean that is true if this object has positional color enabled */
+	public boolean hasPositionalColor(){ return positionalColor; }
+
+/** apply positional to object. Does not currently work with hasLighting == true */
+	public void setPositionalColor(boolean s){ positionalColor = s; }
 
 	/** returns a boolean that is true if depth testing is enabled for this object - mostly for skyboxes */
 	public boolean hasDepthTesting() { return hasDepthTesting; }
