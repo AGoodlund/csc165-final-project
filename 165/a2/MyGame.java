@@ -34,6 +34,7 @@ public class MyGame extends VariableFrameRateGame
 //-------------HUD elements--------------
 	private Vector3f red = new Vector3f(1f,0f,0f), green = new Vector3f(0f,1f,0f), blue = new Vector3f(0f,0f,1f), white = new Vector3f(1f,1f,1f);
 	private Vector3f purple = new Vector3f(1f,1f,0f), yellow = new Vector3f(1f,0f,1f), teal = new Vector3f(0f,1f,1f), black = new Vector3f(0f,0f,0f);
+		//same colors are in public float arrays within HUDmanager.java. TODO: Should be moved here for ease of use later 
 	
 	private Vector3f hud1Color = red;
 	private Vector3f hud2Color = yellow;
@@ -136,12 +137,14 @@ public class MyGame extends VariableFrameRateGame
 
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
-			(crystal.getRenderStates()).setColor(teal);
+//			crystal.getRenderStates().setColor(teal).setHasSolidColor(true);
+//			crystal.getRenderStates().setHasSolidColor(true);
 		initialTranslation = (new Matrix4f()).translation(0f,2f,0f);
 		initialScale = (new Matrix4f()).scaling(1f);
 		crystal.setLocalTranslation(initialTranslation);
 		crystal.setLocalScale(initialScale);
-		crystal.getRenderStates().setHasSolidColor(true);
+		crystal.getRenderStates().setPositionalColor(true);
+//		crystal.getRenderStates().hasLighting(false);
 
 		crystal.setParent(torus);
 		crystal.propagateScale(false);

@@ -11,6 +11,8 @@ out vec3 varyingNormal;
 out vec3 varyingVertPos;
 out vec3 vVertPos;
 
+out vec4 varyingColor;
+
 uniform mat4 m_matrix;
 uniform mat4 v_matrix;
 uniform mat4 p_matrix;
@@ -78,4 +80,6 @@ void main()
 	varyingVertPos  = (m_matrix * vert_pos).xyz;
 	vVertPos = (v_matrix * m_matrix * vert_pos).xyz;
 	gl_Position = p_matrix * v_matrix * m_matrix * vert_pos;
+
+	varyingColor = vec4(vertex_position,1.0)*0.5 + vec4(0.5, 0.5, 0.5, 0.5);
 }

@@ -5,7 +5,7 @@ in vec3 varyingNormal;
 in vec3 varyingVertPos;
 in vec3 vVertPos;
 
-out vec4 fragColor;
+out vec4 fragColor; 
 
 struct Light
 {	vec4 ambient;  
@@ -47,6 +47,9 @@ uniform int solidColor;
 uniform vec3 color;
 uniform int num_lights;
 uniform int fields_per_light;
+
+uniform int colorSplashPointer;
+in vec4 varyingColor;
 
 layout (std430, binding=0) buffer lightBuffer { float lightArray[]; };
 layout (binding = 0) uniform sampler2D samp;
@@ -159,6 +162,9 @@ void main(void)
 		{	vec3 r = -reflect(normalize(-vVertPos), normalize(varyingNormal));
 			fragColor = texture(t,r);
 		}
+		else if (colorSplashPointer == 1){	//this works fine, lighting turns it grey
+			fragColor = varyingColor;
+		}
 		else
 		{	fragColor = texture(samp,tc);
 		}
@@ -175,6 +181,9 @@ void main(void)
 		}
 		else if (has_texture == 0)
 		{	fragColor = min(0.5 * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
+		}
+		else if (colorSplashPointer == 1){						//This is just a reflective grey no matter what. Need to figure out what's causing that
+			fragColor = min((varyingColor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 		}
 		else
 		{	tcolor = texture(samp, tc);

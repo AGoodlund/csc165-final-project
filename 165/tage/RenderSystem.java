@@ -55,8 +55,14 @@ public class RenderSystem extends JFrame implements GLEventListener
 	private int defaultTexture;
 	private String defaultTitle = "default title", title;
 	private int screenSizeX, screenSizeY;
+//below were moved out of display()
+	private LightManager lm;
+	private GL4 gl;
+	private Vector<GameObject> q;
+	private GameObject go;
 
 	private ArrayList<TextureImage> textures = new ArrayList<TextureImage>();
+
 	private ArrayList<ObjShape> shapes = new ArrayList<ObjShape>();
 	private LinkedHashMap<String, Viewport> viewportList = new LinkedHashMap<String, Viewport>();
 
@@ -179,6 +185,9 @@ public class RenderSystem extends JFrame implements GLEventListener
 	protected void startGameLoop()
 	{	setTitle(title);
 		Animator animator = new Animator(myCanvas);
+
+		rq = new RenderQueue(engine.getSceneGraph().getRoot());
+
 		animator.start();
 	}
 
@@ -189,14 +198,14 @@ public class RenderSystem extends JFrame implements GLEventListener
 	* The game application should NOT call this function directly.
 	*/
 	public void display(GLAutoDrawable drawable)
-	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+	{	gl = (GL4) GLContext.getCurrentGL();
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 
 		(engine.getGame()).update();
 		(engine.getSceneGraph()).applyNodeControllers();
 
-		LightManager lm = engine.getLightManager();
+		lm = engine.getLightManager();
 		if (lm.getHasChanged())
 			lm.loadLightArraySSBO();
 		else
@@ -217,13 +226,15 @@ public class RenderSystem extends JFrame implements GLEventListener
 			{	objectRendererSkyBox.render((engine.getSceneGraph()).getSkyBoxObject(), skyboxProgram, pMat, vMat);
 			}
 
-			rq = new RenderQueue((engine.getSceneGraph()).getRoot());
-			Vector<GameObject> q = rq.createStandardQueue();
+//			rq = new RenderQueue((engine.getSceneGraph()).getRoot());
+			rq.requeue(engine.getSceneGraph().getRoot());
+//			Vector<GameObject> q = rq.createStandardQueue(); //could put this globally and call q.clear() at end of display()
+			q = rq.createStandardQueue(); 
 
 			// render the graphics objects unless this has been disabled
 			if (engine.willRenderGraphicsObjects())
 			{	for (int i = 0; i < q.size(); i++)
-				{	GameObject go = q.get(i);
+				{	go = q.get(i); //global game object to pull out of 
 					if ((go.getRenderStates()).renderingEnabled())
 					{	if ((go.getShape()).getPrimitiveType() < 3)
 						{	objectRendererLine.render(go, lineProgram, pMat, vMat);
@@ -236,7 +247,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 							// if hidden faces are rendered, render a second time with opposite winding order
 							if ((go.getRenderStates()).willRenderHiddenFaces()) 
 							{	(go.getShape()).toggleWindingOrder();
-								objectRendererStandard.render(go, renderingProgram, pMat, vMat);
+									objectRendererStandard.render(go, renderingProgram, pMat, vMat);
 								(go.getShape()).toggleWindingOrder();
 							}
 						}
@@ -249,7 +260,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 			{	Vector<GameObject> physicsQueue = (engine.getSceneGraph()).getPhysicsRenderables();
 				gl.glClear(GL_DEPTH_BUFFER_BIT);
 				for (int i = 0; i < physicsQueue.size(); i++)
-				{	GameObject go = physicsQueue.get(i);
+				{	go = physicsQueue.get(i);
 		
 					Matrix4f mat = new Matrix4f();
 					Matrix4f mat2 = new Matrix4f().identity();
@@ -272,6 +283,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 		}
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		(engine.getHUDmanager()).drawHUDs();
+		q.clear();
 	}
 	
 	private float[] toFloatArray(double[] arr)
@@ -285,7 +297,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 	}
 
 	private void constructViewport(Viewport vp)
-	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+	{	gl = (GL4) GLContext.getCurrentGL();
 
 		gl.glEnable(GL_SCISSOR_TEST);
 		gl.glScissor((int)(vp.getRelativeLeft()*canvasWidth),
@@ -294,6 +306,8 @@ public class RenderSystem extends JFrame implements GLEventListener
 			(int)vp.getActualHeight());
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
+//TODO: make sure this is the right place to put this from tech tips 3/5/25
+		gl.glDisable(GL_SCISSOR_TEST);
 
 		if (vp.getHasBorder())
 		{	int borderWidth = vp.getBorderWidth();
@@ -332,7 +346,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 	* The game application should NOT call this function directly.
 	*/
 	public void init(GLAutoDrawable drawable)
-	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+	{	gl = (GL4) GLContext.getCurrentGL();
 		gl.glEnable(GL_MULTISAMPLE);
 	
 		renderingProgram = Utils.createShaderProgram("assets/shaders/StandardVert.glsl",
@@ -386,7 +400,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 
 	// loads the vertices, tex coords, and normals into three VBOs.
 	private void loadVBOs()
-	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+	{	gl = (GL4) GLContext.getCurrentGL();
 
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
@@ -451,7 +465,7 @@ public class RenderSystem extends JFrame implements GLEventListener
 
 	/** get height map height at the specified texture coordinate (x,z). */
 	public float getHeightAt(int texture, float x, float z)
-	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+	{	gl = (GL4) GLContext.getCurrentGL();
 		gl.glUseProgram(heightProgram);
 		gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, buffer[0]);
 

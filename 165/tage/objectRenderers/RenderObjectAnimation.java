@@ -36,6 +36,9 @@ public class RenderObjectAnimation
 	private int hasSolidColor, hasTex, thisTexture, defaultTexture, tiling, tilingOption, tileFactor, heightMapped;
 	private int isEnvMapped, hasLighting, activeSkyBoxTexture, heightMapTexture;
 
+	private int csLoc, hasColorSplash;
+	
+
 	/** for engine use only. */
 	public RenderObjectAnimation(Engine e)
 	{	engine = e;
@@ -71,6 +74,8 @@ public class RenderObjectAnimation
 		mspecLoc = gl.glGetUniformLocation(renderingProgram, "material.specular");
 		mshiLoc = gl.glGetUniformLocation(renderingProgram, "material.shininess");
 
+		csLoc = gl.glGetUniformLocation(renderingProgram, "colorSplashPointer");
+
 		mMat.identity();
 		mMat.mul(go.getWorldTranslation());
 		mMat.mul(go.getWorldRotation());
@@ -100,6 +105,15 @@ public class RenderObjectAnimation
 			hasLighting = 1;
 		else
 			hasLighting = 0;
+
+		if (go.getRenderStates().hasPositionalColor()){
+			hasTex = 0;
+			hasColorSplash = 1;
+		}
+		else{
+			hasTex = 1;
+			hasColorSplash = 0;
+		}
 		
 		gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, (engine.getLightManager()).getLightSSBO());
 
@@ -115,6 +129,9 @@ public class RenderObjectAnimation
 		gl.glUniform1i(eLoc, isEnvMapped);
 		gl.glUniform1i(oLoc, hasLighting);
 		gl.glUniform1i(sLoc, hasSolidColor);
+
+		gl.glUniform1i(csLoc, hasColorSplash);
+
 		gl.glUniform3fv(cLoc, 1, ((go.getRenderStates()).getColor()).get(vals));
 		gl.glUniform1i(hLoc, heightMapped);
 		tileFactor = (go.getRenderStates()).getTileFactor();

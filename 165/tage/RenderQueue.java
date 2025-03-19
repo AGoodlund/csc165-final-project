@@ -21,7 +21,11 @@ public class RenderQueue
 	{	queue = new Vector<GameObject>();
 		root = r;
 	}
-
+/** Added this to avoid having to remake the vector every frame in RenderSystem.display() */
+protected void requeue(GameObject r){
+	queue.clear();
+	root = r;
+}
 	// A standard queue includes all of the game objects.
 	// It is built by starting at the root and traversing all of the
 	// children and their descendents, adding them to the queue.

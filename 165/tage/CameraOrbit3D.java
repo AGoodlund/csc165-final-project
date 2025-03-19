@@ -87,16 +87,14 @@ cam.setLocation(new Vector3f(getX(phi, theta), getY(theta), getZ(phi, theta)).ad
 cam.lookAt(focus);*/
 
             avatarRot = focus.getWorldForwardVector();
-            avatarAngle = Math.toDegrees((double)
-            avatarRot.angleSigned(new Vector3f(0,0,-1), new Vector3f(0,1,0)));
+            avatarAngle = Math.toDegrees((double)avatarRot.angleSigned(new Vector3f(0,0,-1), new Vector3f(0,1,0)));
             totalAz = a - (float)avatarAngle;
             theta = Math.toRadians(totalAz);
             phi = Math.toRadians(e);
             x = r * (float)(Math.cos(phi) * Math.sin(theta));
             y = r * (float)(Math.sin(phi));
             z = r * (float)(Math.cos(phi) * Math.cos(theta));
-            cam.setLocation(new
-            Vector3f(x,y,z).add(focus.getWorldLocation()));
+            cam.setLocation(new Vector3f(x,y,z).add(focus.getWorldLocation()));
             cam.lookAt(focus);
 
     }

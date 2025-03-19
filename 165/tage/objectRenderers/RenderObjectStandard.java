@@ -34,6 +34,8 @@ public class RenderObjectStandard
 	private int hasSolidColor, hasTex, thisTexture, defaultTexture, tiling, tilingOption, tileFactor, heightMapped;
 	private int isEnvMapped, hasLighting, activeSkyBoxTexture, heightMapTexture;
 
+	private int csLoc, hasColorSplash;
+
 	/** for engine use only. */
 	public RenderObjectStandard(Engine e)
 	{	engine = e;
@@ -63,6 +65,8 @@ public class RenderObjectStandard
 		mdiffLoc = gl.glGetUniformLocation(renderingProgram, "material.diffuse");
 		mspecLoc = gl.glGetUniformLocation(renderingProgram, "material.specular");
 		mshiLoc = gl.glGetUniformLocation(renderingProgram, "material.shininess");
+
+		csLoc = gl.glGetUniformLocation(renderingProgram, "colorSplashPointer");
 		
 		mMat.identity();
 		mMat.mul(go.getWorldTranslation());
@@ -76,6 +80,15 @@ public class RenderObjectStandard
 		}
 		else
 		{	hasSolidColor = 0;
+			hasTex = 1;
+		}
+
+		if (go.getRenderStates().hasPositionalColor()){
+			hasColorSplash = 1;
+			hasTex = 0;
+		}
+		else{
+			hasColorSplash = 0;
 			hasTex = 1;
 		}
 
@@ -108,6 +121,9 @@ public class RenderObjectStandard
 		gl.glUniform1i(eLoc, isEnvMapped);
 		gl.glUniform1i(oLoc, hasLighting);
 		gl.glUniform1i(sLoc, hasSolidColor);
+		
+		gl.glUniform1i(csLoc, hasColorSplash);
+
 		gl.glUniform3fv(cLoc, 1, ((go.getRenderStates()).getColor()).get(vals));
 		gl.glUniform1i(hLoc, heightMapped);
 		tileFactor = (go.getRenderStates()).getTileFactor();
