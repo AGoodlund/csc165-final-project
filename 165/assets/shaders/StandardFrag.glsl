@@ -179,12 +179,13 @@ void main(void)
 			tcolor = texture(t,r);
 			fragColor = min((tcolor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 		}
+		else if (colorSplashPointer == 1 && has_texture == 0){
+//This is just a reflective grey no matter what. Need to figure out what's causing that
+//			fragColor = min((varyingColor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
+			fragColor = min(varyingColor * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
+		}
 		else if (has_texture == 0)
 		{	fragColor = min(0.5 * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
-		}
-		else if (colorSplashPointer == 1){
-//This is just a reflective grey no matter what. Need to figure out what's causing that
-			fragColor = min((varyingColor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 		}
 		else
 		{	tcolor = texture(samp, tc);

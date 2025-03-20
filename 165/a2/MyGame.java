@@ -109,6 +109,8 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalScale(initialScale);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(180f));//135.0f));
 		avatar.setLocalRotation(initialRotation);
+		avatar.getRenderStates().setPositionalColor(true);
+//		avatar.getRenderStates().hasLighting(false);
  
 		//build cube
 		cube = new GameObject(GameObject.root(), cubeS, cubeX);
@@ -117,6 +119,8 @@ public class MyGame extends VariableFrameRateGame
 		cube.setLocalTranslation(initialTranslation);
 		cube.setLocalScale(initialScale);
 		disarmables.add(cube);
+//		cube.getRenderStates().setPositionalColor(true);
+//		cube.getRenderStates().hasLighting(false);
  
 		//build torus
 		torus = new GameObject(GameObject.root(), torusS, torusX);
@@ -126,6 +130,9 @@ public class MyGame extends VariableFrameRateGame
 		torus.setLocalScale(initialScale);
 		torus.getRenderStates().setTiling(1);	//this looks weird. Check setTiling function to figure out what's wrong
 		disarmables.add(torus);
+		torus.getRenderStates().disableRendering();
+//		torus.getRenderStates().setPositionalColor(true);
+//		torus.getRenderStates().hasLighting(false);
 
 		//build sphere
 		sphere = new GameObject(GameObject.root(), sphereS, sphereX);
@@ -134,21 +141,23 @@ public class MyGame extends VariableFrameRateGame
 		sphere.setLocalTranslation(initialTranslation);
 		sphere.setLocalScale(initialScale);
 		disarmables.add(sphere);
+//		sphere.getRenderStates().setPositionalColor(true);
+//		sphere.getRenderStates().hasLighting(false);
 
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
 //			crystal.getRenderStates().setColor(teal).setHasSolidColor(true);
 //			crystal.getRenderStates().setHasSolidColor(true);
-		initialTranslation = (new Matrix4f()).translation(0f,2f,0f);
-		initialScale = (new Matrix4f()).scaling(1f);
+		initialTranslation = (new Matrix4f()).translation(0f,3f,-2f);
+		initialScale = (new Matrix4f()).scaling(2f);
 		crystal.setLocalTranslation(initialTranslation);
 		crystal.setLocalScale(initialScale);
 		crystal.getRenderStates().setPositionalColor(true);
-		crystal.getRenderStates().hasLighting(false);			//TODO: Once PositionalColor works with lighting this won't be needed
+//		crystal.getRenderStates().hasLighting(false);			//TODO: Once PositionalColor works with lighting this won't be needed
 
-		crystal.setParent(torus);
-		crystal.propagateScale(false);
-		crystal.propagateTranslation(true);
+//		crystal.setParent(torus);
+//		crystal.propagateScale(false);
+//		crystal.propagateTranslation(true);
 
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
@@ -168,6 +177,9 @@ public class MyGame extends VariableFrameRateGame
 		ground.setLocalScale(initialScale);
 		ground.getRenderStates().setTiling(2);
 		ground.getRenderStates().setTileFactor(100);
+		ground.getRenderStates().disableRendering();
+//ground.getRenderStates().setPositionalColor(true);
+//ground.getRenderStates().hasLighting(false);
 	}
 
 	@Override
@@ -187,7 +199,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void createViewports(){	//code directly from https://csus.instructure.com/courses/130924/files/22876803?module_item_id=6834558 
 		engine.getRenderSystem().addViewport("MAIN",0f,0f,1f,1f);
-		engine.getRenderSystem().addViewport("MAP", .75f, 0f, .25f, .25f);
+//		engine.getRenderSystem().addViewport("MAP", .75f, 0f, .25f, .25f);
 
 		Viewport main = engine.getRenderSystem().getViewport("MAIN");
 		Camera mainCam = main.getCamera();
@@ -196,7 +208,7 @@ public class MyGame extends VariableFrameRateGame
 		mainCam.setV(new Vector3f(spot.y));
 		mainCam.setN(new Vector3f(spot.z));
 
-		Viewport map = engine.getRenderSystem().getViewport("MAP");
+/* 		Viewport map = engine.getRenderSystem().getViewport("MAP");
 		Camera mapCam = map.getCamera();
 		map.setHasBorder(true);
 		map.setBorderWidth(4);
@@ -205,7 +217,7 @@ public class MyGame extends VariableFrameRateGame
 		mapCam.setU(new Vector3f(spot.x));
 		mapCam.setV(new Vector3f(spot.z));
 		mapCam.setN(new Vector3f(0,-1,0));
-	}
+*/	}
 	@Override
 	public void initializeGame()
 	{	lastFrameTime = System.currentTimeMillis();
@@ -231,7 +243,7 @@ public class MyGame extends VariableFrameRateGame
 		rc = new RotationController(engine, new Vector3f(0,1,0), .001f);
 		engine.getSceneGraph().addNodeController(rc);
 		rc.addTarget(torus);
-//		rc.addTarget(crystal);
+		rc.addTarget(crystal);
 		rc.addTarget(sphere);
 		rc.addTarget(cube);
 		rc.toggle();
@@ -242,14 +254,14 @@ public class MyGame extends VariableFrameRateGame
 		roll.toggle();
 
 		//All things are supposed to default to no motion and only start moving once disarmed
-			Camera mapCam = engine.getRenderSystem().getViewport("MAP").getCamera();
+/* 			Camera mapCam = engine.getRenderSystem().getViewport("MAP").getCamera();
 			ForBAction mapZoomIn = new ForBAction(mapCam, 1, .25f);
 			ForBAction mapZoomOut = new ForBAction(mapCam, -1);
 			UorDMoveAction mapMoveUp = new UorDMoveAction(mapCam, 1);
 			UorDMoveAction mapMoveBack = new UorDMoveAction(mapCam, -1);
 			LorRStrafeAction mapMoveLeft = new LorRStrafeAction(mapCam, -1);
 			LorRStrafeAction mapMoveRight = new LorRStrafeAction(mapCam, 1);
-			DisarmAction disarm = new DisarmAction(avatar, disarmables, roll, rc);
+*/			DisarmAction disarm = new DisarmAction(avatar, disarmables, roll, rc);
 			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 
 //avatar movement
@@ -276,7 +288,7 @@ public class MyGame extends VariableFrameRateGame
 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, disarm, 
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.I, mapMoveUp, 
+/* 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.I, mapMoveUp, 
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.K, mapMoveBack,
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -290,7 +302,7 @@ public class MyGame extends VariableFrameRateGame
 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.O, mapZoomOut,
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 //		}
-		if(gamepad != null){	//if a gamepad is plugged in
+*/		if(gamepad != null){	//if a gamepad is plugged in
 			LorRTurnAction rc = new LorRTurnAction(this, -1);
 			ForBAction fc = new ForBAction(this, -1);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc,		//Axis.X/Y are the left joystick
@@ -306,7 +318,7 @@ public class MyGame extends VariableFrameRateGame
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._7, disarm, 
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
   
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._3, mapMoveUp, 
+/* 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._3, mapMoveUp, 
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._0, mapMoveBack, 
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -319,7 +331,7 @@ public class MyGame extends VariableFrameRateGame
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._5, mapZoomOut, 
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		}
+*/		}
 
 
 
@@ -379,7 +391,7 @@ public class MyGame extends VariableFrameRateGame
 
 		engine.getHUDmanager().setHUDValue(HUDscore, dispStr1);
 		engine.getHUDmanager().setHUDValue(HUDCoords, dispStr2);
-		engine.getHUDmanager().setHUDPosition(HUDCoords, findViewportMiddleX("MAP", dispStr2), 15);
+//		engine.getHUDmanager().setHUDPosition(HUDCoords, findViewportMiddleX("MAP", dispStr2), 15);
 		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
 //--------------Game----------------
 		spaceCheck();

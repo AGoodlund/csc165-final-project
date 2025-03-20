@@ -2,6 +2,7 @@ package tage;
 import org.joml.*;
 import java.util.*;
 import tage.shapes.*;
+import java.lang.Math;
 
 /**
 * ObjShape holds the raw vertex data for an object.
@@ -34,6 +35,11 @@ public abstract class ObjShape
 	private float[] matAmb, matDif, matSpe;
 	private float matShi;
 
+
+//	protected float xMax=1, yMax=1, zMax=1;
+//	private float scalarX=1, scalarY=1, scalarZ=1;
+
+
 	/** Instantiates an ObjShape and automatically adds it to the render system's list of shapes. */
 	public ObjShape()
 	{	matAmb = new float[4];
@@ -49,6 +55,37 @@ public abstract class ObjShape
 
 	protected void setNumVertices(int n) { numVertices = n; }
 
+	/* 
+//-------------------------------fill X/Y/Z scalars
+	protected float[] getScalars(){ return new float[] {xMax*scalarX, yMax*scalarY, zMax*scalarZ}; }		//get the numbers that need to be divided by to put the model matrix points between -1 and 1
+
+	protected void updateScalars(Matrix4f localScale){		//the diagonal of the scale matrix is where X, Y, and Z scales are kept
+		if(scalarX != localScale.m00()) scalarX *= localScale.m00();
+		if(scalarY != localScale.m11()) scalarY *= localScale.m11();
+		if(scalarZ != localScale.m22()) scalarZ*= localScale.m22();
+	}
+
+** find the maximum values in the X, Y, and Z directions of an object. Only call during initialization *
+	protected void findMax(float[] vertices){
+		int size = vertices.length;
+
+		for(int i = 0; i < size; i += 3){
+			if(xMax < Math.abs(vertices[i])) xMax = Math.abs(vertices[i]);
+			if(yMax < Math.abs(vertices[i+1])) yMax = Math.abs(vertices[i+1]);
+			if(zMax < Math.abs(vertices[1+2])) zMax = Math.abs(vertices[i+2]);
+		}
+	}
+** find the maximum values in the X, Y, and Z directions of an object. Only call during initialization *
+	protected void findMax(Vector3f[] vertices){
+		float[] floatVerts = new float[vertices.length*3];
+		for(int i = 0; i < vertices.length; i++){
+			floatVerts[i*3] = vertices[i].x();
+			floatVerts[i*3+1] = vertices[i].y();
+			floatVerts[i*3+2] = vertices[i].z();
+		}
+		findMax(floatVerts);
+	}
+*/
 	//------------- SETTERS FOR NON-INDEXED MODELS--------------------
 
 	// Loads vertex data for non-indexed models.

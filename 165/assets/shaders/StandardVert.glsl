@@ -84,16 +84,4 @@ void main(void)
 //	varyingColor = p_matrix * v_matrix * m_matrix * vec4(vertPos,1.0);		//getting there. changes color as the object moves from one half of the screen to another
 //	varyingColor = vec4();
 	//whatever holds the location on the screen put into vec4(vertPos,1.0)*0.5 + vec4(0.5, 0.5, 0.5, 0.5);
-
-
-//if all goes well this should allow for positional coloring of objects
-	//vertPos is in model space. Need to scale it to be between -1 and 1
-		//prof says this would mostly be done in setupVertices() and then piped in as a vertex attribute
-		//position only worked in TumblingCube because it was only x/y values with a static z
-//TODO: have an automatic thing that can make an object scalar that would scale GameObject's x,y,z
-	//get's the largest and smallest x, y, and z values and scales everything to be from -1-1
-//uniform int modelScalar; vec4(verPos*modelScalar, 1.0)*.5 + vec4(.5,.5,.5,.5);
-	//ObjShape is the class that all of the shapes are in so it can be used from there
-		//divide every point by it's largest value? TEST IT
-			//xMax, yMax, zMax that finds the largest abs() of x, y, and z and divides vertPos.x/.y/.z by that amount 
 }
