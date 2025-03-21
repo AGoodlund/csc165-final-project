@@ -17,8 +17,9 @@ import javax.swing.*;
 import org.joml.*; 
 import tage.nodeControllers.*;
 import tage.networking.IGameConnection.ProtocolType;
-import tage.networking.client.*;
-
+import tage.networking.ProtocolClient;
+import tage.networking.client.GhostManager;
+//TODO: networking doesn't work here, but the example works fine. Might need to drop the files from the example directly into the 165 folder and change run.bat to run a2.MyGame
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
