@@ -16,8 +16,6 @@ import java.io.*;
 import javax.swing.*;
 import org.joml.*; 
 import tage.nodeControllers.*;
-import tage.rml.Matrix4f;
-import tage.rml.Vector3f;
 import tage.networking.IGameConnection.ProtocolType;
 import tage.networking.client.*;
 
