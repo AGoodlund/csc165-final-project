@@ -7,6 +7,8 @@ import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 import tage.shapes.*;
 import java.lang.Math;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,6 +16,10 @@ import java.io.*;
 import javax.swing.*;
 import org.joml.*; 
 import tage.nodeControllers.*;
+import tage.rml.Matrix4f;
+import tage.rml.Vector3f;
+import tage.networking.IGameConnection.ProtocolType;
+import tage.networking.client.*;
 
 public class MyGame extends VariableFrameRateGame
 {
@@ -52,12 +58,45 @@ public class MyGame extends VariableFrameRateGame
 	private RollController roll;
 	private InputManager im;
 
+//-------------Networking----------------
+
+	private GhostManager gm;
+	private String serverAddress;
+	private int serverPort;
+	private ProtocolType serverProtocol;
+	private ProtocolClient protClient;
+	private boolean isClientConnected = false;
+	private ObjShape ghostS;
+	private TextureImage ghostT;
+
+
 	public MyGame() { super(); }
+	public MyGame(String serverAddress, int serverPort, String protocol)
+	{	super();
+		gm = new GhostManager(this);
+		this.serverAddress = serverAddress;
+		this.serverPort = serverPort;
+		if (protocol.toUpperCase().compareTo("TCP") == 0)
+			this.serverProtocol = ProtocolType.TCP;
+		else
+			this.serverProtocol = ProtocolType.UDP;
+	}
+
 	public GameObject getAvatar(){ return avatar; }
 	
 
-	public static void main(String[] args)
+/* 	public static void main(String[] args)
 	{	MyGame game = new MyGame();
+		engine = new Engine(game);
+		game.initializeSystem();
+		game.game_loop();
+	}*/
+	public static void main(String[] args){	
+		MyGame game;
+		if(args.length == 0)
+			game = new MyGame();
+		else
+			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -66,7 +105,9 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
- 
+		ghostS = new ImportedModel("dolphinHighPoly.obj");
+//		dolS = new ImportedModel("dolphinLowPoly.obj");
+
 		cubeS = new Cube();
  		sphereS = new Sphere();
 		torusS = new Torus(0.5f, 0.2f, 48);
@@ -82,6 +123,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadTextures()
 	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
+		ghostT = new TextureImage("oiter.png");
  
 		cubeX = new TextureImage("MUSHROOMS.png");
 		cubeClose = new TextureImage("flower.png");
@@ -130,8 +172,8 @@ public class MyGame extends VariableFrameRateGame
 		torus.setLocalScale(initialScale);
 		torus.getRenderStates().setTiling(1);	//this looks weird. Check setTiling function to figure out what's wrong
 		disarmables.add(torus);
-		torus.getRenderStates().disableRendering();
-//		torus.getRenderStates().setPositionalColor(true);
+//		torus.getRenderStates().disableRendering();
+		torus.getRenderStates().setPositionalColor(true);
 //		torus.getRenderStates().hasLighting(false);
 
 		//build sphere
@@ -153,7 +195,6 @@ public class MyGame extends VariableFrameRateGame
 		crystal.setLocalTranslation(initialTranslation);
 		crystal.setLocalScale(initialScale);
 		crystal.getRenderStates().setPositionalColor(true);
-//		crystal.getRenderStates().hasLighting(false);			//TODO: Once PositionalColor works with lighting this won't be needed
 
 //		crystal.setParent(torus);
 //		crystal.propagateScale(false);
@@ -247,6 +288,7 @@ public class MyGame extends VariableFrameRateGame
 		rc.addTarget(sphere);
 		rc.addTarget(cube);
 		rc.toggle();
+//		rc.setSpeed(1f);
 
 		roll = new RollController(.001f);
 		engine.getSceneGraph().addNodeController(roll);
@@ -331,7 +373,8 @@ public class MyGame extends VariableFrameRateGame
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._5, mapZoomOut, 
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-*/		}
+*/			setupNetworking();
+		}
 
 
 
@@ -398,6 +441,7 @@ public class MyGame extends VariableFrameRateGame
 		changeCheck();
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
+		processNetworking((float)elapsTime);
 	}
 
 /*
@@ -515,5 +559,50 @@ public class MyGame extends VariableFrameRateGame
 			cube.setTextureImage(cubeSafe);
 		if(torus.disarmed && torus.getTextureImage().getTexture() != torusSafe.getTexture())
 			torus.setTextureImage(torusSafe);
+	}
+
+		// ---------- NETWORKING SECTION ----------------
+
+	public ObjShape getGhostShape() { return ghostS; }
+	public TextureImage getGhostTexture() { return ghostT; }
+	public GhostManager getGhostManager() { return gm; }
+	public Engine getEngine() { return engine; }
+	
+	private void setupNetworking()
+	{	isClientConnected = false;	
+		try 
+		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		} 	catch (UnknownHostException e) 
+		{	e.printStackTrace();
+		}	catch (IOException e) 
+		{	e.printStackTrace();
+		}
+		if (protClient == null)
+		{	System.out.println("missing protocol host");
+		}
+		else
+		{	// Send the initial join message with a unique identifier for this client
+			System.out.println("sending join message to protocol host");
+			protClient.sendJoinMessage();
+		}
+	}
+	
+	protected void processNetworking(float elapsTime)
+	{	// Process packets received by the client from the server
+		if (protClient != null)
+			protClient.processPackets();
+	}
+
+	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
+
+	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+	
+	private class SendCloseConnectionPacketAction extends AbstractInputAction
+	{	@Override
+		public void performAction(float time, net.java.games.input.Event evt) 
+		{	if(protClient != null && isClientConnected == true)
+			{	protClient.sendByeMessage();
+			}
+		}
 	}
 }

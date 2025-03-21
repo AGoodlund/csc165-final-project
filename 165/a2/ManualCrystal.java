@@ -19,12 +19,12 @@ public class ManualCrystal extends ManualObject{	//0 in the middle of the centra
 		0f,.75f,	.25f,.75f,	.125f,1f,
 		0f,.75f,	.25f,.75f,	.125f,1f,
 		0f,.75f,	.25f,.75f,	.125f,1f,
-		0f,.75f,	.25f,.75f,	.125f,0f,	//this for all bottom faces
+		0f,.75f,	.25f,.75f,	.125f,0f,	//this for all bottom faces 
 		0f,.75f,	.25f,.75f,	.125f,0f,
 		0f,.75f,	.25f,.75f,	.125f,0f,
 		0f,.75f,	.25f,.75f,	.125f,0f
 	};
-	public float [] normals = {	//THERE ARE 3 NORMALS PER VERTEX: 1:1 WITH verts.length
+	public float [] normals = {						//THERE ARE 3 NORMALS PER VERTEX: 1:1 WITH verts.length
 		-1f,1f,-1f,	-1f,1f,-1f,	-1f,1f,-1f,
 			//1,1,0 x 1,0,-1
 		1f,1f,-1f,	1f,1f,-1f,	1f,1f,-1f,
