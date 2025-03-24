@@ -1,4 +1,4 @@
-package tage.networking;
+package tage.networking.client;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -8,11 +8,9 @@ import java.util.UUID;
 import java.util.Vector;
 import org.joml.*;
 
-import a2.MyGame;
-import tage.networking.client.GhostManager;
-
 import tage.*;
 import tage.networking.client.GameConnectionClient;
+import a2.MyGame;
 
 public class ProtocolClient extends GameConnectionClient
 {

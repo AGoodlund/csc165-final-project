@@ -17,7 +17,7 @@ import javax.swing.*;
 import org.joml.*; 
 import tage.nodeControllers.*;
 import tage.networking.IGameConnection.ProtocolType;
-import tage.networking.ProtocolClient;
+import tage.networking.client.ProtocolClient;
 import tage.networking.client.GhostManager;
 //TODO: networking doesn't work here, but the example works fine. Might need to drop the files from the example directly into the 165 folder and change run.bat to run a2.MyGame
 public class MyGame extends VariableFrameRateGame
@@ -69,7 +69,7 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage ghostT;
 
 
-	public MyGame() { super(); }
+	public MyGame() { super(); System.out.println("Single Player boot up"); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
@@ -79,6 +79,7 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.TCP;
 		else
 			this.serverProtocol = ProtocolType.UDP;
+		System.out.println("Networking booting up");
 	}
 
 	public GameObject getAvatar(){ return avatar; }
@@ -304,7 +305,7 @@ public class MyGame extends VariableFrameRateGame
 			LorRStrafeAction mapMoveRight = new LorRStrafeAction(mapCam, 1);
 */			DisarmAction disarm = new DisarmAction(avatar, disarmables, roll, rc);
 			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
-
+//TODO: send protClient to movement actions so that the class can call ProtocolClient.sendMoveMessage(getWorldLocation());
 //avatar movement
 //		if(gamepad == null){	//if no gamepad is plugged in
 //https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
@@ -438,6 +439,7 @@ public class MyGame extends VariableFrameRateGame
 //--------------Game----------------
 		spaceCheck();
 		changeCheck();
+
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
 		processNetworking((float)elapsTime);
@@ -571,6 +573,7 @@ public class MyGame extends VariableFrameRateGame
 	{	isClientConnected = false;	
 		try 
 		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+//TODO: find out why this returns null. some work done on ECS-DonkeyKong
 		} 	catch (UnknownHostException e) 
 		{	e.printStackTrace();
 		}	catch (IOException e) 
@@ -590,6 +593,8 @@ public class MyGame extends VariableFrameRateGame
 	{	// Process packets received by the client from the server
 		if (protClient != null)
 			protClient.processPackets();
+		else
+			System.out.println("protClient is null");
 	}
 
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
