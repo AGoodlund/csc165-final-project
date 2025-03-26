@@ -7,30 +7,31 @@ import net.java.games.input.Event;
 import org.joml.*;
 
 public class ForBAction extends AbstractInputAction {    //move camera+avatar forward
-    private GameObject obj;
-    private Camera cam;
-    private int direction;
-    private boolean keyboard;
+    private GameObject obj = null;
+    private Camera cam = null;
+    private int direction = 1;
+    private boolean keyboard = false;
     private float keyValue;
     private float limit;
+    private ProtocolClient protClient = null;
 
     private Vector3f oldPos, newPos, fwdDir;
     
 /** Constructor for camera and avatar movign in sync without keyboard */
-    public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); keyboard = false; }
+    public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
 /** Constructor for avatar moving independently without keyboard */
-    public ForBAction(MyGame g){ cam = null; obj = g.getAvatar(); keyboard = false; }
+    public ForBAction(MyGame g){ obj = g.getAvatar(); }
 /** Constructor for Camera moving independently without keyboard */
-    public ForBAction(Camera c){ cam = c; obj = null; keyboard = false;  } 
+    public ForBAction(Camera c){ cam = c; } 
 
 /** Constructor for camera and avatar movign in sync with keyboard */
     public ForBAction(MyGame g, Camera c, int dir){ cam = c; obj = g.getAvatar(); direction = dir; keyboard = true; }
 /** Constructor for avatar moving independently with keyboard */
-    public ForBAction(MyGame g, int dir){ cam = null; obj = g.getAvatar(); direction = dir; keyboard = true; }
+    public ForBAction(MyGame g, int dir){ obj = g.getAvatar(); direction = dir; keyboard = true; }
 /** Constructor for Camera moving independently with keyboard */
-    public ForBAction(Camera c, int dir){ cam = c; obj = null; direction = dir; keyboard = true; }
-
-    public ForBAction(Camera c, int dir, float limitPlane){ cam = c; obj = null; direction = dir; keyboard = true; limit = limitPlane; } //TODO: contemplate if this is needed
+    public ForBAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; }
+    
+    public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
 
 @Override
     public void performAction(float time, Event e){
@@ -60,6 +61,9 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             fwdDir.mul(time*spot.runSpeed*keyValue);
             obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
         }
+        
+        if(protClient != null)
+            protClient.sendMoveMessage(obj.getWorldLocation());
 
 /*      this moves the dolphin and not the camera so cam has to be tied to dolphin explicitely
         object = game.getAvatar();

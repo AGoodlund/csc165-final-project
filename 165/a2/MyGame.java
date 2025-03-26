@@ -1,30 +1,38 @@
 package a2;
 
 import tage.*;
+import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
+
+import java.lang.Math;
+import java.awt.*;
+
+import java.awt.event.*;
+
+import java.io.*;
+import java.util.*;
+import java.util.UUID;
+import java.net.InetAddress;
+
+import java.net.UnknownHostException;
+
+import org.joml.*; 
+
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
-import tage.shapes.*;
-import java.lang.Math;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import javax.swing.*;
-import org.joml.*; 
-import tage.nodeControllers.*;
 import tage.networking.IGameConnection.ProtocolType;
-import tage.networking.client.ProtocolClient;
-import tage.networking.client.GhostManager;
-//TODO: networking doesn't work here, but the example works fine. Might need to drop the files from the example directly into the 165 folder and change run.bat to run a2.MyGame
+
+import java.util.ArrayList;
+import javax.swing.*;
+import tage.nodeControllers.*;
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
 	private Camera cam;
 	private CameraOrbit3D orb;
+	private InputManager im;
 
 	private ArrayList<GameObject> hideableShapes = new ArrayList<GameObject>();
 	private ArrayList<GameObject> disarmables = new ArrayList<GameObject>();
@@ -55,7 +63,6 @@ public class MyGame extends VariableFrameRateGame
 	private Matrix4f initialRotation;
 	private RotationController rc;
 	private RollController roll;
-	private InputManager im;
 
 //-------------Networking----------------
 
@@ -69,7 +76,7 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage ghostT;
 
 
-	public MyGame() { super(); System.out.println("Single Player boot up"); }
+//	public MyGame() { super(); System.out.println("Single Player boot up"); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
@@ -93,10 +100,10 @@ public class MyGame extends VariableFrameRateGame
 	}*/
 	public static void main(String[] args){	
 		MyGame game;
-		if(args.length == 0)
-			game = new MyGame();
-		else
-			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+//		if(args.length == 0)
+	//		game = new MyGame();
+		//else
+		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -305,12 +312,12 @@ public class MyGame extends VariableFrameRateGame
 			LorRStrafeAction mapMoveRight = new LorRStrafeAction(mapCam, 1);
 */			DisarmAction disarm = new DisarmAction(avatar, disarmables, roll, rc);
 			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
-//TODO: send protClient to movement actions so that the class can call ProtocolClient.sendMoveMessage(getWorldLocation());
+
 //avatar movement
 //		if(gamepad == null){	//if no gamepad is plugged in
 //https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
-			ForBAction forward = new ForBAction(this, 1);			//move actions
-			ForBAction back = new ForBAction(this, -1);
+			ForBAction forward = new ForBAction(this, 1, protClient);			//move actions
+			ForBAction back = new ForBAction(this, -1, protClient);
 			LorRTurnAction left = new LorRTurnAction(this, 1); 			//yaw left and right
 			LorRTurnAction right = new LorRTurnAction(this, -1);
 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, 
@@ -326,7 +333,6 @@ public class MyGame extends VariableFrameRateGame
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 //all three of these need to be sent at the same time or else only the first item assigned to the key is hidden
 
-			
 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, disarm, 
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 
@@ -373,8 +379,11 @@ public class MyGame extends VariableFrameRateGame
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._5, mapZoomOut, 
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-*/			setupNetworking();
+*/			
+         
+//         protClient.sendMoveMessage(avatar.getWorldLocation());
 		}
+         setupNetworking();
 
 
 
@@ -439,13 +448,39 @@ public class MyGame extends VariableFrameRateGame
 //--------------Game----------------
 		spaceCheck();
 		changeCheck();
-
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
+      if(isClientConnected)
+         protClient.sendMoveMessage(avatar.getWorldLocation());
 		processNetworking((float)elapsTime);
 	}
-
 /*
+   	@Override
+	public void keyPressed(KeyEvent e)
+	{	switch (e.getKeyCode())
+		{	case KeyEvent.VK_W:
+			{	Vector3f oldPosition = avatar.getWorldLocation();
+				Vector4f fwdDirection = new Vector4f(0f,0f,1f,1f);
+				fwdDirection.mul(avatar.getWorldRotation());
+				fwdDirection.mul(0.05f);
+				Vector3f newPosition = oldPosition.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
+				avatar.setLocalLocation(newPosition);
+				protClient.sendMoveMessage(avatar.getWorldLocation());
+				break;
+			}
+			case KeyEvent.VK_D:
+			{	Matrix4f oldRotation = new Matrix4f(avatar.getWorldRotation());
+				Vector4f oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
+				Matrix4f rotAroundAvatarUp = new Matrix4f().rotation(-.01f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
+				Matrix4f newRotation = oldRotation;
+				newRotation.mul(rotAroundAvatarUp);
+				avatar.setLocalRotation(newRotation);
+				break;
+			}
+		}
+		super.keyPressed(e);
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) //DO NOT COPY/PASTE SAMPLE CODE FROM PDF! IT BREAKS *EVERYTHNG*
 	{	
@@ -573,7 +608,6 @@ public class MyGame extends VariableFrameRateGame
 	{	isClientConnected = false;	
 		try 
 		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
-//TODO: find out why this returns null. some work done on ECS-DonkeyKong
 		} 	catch (UnknownHostException e) 
 		{	e.printStackTrace();
 		}	catch (IOException e) 
@@ -593,8 +627,8 @@ public class MyGame extends VariableFrameRateGame
 	{	// Process packets received by the client from the server
 		if (protClient != null)
 			protClient.processPackets();
-		else
-			System.out.println("protClient is null");
+      else
+         System.out.println("protClient is null");
 	}
 
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
