@@ -76,7 +76,7 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage ghostT;
 
 
-//	public MyGame() { super(); System.out.println("Single Player boot up"); }
+	public MyGame() { super(); System.out.println("Single Player boot up"); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
@@ -86,7 +86,7 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.TCP;
 		else
 			this.serverProtocol = ProtocolType.UDP;
-		System.out.println("Networking booting up");
+		System.out.println("Multiplayer booting up");
 	}
 
 	public GameObject getAvatar(){ return avatar; }
@@ -100,9 +100,9 @@ public class MyGame extends VariableFrameRateGame
 	}*/
 	public static void main(String[] args){	
 		MyGame game;
-//		if(args.length == 0)
-	//		game = new MyGame();
-		//else
+		if(args.length == 0)
+			game = new MyGame();
+		else
 		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
@@ -635,7 +635,7 @@ public class MyGame extends VariableFrameRateGame
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	
-	private class SendCloseConnectionPacketAction extends AbstractInputAction
+	private class SendCloseConnectionPacketAction extends AbstractInputAction//TODO: this doesn't work
 	{	@Override
 		public void performAction(float time, net.java.games.input.Event evt) 
 		{	if(protClient != null && isClientConnected == true)
