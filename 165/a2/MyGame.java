@@ -70,7 +70,7 @@ public class MyGame extends VariableFrameRateGame
 
 	private GhostManager gm;
 	private String serverAddress;
-	private int serverPort;
+	private int serverPort = -1;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
 	private boolean isClientConnected = false;
@@ -393,7 +393,8 @@ public class MyGame extends VariableFrameRateGame
          
 //         protClient.sendMoveMessage(avatar.getWorldLocation());
 		}
-         setupNetworking();
+		if(serverPort != -1)
+        	setupNetworking();
 
 
 
@@ -460,9 +461,10 @@ public class MyGame extends VariableFrameRateGame
 		changeCheck();
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
-      if(isClientConnected)
-         protClient.sendMoveMessage(avatar.getWorldLocation());
-		processNetworking((float)elapsTime);
+    	if(isClientConnected){
+        	protClient.sendMoveMessage(avatar.getWorldLocation());
+			processNetworking((float)elapsTime);
+		}
 	}
 /*
    	@Override
