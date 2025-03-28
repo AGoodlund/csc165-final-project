@@ -64,6 +64,8 @@ public class MyGame extends VariableFrameRateGame
 	private RotationController rc;
 	private RollController roll;
 
+	private int skybox;
+
 //-------------Networking----------------
 
 	private GhostManager gm;
@@ -266,6 +268,14 @@ public class MyGame extends VariableFrameRateGame
 		mapCam.setV(new Vector3f(spot.z));
 		mapCam.setN(new Vector3f(0,-1,0));
 */	}
+
+	@Override
+	public void loadSkyBoxes(){
+		skybox = engine.getSceneGraph().loadCubeMap(spot.skyboxFile);
+		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
+		engine.getSceneGraph().setSkyBoxEnabled(true);
+	}
+
 	@Override
 	public void initializeGame()
 	{	lastFrameTime = System.currentTimeMillis();
@@ -635,7 +645,7 @@ public class MyGame extends VariableFrameRateGame
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	
-	private class SendCloseConnectionPacketAction extends AbstractInputAction//TODO: this doesn't work
+	private class SendCloseConnectionPacketAction extends AbstractInputAction
 	{	@Override
 		public void performAction(float time, net.java.games.input.Event evt) 
 		{	if(protClient != null && isClientConnected == true)
