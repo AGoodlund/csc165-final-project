@@ -18,6 +18,9 @@ public class spot {
 
 //---------------------------   Axes        ---------------------------
     public static float[] x = {1f,0f,0f}, y = {0f,1f,0f}, z = {0f,0f,-1f}; //-1 for z because that's default
+
+//---------------------------   Textures    ---------------------------
+    public static String skyboxFile = "lakeIslands";//, avatarTexture, groundTexture;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name

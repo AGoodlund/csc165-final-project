@@ -64,6 +64,8 @@ public class MyGame extends VariableFrameRateGame
 	private RotationController rc;
 	private RollController roll;
 
+	private int skybox;
+
 //-------------Networking----------------
 
 	private GhostManager gm;
@@ -76,7 +78,7 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage ghostT;
 
 
-//	public MyGame() { super(); System.out.println("Single Player boot up"); }
+	public MyGame() { super(); System.out.println("Single Player boot up"); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
@@ -86,7 +88,7 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.TCP;
 		else
 			this.serverProtocol = ProtocolType.UDP;
-		System.out.println("Networking booting up");
+		System.out.println("Multiplayer booting up");
 	}
 
 	public GameObject getAvatar(){ return avatar; }
@@ -100,9 +102,9 @@ public class MyGame extends VariableFrameRateGame
 	}*/
 	public static void main(String[] args){	
 		MyGame game;
-//		if(args.length == 0)
-	//		game = new MyGame();
-		//else
+		if(args.length == 0)
+			game = new MyGame();
+		else
 		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
@@ -266,6 +268,14 @@ public class MyGame extends VariableFrameRateGame
 		mapCam.setV(new Vector3f(spot.z));
 		mapCam.setN(new Vector3f(0,-1,0));
 */	}
+
+	@Override
+	public void loadSkyBoxes(){
+		skybox = engine.getSceneGraph().loadCubeMap(spot.skyboxFile);
+		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
+		engine.getSceneGraph().setSkyBoxEnabled(true);
+	}
+
 	@Override
 	public void initializeGame()
 	{	lastFrameTime = System.currentTimeMillis();
