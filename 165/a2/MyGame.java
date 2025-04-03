@@ -114,6 +114,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadTextures(){	
 		doltx = new TextureImage("ULPDuv.png");
+		ghostT = new TextureImage("oiter.png");
 /*
 
 	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
