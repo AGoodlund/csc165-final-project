@@ -20,7 +20,7 @@ public class DLookAction extends AbstractInputAction{   //look+turn up
 
         if(spot.followCamera)
             cam.pitch(-spot.turnSpeed*keyValue*time);
-        if(game.mounted)
-            obj.pitch(-spot.turnSpeed*keyValue*time);
+//        if(game.mounted)
+//            obj.pitch(-spot.turnSpeed*keyValue*time);
     }
 }

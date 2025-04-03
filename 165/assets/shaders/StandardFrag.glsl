@@ -107,7 +107,7 @@ void main(void)
 
 		// normalize the light, normal, and view vectors:
 		L = normalize(lightDir);
-		V = normalize(inverse(v_matrix)[3].xyz - varyingVertPos); 
+		V = normalize(-v_matrix[3].xyz * mat3(v_matrix) - varyingVertPos);
 //THIS IS THE LINE that has a more efficient change than (inverse()...);
 
 		if (heightMapped == 1)
