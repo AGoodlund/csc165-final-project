@@ -9,22 +9,27 @@ public class ManualCrystal extends ManualObject{	//0 in the middle of the centra
 		0f,0f,-1f,	0f,1f,0f,	1f,0f,0f,	//top back right
 		1f,0f,0f,	0f,1f,0f,	0f,0f,1f,	//top front right
 		0f,0f,1f,	0f,1f,0f,	-1f,0f,0f,	//top front left
-		-1f,0f,0f,	0f,-3f,0f,	0f,0f,-1f,	//bottom back left
-		0f,0f,-1f,	0f,-3f,0f,	1f,0f,0f,	//bottom back right
-		1f,0f,0f,	0f,-3f,0f,	0f,0f,1f,	//bottom front right
-		0f,0f,1f,	0f,-3f,0f,	-1f,0f,0f	//bottom front left
+
+		0f,0f,-1f,	0f,-3f,0f,	-1f,0f,0f,	//bottom back left
+		1f,0f,0f,	0f,-3f,0f,	0f,0f,-1f,	//bottom back right
+		0f,0f,1f,	0f,-3f,0f,	1f,0f,0f,	//bottom front right
+		-1f,0f,0f,	0f,-3f,0f,	0f,0f,1f	//bottom front left
 	};
 	public float [] texcoords = {
 		0f,.75f,	.25f,.75f,	.125f,1f,	//this for all top faces
 		0f,.75f,	.25f,.75f,	.125f,1f,
 		0f,.75f,	.25f,.75f,	.125f,1f,
 		0f,.75f,	.25f,.75f,	.125f,1f,
-		0f,.75f,	.25f,.75f,	.125f,0f,	//this for all bottom faces
-		0f,.75f,	.25f,.75f,	.125f,0f,
+
+		.125f,0f,	.25f,.75f,	0f,.75f,	//this for all bottom faces 
+		.125f,0f,	.25f,.75f,	0f,.75f, 
+		.125f,0f,	.25f,.75f,	0f,.75f,	 
+		.125f,0f,	.25f,.75f,	0f,.75f,	 
+/* 		0f,.75f,	.25f,.75f,	.125f,0f,	I suspect these old coordinates needed to be changed
 		0f,.75f,	.25f,.75f,	.125f,0f,
 		0f,.75f,	.25f,.75f,	.125f,0f
-	};
-	public float [] normals = {	//THERE ARE 3 NORMALS PER VERTEX: 1:1 WITH verts.length
+*/	};
+	public float [] normals = {						//THERE ARE 3 NORMALS PER VERTEX: 1:1 WITH verts.length
 		-1f,1f,-1f,	-1f,1f,-1f,	-1f,1f,-1f,
 			//1,1,0 x 1,0,-1
 		1f,1f,-1f,	1f,1f,-1f,	1f,1f,-1f,

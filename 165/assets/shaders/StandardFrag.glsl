@@ -107,7 +107,8 @@ void main(void)
 
 		// normalize the light, normal, and view vectors:
 		L = normalize(lightDir);
-		V = normalize(inverse(v_matrix)[3].xyz - varyingVertPos); 
+		V = normalize(-v_matrix[3].xyz * mat3(v_matrix) - varyingVertPos);
+//THIS IS THE LINE that has a more efficient change than (inverse()...);
 
 		if (heightMapped == 1)
 			N = estimateNormal(.005, 5.0);
@@ -179,7 +180,7 @@ void main(void)
 			tcolor = texture(t,r);
 			fragColor = min((tcolor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 		}
-		else if (colorSplashPointer == 1 && has_texture == 0){
+		else if (colorSplashPointer == 1){// && has_texture == 0){
 //This is just a reflective grey no matter what. Need to figure out what's causing that
 //			fragColor = min((varyingColor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 			fragColor = min(varyingColor * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
