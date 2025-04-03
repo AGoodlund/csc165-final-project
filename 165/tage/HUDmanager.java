@@ -84,6 +84,7 @@ public class HUDmanager
 		HUDList.add(ele);
 		return HUDList.indexOf(ele);
 	}
+	public int addHudElement(String name, float[] color, int x, int y){ return addHUDElement(name, new Vector3f(color), x, y); }
 
 /** Remove the hud element at the designated index. This has the potential of throwing off HUD calls if you trim the list to remove the empty spaces */
 	public void removeHUDElement(int index){ HUDList.remove(index); }// HUDList.trimToSize(); }	

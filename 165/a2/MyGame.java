@@ -39,29 +39,23 @@ public class MyGame extends VariableFrameRateGame
 	private double lastFrameTime, currFrameTime, elapsTime;
 
 //-------------HUD elements--------------
-	private Vector3f hud1Color = new Vector3f(spot.red);
-	private Vector3f hud2Color = new Vector3f(spot.yellow);
+	private float[] hud1Color = spot.red;
+	private float[] hud2Color = spot.yellow;
 	private String dispStr1 = " ", dispStr2;
 	private int HUDscore, HUDCoords;
 
-//-------------game visuals--------------
+//-------------Visuals--------------
 	private GameObject avatar, x, y, z;
 	private ObjShape dolS, xAxis, yAxis, zAxis;
 	private TextureImage doltx;
+	private int skybox;
 	private Light light1;
 
-
-	private InputManager im;
-
-//	private Matrix4f initialRotation;
+//-------------Node Controllers-------------
 //	private RotationController rc;
 //	private RollController roll;
 
-
-	private int skybox;
-
 //-------------Networking----------------
-
 	private GhostManager gm;
 	private String serverAddress;
 	private int serverPort = -1;
@@ -84,16 +78,7 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.UDP;
 		System.out.println("Multiplayer booting up");
 	}
-
-	public GameObject getAvatar(){ return avatar; }
 	
-
-/* 	public static void main(String[] args)
-	{	MyGame game = new MyGame();
-		engine = new Engine(game);
-		game.initializeSystem();
-		game.game_loop();
-	}*/
 	public static void main(String[] args){	
 		MyGame game;
 		if(args.length == 0)
@@ -163,43 +148,6 @@ public class MyGame extends VariableFrameRateGame
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(180f));
 		avatar.setLocalRotation(initialRotation);
 /*
-
-
-		avatar.getRenderStates().setPositionalColor(true);
-//		avatar.getRenderStates().hasLighting(false);
- 
-		//build cube
-		cube = new GameObject(GameObject.root(), cubeS, cubeX);
-		initialTranslation = (new Matrix4f()).translation(13.0f,2.0f,-15.0f);
-		initialScale = (new Matrix4f()).scaling(2.5f);
-		cube.setLocalTranslation(initialTranslation);
-		cube.setLocalScale(initialScale);
-		disarmables.add(cube);
-//		cube.getRenderStates().setPositionalColor(true);
-//		cube.getRenderStates().hasLighting(false);
- 
-		//build torus
-		torus = new GameObject(GameObject.root(), torusS, torusX);
-		initialTranslation = (new Matrix4f()).translation(25.0f,1.0f,35.0f);
-		initialScale = (new Matrix4f()).scaling(2.0f);
-		torus.setLocalTranslation(initialTranslation);
-		torus.setLocalScale(initialScale);
-		torus.getRenderStates().setTiling(1);	//this looks weird. Check setTiling function to figure out what's wrong
-		disarmables.add(torus);
-//		torus.getRenderStates().disableRendering();
-		torus.getRenderStates().setPositionalColor(true);
-//		torus.getRenderStates().hasLighting(false);
-
-		//build sphere
-		sphere = new GameObject(GameObject.root(), sphereS, sphereX);
-		initialTranslation = (new Matrix4f()).translation(-15.0f,1.0f,-30.0f);
-		initialScale = (new Matrix4f()).scaling(1.2f);
-		sphere.setLocalTranslation(initialTranslation);
-		sphere.setLocalScale(initialScale);
-		disarmables.add(sphere);
-//		sphere.getRenderStates().setPositionalColor(true);
-//		sphere.getRenderStates().hasLighting(false);
-
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
 //			crystal.getRenderStates().setColor(teal).setHasSolidColor(true);
@@ -213,7 +161,6 @@ public class MyGame extends VariableFrameRateGame
 //		crystal.setParent(torus);
 //		crystal.propagateScale(false);
 //		crystal.propagateTranslation(true);
-
 */
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
@@ -253,7 +200,8 @@ public class MyGame extends VariableFrameRateGame
 		mapCam.setU(new Vector3f(spot.x));
 		mapCam.setV(new Vector3f(spot.z));
 		mapCam.setN(new Vector3f(0,-1,0));
-*/	}
+*/	
+	}
 
 	@Override
 	public void loadSkyBoxes(){
@@ -261,7 +209,6 @@ public class MyGame extends VariableFrameRateGame
 		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
 	}
-
 
 	@Override
 	public void initializeGame()
@@ -286,32 +233,21 @@ public class MyGame extends VariableFrameRateGame
 		rc.addTarget(sphere);
 		rc.addTarget(cube);
 		rc.toggle();
-//		rc.setSpeed(1f);
 
 		roll = new RollController(.001f);
 		engine.getSceneGraph().addNodeController(roll);
 		roll.setPitchSpeed(.001f);
 		roll.toggle();
-
+*/
 		// ------------- inputs section ------------------
  		
 //NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
 //		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
 //			controller's buttons
-		//All things are supposed to default to no motion and only start moving once disarmed
-/* 			Camera mapCam = engine.getRenderSystem().getViewport("MAP").getCamera();
-			ForBAction mapZoomIn = new ForBAction(mapCam, 1, .25f);
-			ForBAction mapZoomOut = new ForBAction(mapCam, -1);
-			UorDMoveAction mapMoveUp = new UorDMoveAction(mapCam, 1);
-			UorDMoveAction mapMoveBack = new UorDMoveAction(mapCam, -1);
-			LorRStrafeAction mapMoveLeft = new LorRStrafeAction(mapCam, -1);
-			LorRStrafeAction mapMoveRight = new LorRStrafeAction(mapCam, 1);
-			DisarmAction disarm = new DisarmAction(avatar, disarmables, roll, rc);
-*/			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
-
+		
+			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 
 //avatar movement
-//		if(gamepad == null){	//if no gamepad is plugged in
 //https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
 			ForBAction forward = new ForBAction(this, 1, protClient);			//move actions
 			ForBAction back = new ForBAction(this, -1, protClient);
@@ -328,31 +264,10 @@ public class MyGame extends VariableFrameRateGame
 
 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-//all three of these need to be sent at the same time or else only the first item assigned to the key is hidden
-/*
-	
+//all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
+
 		if(gamepad != null){	//if a gamepad is plugged in
 
-
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, disarm, 
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-
- 			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.I, mapMoveUp, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.K, mapMoveBack,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.J, mapMoveLeft,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.L, mapMoveRight,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.U, mapZoomIn,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.O, mapZoomOut,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-//		}
-		if(gamepad != null){	//if a gamepad is plugged in
-*/
 			LorRTurnAction rc = new LorRTurnAction(this, -1);
 			ForBAction fc = new ForBAction(this, -1);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc,		//Axis.X/Y are the left joystick
@@ -361,49 +276,18 @@ public class MyGame extends VariableFrameRateGame
 				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 //REMEMBER: buttons start at 0, but are shown starting at 1
 
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes,	//TODO:write out controlls for the readme
+			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes,
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-//all three of these need to be sent at the same time or else only the first item assigned to the key is hidden
-
-/*			
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._7, disarm, 
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-  
- 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._3, mapMoveUp, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._0, mapMoveBack, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._2, mapMoveLeft, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._1, mapMoveRight, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._4, mapZoomIn, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._5, mapZoomOut, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-*/			
+			
 		}
-
-/* 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.UP, up, 
-			InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.DOWN, down, 
-			InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-//		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.C, count, 
-//			InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-
-//		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, mount, 	
-//			InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-*/
 
 //https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
 
 
 		// ------------- HUD section ------------------
 //hud testing section
-		HUDscore = engine.getHUDmanager().addHUDElement(dispStr1, hud1Color, 15, 15);
-		HUDCoords = engine.getHUDmanager().addHUDElement(dispStr2, hud2Color, 15,15);//findViewportMiddleX("MAP", dispStr2), 15);
+		HUDscore = engine.getHUDmanager().addHudElement(dispStr1, hud1Color, 15, 15);
+		HUDCoords = engine.getHUDmanager().addHudElement(dispStr2, hud2Color, 15,15);
 //		engine.getHUDmanager().addHUDElement("Third HUD Test",white, engine.getRenderSystem().getWindowX(),engine.getRenderSystem().getWindowY());
 //for(int i = 1; i <= 5; i++)
 //		engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the program
@@ -425,7 +309,10 @@ public class MyGame extends VariableFrameRateGame
 	private int textMidpoint(String text){ 
 		if(text.isEmpty())
 			return 0;
-		return (int)(text.length()*10)/2; } //assumes default of GLUT.BITMAP_TIMES_ROMAN_24
+		return (int)(text.length()*10)/2; 
+	} //assumes default of GLUT.BITMAP_TIMES_ROMAN_24
+
+	public GameObject getAvatar(){ return avatar; }
 
 	@Override
 	public void update()
@@ -450,151 +337,7 @@ public class MyGame extends VariableFrameRateGame
 			processNetworking((float)elapsTime);
 		}
 	}
-/*
 
-/*
-   	@Override
-	public void keyPressed(KeyEvent e)
-	{	switch (e.getKeyCode())
-		{	case KeyEvent.VK_W:
-			{	Vector3f oldPosition = avatar.getWorldLocation();
-				Vector4f fwdDirection = new Vector4f(0f,0f,1f,1f);
-				fwdDirection.mul(avatar.getWorldRotation());
-				fwdDirection.mul(0.05f);
-				Vector3f newPosition = oldPosition.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
-				avatar.setLocalLocation(newPosition);
-				protClient.sendMoveMessage(avatar.getWorldLocation());
-				break;
-			}
-			case KeyEvent.VK_D:
-			{	Matrix4f oldRotation = new Matrix4f(avatar.getWorldRotation());
-				Vector4f oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
-				Matrix4f rotAroundAvatarUp = new Matrix4f().rotation(-.01f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
-				Matrix4f newRotation = oldRotation;
-				newRotation.mul(rotAroundAvatarUp);
-				avatar.setLocalRotation(newRotation);
-				break;
-			}
-		}
-		super.keyPressed(e);
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) //DO NOT COPY/PASTE SAMPLE CODE FROM PDF! IT BREAKS *EVERYTHNG*
-	{	
-		Vector3f loc, fwd, up, right, newLocation;
-		Camera cam;
-
-		switch (e.getKeyCode())
-		{	case KeyEvent.VK_C:
-				counter++;
-				break;
- 			case KeyEvent.VK_1:
-				paused = !paused;
-				break;
-			case KeyEvent.VK_2://move forward
-				fwd = dol.getWorldForwardVector();
-				loc = dol.getWorldLocation();
-				newLocation = loc.add(fwd.mul(0.02f));
-				dol.setLocalLocation(newLocation);
-				break;
-			case KeyEvent.VK_3://move back
-				fwd = dol.getWorldForwardVector();
-				loc = dol.getWorldLocation();
-				newLocation = loc.add(fwd.mul(-0.02f));
-				dol.setLocalLocation(newLocation);
-				break;
-			case KeyEvent.VK_4://move camera on top of dolphin. Put in main to have it follow constantly
-//best way to move this into display() is to make it its own function that gets called every frame
-				/*get camera from engine, set vec3 items to dolphin's coordinates, update camera's values * /
-//				(engine.getRenderSystem().getViewport("MAIN").getCamera()).setLocation(new Vector3f(0,0,0));
-				break;
-			case KeyEvent.VK_5://move camera back to start point
-				cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-				cam.setLocation(new Vector3f(0.0f,0.0f,5.0f));
-				//also needs to reset orientation
-				//setUV and N to 0,0,0?
-				break;
-		}
-		super.keyPressed(e);
-	}* /
- 	public void jumpToDol(){ 	//move camera to dol 
-/* 			Camera cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-			cam.setU(avatar.getWorldRightVector());
-			cam.setV(avatar.getWorldUpVector());
-			cam.setN(avatar.getWorldForwardVector());
-			cam.setLocation(avatar.getWorldLocation().add(avatar.getWorldUpVector().mul(3f)).add(
-				avatar.getWorldForwardVector().mul(-5f)));
-* /	}
-	public void dismountDol(){	//move to spot slightly off dol
-/*		Camera cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-		cam.setU(avatar.getWorldRightVector());
-		cam.setV(avatar.getWorldUpVector());
-		cam.setN(avatar.getWorldForwardVector());
-		cam.setLocation(avatar.getWorldLocation().add(avatar.getWorldRightVector().mul(1.5f)).add(
-			avatar.getWorldForwardVector().mul(-1.5f)).add(avatar.getWorldUpVector().mul(1.2f)));
-* /	}
-	private void birdView(float dist, Camera c){
-		c.setLocation(avatar.getWorldLocation().add(new Vector3f( 0f, dist, 0f)));
-		c.lookAt(avatar);
-	}
-	private void victoryCondition(){ //moving it out of update() looks nicer
-		if(sphere.destroyed || cube.destroyed || torus.destroyed)
-			dispStr1 = "GAME OVER";
-		else if(sphere.disarmed && cube.disarmed && torus.disarmed)
-			dispStr1 = "VICTORY";
-		else if((spDist < spot.close && !sphere.disarmed) || (cuDist < spot.close && !cube.disarmed) || (toDist < spot.close && !torus.disarmed))
-			dispStr1 = "Close Enough";
-		else if((cuDist < spot.tooClose && cube.disarmed) || 
-			(spDist < spot.tooClose && sphere.disarmed) ||
-			(toDist < spot.tooClose && torus.disarmed))
-				dispStr1 = "Disarmed";
-		else
-			dispStr1 = "Score = " + counter*spot.capture;//elapsTimeStr;
-	}
-
-	private void spaceCheck(){
-		spDist = (float)avatar.getWorldLocation().distance(sphere.getWorldLocation());
-		cuDist = (float)avatar.getWorldLocation().distance(cube.getWorldLocation());
-		toDist = (float)avatar.getWorldLocation().distance(torus.getWorldLocation());
-
-		if(spDist < spot.close && !sphere.destroyed){
-			sphere.setTextureImage(sphereClose);
-			if(spDist < spot.tooClose && !sphere.disarmed){
-				sphere.setTextureImage(brokeX);
-				sphere.destroyed = true;
-			}
-		}
-		if(cuDist < spot.close && !cube.destroyed){
-			cube.setTextureImage(cubeClose);
-			if(cuDist < spot.tooClose && !cube.disarmed){
-				cube.setTextureImage(brokeX);
-				cube.destroyed = true;
-			}
-		}
-		if(toDist < spot.close && !torus.destroyed){
-			torus.setTextureImage(torusClose);
-			if(toDist < spot.tooClose && !torus.disarmed){
-				torus.setTextureImage(brokeX);
-				torus.destroyed = true;
-			}
-		}	}
-	private void changeCheck(){
-		if(!cube.destroyed && cuDist > spot.close && cube.getTextureImage().getTexture() != cubeX.getTexture() && !cube.disarmed)
-			cube.setTextureImage(cubeX);
-		if(!sphere.destroyed && spDist > spot.close && sphere.getTextureImage().getTexture() != sphereX.getTexture() && !sphere.disarmed)
-			sphere.setTextureImage(sphereX);
-		if(!torus.destroyed && toDist > spot.close && torus.getTextureImage().getTexture() != torusX.getTexture() && !torus.disarmed)
-			torus.setTextureImage(torusX);
-
-		if(sphere.disarmed && sphere.getTextureImage().getTexture() != sphereSafe.getTexture())
-			sphere.setTextureImage(sphereSafe);
-		if(cube.disarmed && cube.getTextureImage().getTexture() != cubeSafe.getTexture())
-			cube.setTextureImage(cubeSafe);
-		if(torus.disarmed && torus.getTextureImage().getTexture() != torusSafe.getTexture())
-			torus.setTextureImage(torusSafe);
-	}
-*/
 		// ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }
