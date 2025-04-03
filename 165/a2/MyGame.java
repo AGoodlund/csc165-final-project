@@ -93,6 +93,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadShapes(){	
 		dolS = new ImportedModel("ULPD.obj");
+		ghostS = new ImportedModel("dolphinLowPoly.obj");
     /*
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
