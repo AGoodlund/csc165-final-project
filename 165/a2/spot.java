@@ -18,6 +18,11 @@ public class spot {
 
 //---------------------------   Axes        ---------------------------
     public static float[] x = {1f,0f,0f}, y = {0f,1f,0f}, z = {0f,0f,-1f}; //-1 for z because that's default
+
+//---------------------------   Colors      ---------------------------
+    public static float[] 	red = {1,0,0}, green = {0,1,0}, blue = {0,0,1},
+    purple = {1,1,0}, yellow = {1,0,1}, teal = {0,1,1},
+    white = {1,1,1}, black = {0,0,0};
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name

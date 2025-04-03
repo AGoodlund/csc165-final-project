@@ -41,7 +41,7 @@ public class DisarmAction extends AbstractInputAction{
 //System.out.println("closest object is " + distance + " away");
         if(avatar.getWorldLocation().distance(closest.getWorldLocation()) < spot.close && !closest.destroyed && !closest.disarmed){
             closest.disarmed = true;
-            MyGame.counter += 1;
+//           MyGame.counter += 1;
 //            action.addTarget(closest);
 //            rotation.removeTarget(closest);
             node.addTarget(closest);

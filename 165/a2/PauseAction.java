@@ -7,5 +7,5 @@ public class PauseAction extends AbstractInputAction{
     private MyGame game;
     public PauseAction(MyGame g){ game = g; }
     @Override
-    public void performAction(float time, Event e){ game.paused = !game.paused; } 
+    public void performAction(float time, Event e){ }//game.paused = !game.paused; } 
 }
