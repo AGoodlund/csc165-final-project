@@ -55,9 +55,9 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------game visuals--------------
-	private GameObject avatar, cube, x, y, z, sphere, torus,  crystal, ground;
-	private ObjShape dolS, cubeS, xAxis, yAxis, zAxis, sphereS, torusS,  crystalS, groundS;
-	private TextureImage doltx, cubeX,sphereX,torusX,brokeX,cubeClose, sphereClose,torusClose, groundX, sphereSafe, cubeSafe, torusSafe;
+	private GameObject avatar, cube, x, y, z, sphere, torus,  crystal, terr, puffer;
+	private ObjShape dolS, cubeS, xAxis, yAxis, zAxis, sphereS, torusS,  crystalS, terrS, pufferS;
+	private TextureImage doltx, cubeX,sphereX,torusX,brokeX,cubeClose, sphereClose,torusClose, hills, grass, sphereSafe, cubeSafe, torusSafe, pufferX;
 	private Light light1, spotlightR, spotlightG, spotlightB;
 
 	private Matrix4f initialRotation;
@@ -76,8 +76,8 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage ghostT;
 
 
-//	public MyGame() { super(); System.out.println("Single Player boot up"); }
-	public MyGame(String serverAddress, int serverPort, String protocol)
+	public MyGame() { super(); System.out.println("Single Player boot up"); }
+	/*public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
 		this.serverAddress = serverAddress;
@@ -87,32 +87,34 @@ public class MyGame extends VariableFrameRateGame
 		else
 			this.serverProtocol = ProtocolType.UDP;
 		System.out.println("Networking booting up");
-	}
+	}*/
 
 	public GameObject getAvatar(){ return avatar; }
 	
 
-/* 	public static void main(String[] args)
+ 	public static void main(String[] args)
 	{	MyGame game = new MyGame();
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
-	}*/
-	public static void main(String[] args){	
+	}
+	/*public static void main(String[] args){	
 		MyGame game;
-//		if(args.length == 0)
-	//		game = new MyGame();
+		//if(args.length == 0)
+			//game = new MyGame();
 		//else
-		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
-	}
+	}*/
 
 	@Override
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
+		pufferS = new ImportedModel("PufferFish_Angry.obj");
+		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
 //		dolS = new ImportedModel("dolphinLowPoly.obj");
 
 		cubeS = new Cube();
@@ -120,7 +122,7 @@ public class MyGame extends VariableFrameRateGame
 		torusS = new Torus(0.5f, 0.2f, 48);
 		crystalS = new ManualCrystal();
 		
-		groundS = new Plane();
+		//groundS = new Plane();
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
 		yAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
@@ -131,6 +133,7 @@ public class MyGame extends VariableFrameRateGame
 	public void loadTextures()
 	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
 		ghostT = new TextureImage("oiter.png");
+		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
  
 		cubeX = new TextureImage("MUSHROOMS.png");
 		cubeClose = new TextureImage("flower.png");
@@ -139,11 +142,13 @@ public class MyGame extends VariableFrameRateGame
 		torusX = new TextureImage("space station.png");
 		torusClose = new TextureImage("starfield2048.jpg");			
 		brokeX = new TextureImage("black hole.png");
-		groundX = new TextureImage("oiter.png");
+		//groundX = new TextureImage("oiter.png");
 
 		sphereSafe = new TextureImage("moon.jpg");
 		cubeSafe = new TextureImage("squareMoonMap.jpg");
 		torusSafe = new TextureImage("ice.jpg");
+		hills = new TextureImage("hills.jpg");
+		grass = new TextureImage("grass.jpg");
 	}
 
 	@Override
@@ -193,7 +198,8 @@ public class MyGame extends VariableFrameRateGame
 //		sphere.getRenderStates().setPositionalColor(true);
 //		sphere.getRenderStates().hasLighting(false);
 
-		//build crystal
+		//build crystalldObj
+		
 		crystal = new GameObject(GameObject.root(),crystalS);
 //			crystal.getRenderStates().setColor(teal).setHasSolidColor(true);
 //			crystal.getRenderStates().setHasSolidColor(true);
@@ -207,6 +213,16 @@ public class MyGame extends VariableFrameRateGame
 //		crystal.propagateScale(false);
 //		crystal.propagateTranslation(true);
 
+
+		//build Pufferfish
+		
+		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
+		initialTranslation = (new Matrix4f()).translation(5f,2f,-1f);
+		initialScale = (new Matrix4f()).scaling(10f);
+		puffer.setLocalTranslation(initialTranslation);
+		puffer.setLocalScale(initialScale);
+
+
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
 		y = new GameObject(GameObject.root(), yAxis);
@@ -216,18 +232,17 @@ public class MyGame extends VariableFrameRateGame
 		(z.getRenderStates()).setColor(new Vector3f(blue));
 		hideableShapes.add(x); hideableShapes.add(y); hideableShapes.add(z);
 
-		//build ground
-		ground = new GameObject(GameObject.root(), groundS, groundX);
-//			ground.getRenderStates().setColor(new Vector3f(.1f,.3f,.7f));
-		initialTranslation = new Matrix4f().translation(0f,-1f,0f);
-		initialScale = new Matrix4f().scaling(300f);
-		ground.setLocalTranslation(initialTranslation);
-		ground.setLocalScale(initialScale);
-		ground.getRenderStates().setTiling(2);
-		ground.getRenderStates().setTileFactor(100);
-		ground.getRenderStates().disableRendering();
-//ground.getRenderStates().setPositionalColor(true);
-//ground.getRenderStates().hasLighting(false);
+		
+		//Terrain
+		terr = new GameObject(GameObject.root(),terrS,grass);
+		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		terr.setLocalTranslation(initialTranslation);
+		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
+		terr.setLocalScale(initialScale);
+		terr.setHeightMap(hills);
+		// set tiling for terrain texture
+		terr.getRenderStates().setTiling(1);
+		terr.getRenderStates().setTileFactor(10);
 	}
 
 	@Override
@@ -383,7 +398,7 @@ public class MyGame extends VariableFrameRateGame
          
 //         protClient.sendMoveMessage(avatar.getWorldLocation());
 		}
-         setupNetworking();
+         //setupNetworking();
 
 
 
@@ -428,11 +443,20 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void update()
-	{	// rotate dolphin if not paused
+	{	
+	
+	
+		// rotate dolphin if not paused
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
 
+	// update altitude of dolphin based on height map
+		Vector3f loc = avatar.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		//TODO: Add for ghost
+	
 		
 //		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
 
@@ -450,9 +474,20 @@ public class MyGame extends VariableFrameRateGame
 		changeCheck();
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
-      if(isClientConnected)
-         protClient.sendMoveMessage(avatar.getWorldLocation());
-		processNetworking((float)elapsTime);
+      //if(isClientConnected)
+        // protClient.sendMoveMessage(avatar.getWorldLocation());
+		//processNetworking((float)elapsTime);
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e)
+	{	switch (e.getKeyCode())
+		{	case KeyEvent.VK_ESCAPE:
+				protClient.sendByeMessage();
+				shutdown();
+				System.exit(0);
+				break;
+		}
 	}
 /*
    	@Override
@@ -604,7 +639,7 @@ public class MyGame extends VariableFrameRateGame
 	public GhostManager getGhostManager() { return gm; }
 	public Engine getEngine() { return engine; }
 	
-	private void setupNetworking()
+	/*private void setupNetworking()
 	{	isClientConnected = false;	
 		try 
 		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
@@ -621,19 +656,19 @@ public class MyGame extends VariableFrameRateGame
 			System.out.println("sending join message to protocol host");
 			protClient.sendJoinMessage();
 		}
-	}
+	}*/
 	
-	protected void processNetworking(float elapsTime)
+	/*protected void processNetworking(float elapsTime)
 	{	// Process packets received by the client from the server
 		if (protClient != null)
 			protClient.processPackets();
       else
          System.out.println("protClient is null");
-	}
+	}*/
 
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
 
-	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+	/*public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	
 	private class SendCloseConnectionPacketAction extends AbstractInputAction
 	{	@Override
@@ -642,5 +677,5 @@ public class MyGame extends VariableFrameRateGame
 			{	protClient.sendByeMessage();
 			}
 		}
-	}
+	}*/
 }
