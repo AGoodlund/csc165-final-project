@@ -50,6 +50,11 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage doltx;
 	private int skybox;
 	private Light light1;
+//-------------game visuals--------------
+	private GameObject avatar, cube, x, y, z, sphere, torus,  crystal, terr, puffer;
+	private ObjShape dolS, cubeS, xAxis, yAxis, zAxis, sphereS, torusS,  crystalS, terrS, pufferS;
+	private TextureImage doltx, cubeX,sphereX,torusX,brokeX,cubeClose, sphereClose,torusClose, hills, grass, sphereSafe, cubeSafe, torusSafe, pufferX;
+	private Light light1, spotlightR, spotlightG, spotlightB;
 
 //-------------Node Controllers-------------
 //	private RotationController rc;
@@ -68,6 +73,7 @@ public class MyGame extends VariableFrameRateGame
 
 	public MyGame() { super(); System.out.println("Single Player boot up"); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
+	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
 		this.serverAddress = serverAddress;
@@ -85,6 +91,24 @@ public class MyGame extends VariableFrameRateGame
 			game = new MyGame();
 		else
 		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+		System.out.println("Networking booting up");
+	}
+
+	public GameObject getAvatar(){ return avatar; }
+	
+
+ 	public static void main(String[] args)
+	{	MyGame game = new MyGame();
+		engine = new Engine(game);
+		game.initializeSystem();
+		game.game_loop();
+	}
+	public static void main(String[] args){	
+		MyGame game;
+		//if(args.length == 0)
+			//game = new MyGame();
+		//else
+		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -94,18 +118,12 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes(){	
 		dolS = new ImportedModel("ULPD.obj");
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
-    /*
-	{	dolS = new ImportedModel("dolphinHighPoly.obj");
-		ghostS = new ImportedModel("dolphinHighPoly.obj");
-//		dolS = new ImportedModel("dolphinLowPoly.obj");
-
-		cubeS = new Cube();
+		pufferS = new ImportedModel("PufferFish_Angry.obj");
+		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
+    	cubeS = new Cube();
  		sphereS = new Sphere();
 		torusS = new Torus(0.5f, 0.2f, 48);
 		crystalS = new ManualCrystal();
-		
-		groundS = new Plane();
-*/
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
 		yAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
@@ -116,25 +134,10 @@ public class MyGame extends VariableFrameRateGame
 	public void loadTextures(){	
 		doltx = new TextureImage("ULPDuv.png");
 		ghostT = new TextureImage("oiter.png");
-/*
+		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
 
-	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
-		ghostT = new TextureImage("oiter.png");
- 
-		cubeX = new TextureImage("MUSHROOMS.png");
-		cubeClose = new TextureImage("flower.png");
- 		sphereX = new TextureImage("planet.png");
-		sphereClose = new TextureImage("ice.jpg");					
-		torusX = new TextureImage("space station.png");
-		torusClose = new TextureImage("starfield2048.jpg");			
-		brokeX = new TextureImage("black hole.png");
-		groundX = new TextureImage("oiter.png");
-
-		sphereSafe = new TextureImage("moon.jpg");
-		cubeSafe = new TextureImage("squareMoonMap.jpg");
-		torusSafe = new TextureImage("ice.jpg");
-
-*/
+		hills = new TextureImage("hills.jpg");
+		grass = new TextureImage("grass.jpg");
 	}
 
 	@Override
@@ -147,8 +150,6 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(0.75f);
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
-		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(180f));
-		avatar.setLocalRotation(initialRotation);
 /*
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
@@ -165,6 +166,18 @@ public class MyGame extends VariableFrameRateGame
 //		crystal.propagateTranslation(true);
 */
 		//build lines
+		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(180f));
+		avatar.setLocalRotation(initialRotation);
+
+		//build Pufferfish
+		
+		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
+		initialTranslation = (new Matrix4f()).translation(5f,2f,-1f);
+		initialScale = (new Matrix4f()).scaling(10f);
+		puffer.setLocalTranslation(initialTranslation);
+		puffer.setLocalScale(initialScale);
+
+		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
 		y = new GameObject(GameObject.root(), yAxis);
 		z = new GameObject(GameObject.root(), zAxis);
@@ -172,6 +185,17 @@ public class MyGame extends VariableFrameRateGame
 		(y.getRenderStates()).setColor(new Vector3f(spot.green));
 		(z.getRenderStates()).setColor(new Vector3f(spot.blue));
 		hideableShapes.add(x); hideableShapes.add(y); hideableShapes.add(z);
+		
+		//Terrain
+		terr = new GameObject(GameObject.root(),terrS,grass);
+		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		terr.setLocalTranslation(initialTranslation);
+		initialScale = (new Matrix4f()).scaling(200.0f, 1.0f, 200.0f);
+		terr.setLocalScale(initialScale);
+		terr.setHeightMap(hills);
+		// set tiling for terrain texture
+		terr.getRenderStates().setTiling(1);
+		terr.getRenderStates().setTileFactor(10);
 	}
 
 	@Override
@@ -282,6 +306,7 @@ public class MyGame extends VariableFrameRateGame
 				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			
 		}
+		setupNetworking();
 
 //https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
 
@@ -320,9 +345,19 @@ public class MyGame extends VariableFrameRateGame
 	public void update()
 	{	
 //--------------Time Keeping--------------
+		// rotate dolphin if not paused
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
+
+	// update altitude of dolphin based on height map
+		Vector3f loc = avatar.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		//TODO: Add for ghost
+	
+		
+//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
 
 //--------------HUD drawing----------------
 		dispStr2 = "(" + cam.getLocation().x() + ", " + cam.getLocation().y() + ", " + cam.getLocation().z() + ")";
@@ -337,8 +372,19 @@ public class MyGame extends VariableFrameRateGame
     	if(isClientConnected){
         	protClient.sendMoveMessage(avatar.getWorldLocation());
 			processNetworking((float)elapsTime);
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent e)
+	{	switch (e.getKeyCode())
+		{	case KeyEvent.VK_ESCAPE:
+				protClient.sendByeMessage();
+				shutdown();
+				System.exit(0);
+				break;
 		}
 	}
+
 
 		// ---------- NETWORKING SECTION ----------------
 
