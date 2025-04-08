@@ -40,12 +40,12 @@ public class ProtocolClient extends GameConnectionClient
 			if(messageTokens[0].compareTo("join") == 0)
 			{	if(messageTokens[1].compareTo("success") == 0)
 				{	System.out.println("join success confirmed");
-					//game.setIsConnected(true);
+					game.setIsConnected(true);
 					sendCreateMessage(game.getPlayerPosition());
 				}
 				if(messageTokens[1].compareTo("failure") == 0)
 				{	System.out.println("join failure confirmed");
-					//game.setIsConnected(false);
+					game.setIsConnected(false);
 			}	}
 			
 			// Handle BYE message
