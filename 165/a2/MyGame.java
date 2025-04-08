@@ -45,16 +45,11 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z;
-	private ObjShape dolS, xAxis, yAxis, zAxis;
-	private TextureImage doltx;
-	private int skybox;
-	private Light light1;
-//-------------game visuals--------------
 	private GameObject avatar, cube, x, y, z, sphere, torus,  crystal, terr, puffer;
 	private ObjShape dolS, cubeS, xAxis, yAxis, zAxis, sphereS, torusS,  crystalS, terrS, pufferS;
-	private TextureImage doltx, cubeX,sphereX,torusX,brokeX,cubeClose, sphereClose,torusClose, hills, grass, sphereSafe, cubeSafe, torusSafe, pufferX;
+	private TextureImage doltx, hills, grass, pufferX;
 	private Light light1, spotlightR, spotlightG, spotlightB;
+	private int skybox;
 
 //-------------Node Controllers-------------
 //	private RotationController rc;
@@ -73,7 +68,6 @@ public class MyGame extends VariableFrameRateGame
 
 	public MyGame() { super(); System.out.println("Single Player boot up"); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
-	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
 		this.serverAddress = serverAddress;
@@ -84,35 +78,21 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.UDP;
 		System.out.println("Multiplayer booting up");
 	}
+
 	
-	public static void main(String[] args){	
+		public static void main(String[] args){	
 		MyGame game;
 		if(args.length == 0)
 			game = new MyGame();
 		else
 		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
-		System.out.println("Networking booting up");
+		engine = new Engine(game);
+		game.initializeSystem();
+		game.game_loop();
 	}
-
-	public GameObject getAvatar(){ return avatar; }
 	
-
- 	public static void main(String[] args)
-	{	MyGame game = new MyGame();
-		engine = new Engine(game);
-		game.initializeSystem();
-		game.game_loop();
-	}
-	public static void main(String[] args){	
-		MyGame game;
-		//if(args.length == 0)
-			//game = new MyGame();
-		//else
-		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
-		engine = new Engine(game);
-		game.initializeSystem();
-		game.game_loop();
-	}
+	
+	public GameObject getAvatar(){ return avatar; }
 
 	@Override
 	public void loadShapes(){	
@@ -238,145 +218,139 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void initializeGame()
-	{	lastFrameTime = System.currentTimeMillis();
+	{	
+		lastFrameTime = System.currentTimeMillis();
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = 0.0;
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
 		im = engine.getInputManager();
 		String gamepad = im.getFirstGamepadName();
-//System.out.println("Gamepad = " + gamepad);
+		//System.out.println("Gamepad = " + gamepad);
 
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
 		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
     
 		// ------------- Node section ------------------
-/*		rc = new RotationController(engine, new Vector3f(0,1,0), .001f);
-		engine.getSceneGraph().addNodeController(rc);
-		rc.addTarget(torus);
-		rc.addTarget(crystal);
-		rc.addTarget(sphere);
-		rc.addTarget(cube);
-		rc.toggle();
+		//rc = new RotationController(engine, new Vector3f(0,1,0), .001f);
+		//engine.getSceneGraph().addNodeController(rc);
+		//rc.addTarget(torus);
+		//rc.addTarget(crystal);
+		//rc.addTarget(sphere);
+		//rc.addTarget(cube);
+		//rc.toggle();
 
-		roll = new RollController(.001f);
-		engine.getSceneGraph().addNodeController(roll);
-		roll.setPitchSpeed(.001f);
-		roll.toggle();
-*/
+		//roll = new RollController(.001f);
+		//engine.getSceneGraph().addNodeController(roll);
+		//roll.setPitchSpeed(.001f);
+		//roll.toggle();
+
 		// ------------- inputs section ------------------
  		
-//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
-//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
-//			controller's buttons
+		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
+		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
+		//			controller's buttons
 		
 			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 
-//avatar movement
-//https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
-			ForBAction forward = new ForBAction(this, 1, protClient);			//move actions
-			ForBAction back = new ForBAction(this, -1, protClient);
-			LorRTurnAction left = new LorRTurnAction(this, 1); 			//yaw left and right
-			LorRTurnAction right = new LorRTurnAction(this, -1);
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, back,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.D, right,
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-			im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-//all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
-
-		if(gamepad != null){	//if a gamepad is plugged in
+		//avatar movement
+		//https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
+		ForBAction forward = new ForBAction(this, 1, protClient);			//move actions
+		ForBAction back = new ForBAction(this, -1, protClient);
+		LorRTurnAction left = new LorRTurnAction(this, 1); 			//yaw left and right
+		LorRTurnAction right = new LorRTurnAction(this, -1);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, back, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.D, right, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		//all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
+		
+		if(gamepad != null)
+		{	//if a gamepad is plugged in
 
 			LorRTurnAction rc = new LorRTurnAction(this, -1);
 			ForBAction fc = new ForBAction(this, -1);
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc,		//Axis.X/Y are the left joystick
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Y, fc, 
-				InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-//REMEMBER: buttons start at 0, but are shown starting at 1
+			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
+			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Y, fc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+			//REMEMBER: buttons start at 0, but are shown starting at 1
 
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes,
-				InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			
 		}
-		setupNetworking();
 
-//https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
+		//https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
 
 
 		// ------------- HUD section ------------------
-//hud testing section
+		//Hud Testing Section
 		HUDscore = engine.getHUDmanager().addHudElement(dispStr1, hud1Color, 15, 15);
 		HUDCoords = engine.getHUDmanager().addHudElement(dispStr2, hud2Color, 15,15);
-//		engine.getHUDmanager().addHUDElement("Third HUD Test",white, engine.getRenderSystem().getWindowX(),engine.getRenderSystem().getWindowY());
-//for(int i = 1; i <= 5; i++)
-//		engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the program
+		//engine.getHUDmanager().addHUDElement("Third HUD Test",white, engine.getRenderSystem().getWindowX(),engine.getRenderSystem().getWindowY());
+		//for(int i = 1; i <= 5; i++)
+		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the program
 
-
-//------------- Networking Section -------------
+		//------------- Networking Section -------------
 		if(serverPort != -1)
-        	setupNetworking();
+        {	setupNetworking();}
 	}
-
-	private int findViewportMiddleX(String name, String text){ //middle of viewport's width compared to x from MAIN
+	
+	private int findViewportMiddleX(String name, String text)
+	{ 	//middle of viewport's width compared to x from MAIN
 		float size = engine.getRenderSystem().getViewport(name).getActualWidth();
-//		float ratio = engine.getRenderSystem().getViewport(name).getRelativeWidth();
+		//float ratio = engine.getRenderSystem().getViewport(name).getRelativeWidth();
 		float middle = size/2;
-
 		float drawAt = engine.getRenderSystem().getViewport("MAIN").getActualWidth() - middle - textMidpoint(text);
 		return (int)drawAt; 
 	}
-	private int textMidpoint(String text){ 
+	
+	private int textMidpoint(String text)
+	{ 
 		if(text.isEmpty())
 			return 0;
 		return (int)(text.length()*10)/2; 
 	} //assumes default of GLUT.BITMAP_TIMES_ROMAN_24
-
-	public GameObject getAvatar(){ return avatar; }
-
+	
+	
 	@Override
 	public void update()
-	{	
-//--------------Time Keeping--------------
+	{
+			
+		//--------------Time Keeping--------------
 		// rotate dolphin if not paused
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
 
-	// update altitude of dolphin based on height map
+		//--------------Altitude--------------
+		// update altitude of dolphin based on height map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
 		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 		//TODO: Add for ghost
-	
 		
-//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
+		
 
-//--------------HUD drawing----------------
+		//--------------HUD drawing----------------
+		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
 		dispStr2 = "(" + cam.getLocation().x() + ", " + cam.getLocation().y() + ", " + cam.getLocation().z() + ")";
-
 		engine.getHUDmanager().setHUDValue(HUDscore, dispStr1);
 		engine.getHUDmanager().setHUDValue(HUDCoords, dispStr2);
 		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
-
-//--------------Game Loop----------------
+		
+		//--------------Game Loop----------------
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
-    	if(isClientConnected){
+    	if(isClientConnected)
+		{
         	protClient.sendMoveMessage(avatar.getWorldLocation());
 			processNetworking((float)elapsTime);
+		}
 	}
 	
-	@Override
-	public void keyPressed(KeyEvent e)
-	{	switch (e.getKeyCode())
+	public void keyPressed(KeyEvent a)
+	{	switch (a.getKeyCode())
 		{	case KeyEvent.VK_ESCAPE:
 				protClient.sendByeMessage();
 				shutdown();
@@ -384,7 +358,6 @@ public class MyGame extends VariableFrameRateGame
 				break;
 		}
 	}
-
 
 		// ---------- NETWORKING SECTION ----------------
 
