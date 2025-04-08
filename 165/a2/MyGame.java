@@ -344,9 +344,10 @@ public class MyGame extends VariableFrameRateGame
 		im.update((float)elapsTime);
     	if(isClientConnected)
 		{
-        	protClient.sendMoveMessage(avatar.getWorldLocation());
-			processNetworking((float)elapsTime);
+        	protClient.sendMoveMessage(avatar.getWorldLocation());	
 		}
+		
+		processNetworking((float)elapsTime);
 	}
 	
 	public void keyPressed(KeyEvent a)
