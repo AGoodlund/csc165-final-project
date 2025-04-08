@@ -1,5 +1,5 @@
 import java.io.IOException;
-import networking.IGameConnection.ProtocolType;
+import tage.networking.IGameConnection.ProtocolType;
 
 public class NetworkingServer 
 {
