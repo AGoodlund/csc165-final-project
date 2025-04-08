@@ -165,12 +165,15 @@ public class MyGame extends VariableFrameRateGame
 		(y.getRenderStates()).setColor(new Vector3f(spot.green));
 		(z.getRenderStates()).setColor(new Vector3f(spot.blue));
 		hideableShapes.add(x); hideableShapes.add(y); hideableShapes.add(z);
+		x.getRenderStates().disableRendering();
+		y.getRenderStates().disableRendering();
+		z.getRenderStates().disableRendering();
 		
 		//Terrain
 		terr = new GameObject(GameObject.root(),terrS,grass);
-		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		initialTranslation = (new Matrix4f()).translation(0f,-0.25f,0f);
 		terr.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(200.0f, 1.0f, 200.0f);
+		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
 		// set tiling for terrain texture
@@ -258,8 +261,8 @@ public class MyGame extends VariableFrameRateGame
 		//https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
 		ForBAction forward = new ForBAction(this, 1, protClient);			//move actions
 		ForBAction back = new ForBAction(this, -1, protClient);
-		LorRTurnAction left = new LorRTurnAction(this, 1); 			//yaw left and right
-		LorRTurnAction right = new LorRTurnAction(this, -1);
+		LorRTurnAction left = new LorRTurnAction(this, 1, protClient); 			//yaw left and right
+		LorRTurnAction right = new LorRTurnAction(this, -1, protClient);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, back, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);

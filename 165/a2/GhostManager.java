@@ -65,6 +65,14 @@ public class GhostManager
 		}
 	}
 
+	public void turnGhostAvatar(UUID id, Matrix4f orientation){
+		GhostAvatar ghostAvatar = findAvatar(id);
+		if(ghostAvatar != null)
+			ghostAvatar.setLocalRotation(orientation);
+		else
+		System.out.println("tried to update ghost avatar rotation, but unable to find ghost in list");
+	}
+
 	public void setGhostScale(UUID id, float scale){ 
 		GhostAvatar ghost = findAvatar(id);
 		if(ghost != null)

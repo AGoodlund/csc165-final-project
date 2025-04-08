@@ -27,7 +27,7 @@ public class ProtocolClient extends GameConnectionClient
 	public UUID getID() { return id; }
 	
 	@Override
-	protected void processPacket(Object message)
+	protected void processPacket(Object message)	//TODO: make a message class that holds the message type and a single vector and matrix that can be used by the Handles
 	{	String strMessage = (String)message;
 		System.out.println("message received -->" + strMessage);
 		String[] messageTokens = strMessage.split(",");
@@ -88,6 +88,21 @@ public class ProtocolClient extends GameConnectionClient
 				// Parse out the id into a UUID
 				UUID ghostID = UUID.fromString(messageTokens[1]);
 				sendDetailsForMessage(ghostID, game.getPlayerPosition());
+			}
+
+			if(messageTokens[0].compareTo("turn")==0){
+				//Format: (turn,remoteID,worldRotation)	note: no up vector because it's 0,1,0 
+				UUID ghostID = UUID.fromString(messageTokens[1]);
+				System.out.println("attempting to turn");
+
+				//parse into a matrix
+				Matrix4f rotation = new Matrix4f( //Ur, Uu, Uf, 0, Vr, Vu, Vf, 0, nR, Nu, Nf, 0, 0, 0, 0, 1
+					Float.parseFloat(messageTokens[2]),Float.parseFloat(messageTokens[3]),Float.parseFloat(messageTokens[4]),Float.parseFloat(messageTokens[5]),
+					Float.parseFloat(messageTokens[6]),Float.parseFloat(messageTokens[7]),Float.parseFloat(messageTokens[8]),Float.parseFloat(messageTokens[9]),
+					Float.parseFloat(messageTokens[10]),Float.parseFloat(messageTokens[11]),Float.parseFloat(messageTokens[12]),Float.parseFloat(messageTokens[13]),
+					Float.parseFloat(messageTokens[14]),Float.parseFloat(messageTokens[15]),Float.parseFloat(messageTokens[16]),Float.parseFloat(messageTokens[17])
+				);
+				ghostManager.turnGhostAvatar(ghostID, rotation);
 			}
 			
 			// Handle MOVE message
@@ -178,4 +193,30 @@ public class ProtocolClient extends GameConnectionClient
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+
+	public void sendTurnMessage(Matrix4f orientation){
+		try{
+			String message = new String("turn," + id.toString());
+			message += "," + orientation.m00();
+			message += "," + orientation.m10();
+			message += "," + orientation.m20();
+			message += "," + orientation.m30();
+			message += "," + orientation.m01();
+			message += "," + orientation.m11();
+			message += "," + orientation.m21();
+			message += "," + orientation.m31();
+			message += "," + orientation.m02();
+			message += "," + orientation.m12();
+			message += "," + orientation.m22();
+			message += "," + orientation.m32();
+			message += "," + orientation.m03();
+			message += "," + orientation.m13();
+			message += "," + orientation.m23();
+			message += "," + orientation.m33();
+
+			sendPacket(message);
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
 }

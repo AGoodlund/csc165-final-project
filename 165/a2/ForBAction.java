@@ -43,7 +43,7 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             oldPos = cam.getLocation();
             fwdDir = cam.getN(); //N is the camera's forward vector
 
-            if(keyboard)
+//            if(keyboard)
                 keyValue *= direction;
             fwdDir.mul(time*spot.runSpeed * keyValue);
             newPos = oldPos.add(fwdDir.x(),fwdDir.y(),fwdDir.z());
