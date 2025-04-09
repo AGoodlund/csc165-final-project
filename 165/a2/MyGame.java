@@ -180,6 +180,12 @@ public class MyGame extends VariableFrameRateGame
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
 	}
+	
+	public float getTerrainHeight(float x, float z)
+	{
+		float height = terr.getHeight(x,z);
+		return height;
+	}
 
 	@Override
 	public void initializeLights()
@@ -329,9 +335,8 @@ public class MyGame extends VariableFrameRateGame
 		//--------------Altitude--------------
 		// update altitude of dolphin based on height map
 		Vector3f loc = avatar.getWorldLocation();
-		float height = terr.getHeight(loc.x(), loc.z());
+		float height = getTerrainHeight(loc.x(), loc.z());
 		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
-		//TODO: Add for ghost
 		
 		
 
@@ -347,7 +352,8 @@ public class MyGame extends VariableFrameRateGame
 		im.update((float)elapsTime);
     	if(isClientConnected)
 		{
-        	protClient.sendMoveMessage(avatar.getWorldLocation());	
+        	protClient.sendMoveMessage(avatar.getWorldLocation());
+			protClient.sendTurnMessage(avatar.getWorldRotation());
 		}
 		
 		processNetworking((float)elapsTime);

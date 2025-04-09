@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import tage.networking.server.GameConnectionServer;
 import tage.networking.server.IClientInfo;
+import org.joml.*;
 
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
@@ -59,6 +60,33 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				String[] pos = {messageTokens[3], messageTokens[4], messageTokens[5]};
 				sendDetailsForMessage(clientID, remoteID, pos);
 			}
+			// TURN --- Case where server receives a turn message
+			// Received Message Format: (turn,localId,x,y,z)
+			if(messageTokens[0].compareTo("turn") == 0)
+			{	//UUID clientID = UUID.fromString(messageTokens[1]);
+				
+					//System.out.println(message);
+					
+					//Format: (turn,remoteID,worldRotation)	note: no up vector because it's 0,1,0 
+				UUID ghostID = UUID.fromString(messageTokens[1]);
+				System.out.println("Attempting to turn");
+
+
+				//String [] Small = {messageTokens[2], messageTokens[3]};
+				String [] orientationStrOut = {messageTokens[2], messageTokens[3],messageTokens[4],messageTokens[5],
+					messageTokens[6],messageTokens[7],messageTokens[8],messageTokens[9], messageTokens[10],messageTokens[11],
+					messageTokens[12],messageTokens[13], messageTokens[14], messageTokens[15], messageTokens[16],messageTokens[17]};
+				
+				//String orientationStr = orientation.toString();
+				//System.out.println(orientationStr);
+				sendTurnMessages(ghostID, orientationStrOut);
+				
+				//sendMoveMessages(clientID, orientation);
+				//ghostManager.turnGhostAvatar(ghostID, orientation);
+				
+				//String [] ori = {messageTokens[2], messageTokens[3], messageTokens[4], messageTokens[5], messageTokens[6], messageTokens[7], messageTokens[8], messageTokens[9], messageTokens[10], messageTokens[11], messageTokens[12], messageTokens[13], messageTokens[14], messageTokens[15], messageTokens[16], messageTokens[17], messageTokens[18]};
+				//sendTurnMessages(clientID, ori);
+			}
 			
 			// MOVE --- Case where server receives a move message
 			// Received Message Format: (move,localId,x,y,z)
@@ -67,6 +95,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendMoveMessages(clientID, pos);
 	}	}	}
+	
 
 	// Informs the client who just requested to join the server if their if their 
 	// request was able to be granted. 
@@ -162,6 +191,31 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			message += "," + position[0];
 			message += "," + position[1];
 			message += "," + position[2];
+			forwardPacketToAll(message, clientID);
+		} 
+		catch (IOException e) 
+		{	e.printStackTrace();
+	}	}
+	
+		public void sendTurnMessages(UUID clientID, String[] orientation)
+	{	try 
+		{	String message = new String("turn," + clientID.toString());
+			message += "," + orientation[0];
+			message += "," + orientation[1];
+			message += "," + orientation[2];
+			message += "," + orientation[3];
+			message += "," + orientation[4];
+			message += "," + orientation[5];
+			message += "," + orientation[6];
+			message += "," + orientation[7];
+			message += "," + orientation[8];
+			message += "," + orientation[9];
+			message += "," + orientation[10];
+			message += "," + orientation[11];
+			message += "," + orientation[12];
+			message += "," + orientation[13];
+			message += "," + orientation[14];
+			message += "," + orientation[15];
 			forwardPacketToAll(message, clientID);
 		} 
 		catch (IOException e) 

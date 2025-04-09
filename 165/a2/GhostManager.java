@@ -55,22 +55,41 @@ public class GhostManager
 		return null;
 	}
 	
-	public void updateGhostAvatar(UUID id, Vector3f position)
-	{	GhostAvatar ghostAvatar = findAvatar(id);
+	public void updateGhostAvatar(UUID id, Vector3f position, Matrix4f orientation)
+	{		
+		setGhostPosition(id, position);
+	}
+	
+	public void setGhostPosition (UUID id, Vector3f position)
+	{
+		GhostAvatar ghostAvatar = findAvatar(id);
+		
 		if (ghostAvatar != null)
-		{	ghostAvatar.setPosition(position);
+		{	
+			float height = game.getTerrainHeight(position.x(), position.z());
+			//Update Altitude
+			position.add(0.0f, height, 0.0f);
+			ghostAvatar.setPosition(position);
 		}
 		else
-		{	System.out.println("tried to update ghost avatar position, but unable to find ghost in list");
+		{	System.out.println("Tried to update ghost avatar position, but unable to find ghost in list");
 		}
 	}
 
 	public void turnGhostAvatar(UUID id, Matrix4f orientation){
 		GhostAvatar ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
-			ghostAvatar.setLocalRotation(orientation);
+			{
+				/*Matrix4f rotationFix = new Matrix4f(1.0f,1.0f,1.0f,1.0f,
+													1.0f,1.0f,1.0f,1.0f,
+													1.0f,1.0f,1.0f,1.0f,
+													1.0f,1.0f,1.0f,1.0f);
+				orientation = orientation.mul(rotationFix);*/
+				ghostAvatar.setLocalRotation(orientation);
+			}
+			
 		else
-		System.out.println("tried to update ghost avatar rotation, but unable to find ghost in list");
+		System.out.println("Tried to update ghost avatar rotation, but unable to find ghost in list");
 	}
 
 	public void setGhostScale(UUID id, float scale){ 

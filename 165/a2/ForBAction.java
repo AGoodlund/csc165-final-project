@@ -63,7 +63,11 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
         }
         
         if(protClient != null)
-            protClient.sendMoveMessage(obj.getWorldLocation());
+		{
+			//protClient.sendMoveMessage(obj.getWorldLocation());
+			//protClient.sendTurnMessage(obj.getWorldRotation());
+		}
+            
 
 /*      this moves the dolphin and not the camera so cam has to be tied to dolphin explicitely
         object = game.getAvatar();
