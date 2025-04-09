@@ -95,7 +95,7 @@ public class ProtocolClient extends GameConnectionClient
 			if(messageTokens[0].compareTo("turn")==0){
 				//Format: (turn,remoteID,worldRotation)	note: no up vector because it's 0,1,0 
 				UUID ghostID = UUID.fromString(messageTokens[1]);
-				System.out.println("Attempting to turn");
+//				System.out.println("Attempting to turn");
 
 				//parse into a matrix
 				ghostOrientation = new Matrix4f( //Ur, Uu, Uf, 0, Vr, Vu, Vf, 0, nR, Nu, Nf, 0, 0, 0, 0, 1

@@ -33,8 +33,11 @@ public class spot {
 //      if nothing else try to run it after changing the folder to see what breaks
 
 //make a node controller that causes and object to scale up and down by an amount so it pulses
-/* NOTES
- * 
+/* NOTES: circa milestone 1
+ * skybox not from tage or 155
+ * character selection upon joining
+ *      model or texture choosing
+ *      doesn't *have* to be both
 
 COMPLETED
  * 
