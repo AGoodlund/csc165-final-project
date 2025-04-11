@@ -66,7 +66,7 @@ public class MyGame extends VariableFrameRateGame
 	private TextureImage ghostT;
 
 
-	public MyGame() { super(); System.out.println("Single Player boot up"); }
+	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
 		gm = new GhostManager(this);
@@ -76,7 +76,6 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.TCP;
 		else
 			this.serverProtocol = ProtocolType.UDP;
-		System.out.println("Multiplayer booting up");
 	}
 
 	
@@ -301,8 +300,7 @@ public class MyGame extends VariableFrameRateGame
 		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the program
 
 		//------------- Networking Section -------------
-		if(serverPort != -1)
-        {	setupNetworking();}
+		if(serverPort != -1) setupNetworking();
 	}
 	
 	private int findViewportMiddleX(String name, String text)

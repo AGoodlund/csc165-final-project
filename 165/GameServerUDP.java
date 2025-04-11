@@ -4,28 +4,36 @@ import java.util.UUID;
 
 import tage.networking.server.GameConnectionServer;
 import tage.networking.server.IClientInfo;
+import tage.networking.Message;
 import org.joml.*;
 
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
+	private static Message message = Message.getMessage();
+
 	public GameServerUDP(int localPort) throws IOException 
 	{	super(localPort, ProtocolType.UDP);
+
+//System.out.println("\nGameServer's message is " + message + "\n");
 	}
 
 	@Override
 	public void processPacket(Object o, InetAddress senderIP, int senderPort)
 	{
-		String message = (String)o;
-		String[] messageTokens = message.split(",");
+		message = (Message)o;//(object cast to a Message)
+		//TODO: make it so the object can be turned into 
+//		String message = (String)o;
+//		String[] messageTokens = message.split(",");
 		
-		if(messageTokens.length > 0)
-		{	// JOIN -- Case where client just joined the server
+//		if(messageTokens.length > 0)
+//		{	// JOIN -- Case where client just joined the server
 			// Received Message Format: (join,localId)
-			if(messageTokens[0].compareTo("join") == 0)
+//			if(messageTokens[0].compareTo("join") == 0)
+			if(message.type == Message.MessageType.JOIN)
 			{	try 
 				{	IClientInfo ci;					
 					ci = getServerSocket().createClientInfo(senderIP, senderPort);
-					UUID clientID = UUID.fromString(messageTokens[1]);
+					UUID clientID = message.getID();//UUID.fromString(messageTokens[1]);
 					addClient(ci, clientID);
 					System.out.println("Join request received from - " + clientID.toString());
 					sendJoinedMessage(clientID, true);
@@ -34,7 +42,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				{	e.printStackTrace();
 			}	}
 			
-			// BYE -- Case where clients leaves the server
+/* 			// BYE -- Case where clients leaves the server
 			// Received Message Format: (bye,localId)
 			if(messageTokens[0].compareTo("bye") == 0)
 			{	UUID clientID = UUID.fromString(messageTokens[1]);
@@ -44,7 +52,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			}
 			
 			// CREATE -- Case where server receives a create message (to specify avatar location)
-			// Received Message Format: (create,localId,x,y,z)
+			// Received Message Format: (create,localId,x,y,z) 
 			if(messageTokens[0].compareTo("create") == 0)
 			{	UUID clientID = UUID.fromString(messageTokens[1]);
 				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
@@ -94,9 +102,9 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			{	UUID clientID = UUID.fromString(messageTokens[1]);
 				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendMoveMessages(clientID, pos);
-	}	}	}
+	}*/	}//	}
 	
-
+//TODO: this is where messages are created
 	// Informs the client who just requested to join the server if their if their 
 	// request was able to be granted. 
 	// Message Format: (join,success) or (join,failure)
@@ -104,13 +112,17 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	public void sendJoinedMessage(UUID clientID, boolean success)
 	{	try 
 		{	System.out.println("trying to confirm join");
-			String message = new String("join,");
+			message.addItem(Message.MessageType.JOIN);
+			message.setSuccess(success);
+			message.addItem(clientID);
+			sendPacket(message, clientID);
+/* 			String message = new String("join,");
 			if(success)
-				message += "success";
+				message += "success";	//TODO:Should this made a boolean in Message?
 			else
 				message += "failure";
 			sendPacket(message, clientID);
-		} 
+*/		} 
 		catch (IOException e) 
 		{	e.printStackTrace();
 	}	}

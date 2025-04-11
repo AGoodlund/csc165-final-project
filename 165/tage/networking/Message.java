@@ -2,14 +2,21 @@ package tage.networking;
 
 import org.joml.Vector3f;
 import org.joml.Matrix4f;
+
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Message {  //the thing that gets sent rather than strings
+/** class for normalizing client/server communication
+ * @author: Aaron Goodlund
+ */
+
+public class Message implements Serializable{  //the thing that gets sent rather than strings
     private float[] vector; //could be expanded to a 3x3 matrix if it could be used to send UVN vectors
     private float[] matrix;
     private UUID ID;
     private static Message message;//singleton to force reuse
     private int i;
+    private boolean respondSuccessful;
 
     public MessageType type;
     
@@ -21,7 +28,8 @@ public class Message {  //the thing that gets sent rather than strings
     CREATE,
     DSFR,
     TURN,
-    MOVE
+    MOVE,
+    RESPOND
     }
 
     private Message(){
@@ -31,7 +39,7 @@ public class Message {  //the thing that gets sent rather than strings
     }
 
 /** Singleton construction */
-    public Message getMessage(){
+    public static Message getMessage(){
         if(message == null)
             message = new Message();
         return message;
@@ -75,16 +83,18 @@ public class Message {  //the thing that gets sent rather than strings
                             matrix[12], matrix[13], matrix[14], matrix[15]);
     }
 //might be able to do a helper version that uses pointers to fill a passed helper rather than creating and returning 
-//the vector/matrix object. for matrix use Matrix4f.m__(float) to put everything into moo-m33
+//the vector/matrix object. for matrix use Matrix4f.m__(float) to put everything into moo-m33 (Gordan says should work)
 
-/** fill dest with values from message's Vector UNTESTED */
-    public void getVector(Vector3f dest){ dest.x(vector[0]); dest.y(vector[1]); dest.z(vector[2]); }
+/** fill dest with values from message's Vector UNTESTED*/
+    public Vector3f getVector(Vector3f dest){ dest.set(vector); return dest; }//dest.x(vector[0]); dest.y(vector[1]); dest.z(vector[2]); }
 /** fill dest with values from message's Matrix UNTESTED */
-    public void getMatrix(Matrix4f dest){ 
+    public Matrix4f getMatrix(Matrix4f dest){ 
+        dest.set(matrix); return dest;
+        /* 
         dest.m00(matrix[0]); dest.m10(matrix[1]); dest.m20(matrix[2]); dest.m30(matrix[3]);
         dest.m01(matrix[4]); dest.m11(matrix[5]); dest.m21(matrix[6]); dest.m31(matrix[7]);
         dest.m02(matrix[8]); dest.m12(matrix[9]); dest.m22(matrix[10]); dest.m32(matrix[11]);
-        dest.m03(matrix[12]); dest.m13(matrix[13]); dest.m23(matrix[14]); dest.m33(matrix[15]);
+        dest.m03(matrix[12]); dest.m13(matrix[13]); dest.m23(matrix[14]); dest.m33(matrix[15]);*/
     }
 //I don't know if either of these actually work
 /** get UUID number from message */
@@ -122,7 +132,9 @@ public class Message {  //the thing that gets sent rather than strings
         for(i = 0; i < 16; i++)
             matrix[i] = i%4; //if all goes well this should turn it into the identity
         type = MessageType.DEFAULT;
-
         //ID can't be cleared easily as far as I can tell
     }
+
+    public boolean getSuccess(){ return respondSuccessful; }
+    public void setSuccess(boolean s){ respondSuccessful = s;} 
 }

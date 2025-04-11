@@ -10,6 +10,7 @@ import org.joml.*;
 
 import tage.*;
 import tage.networking.client.GameConnectionClient;
+import tage.networking.Message;
 
 public class ProtocolClient extends GameConnectionClient
 {
@@ -17,18 +18,23 @@ public class ProtocolClient extends GameConnectionClient
 	private GhostManager ghostManager;
 	private UUID id;
 	private Matrix4f ghostOrientation = new Matrix4f();
+	private Matrix4f ghostMatrix = new Matrix4f();
+	private Vector3f ghostVector = new Vector3f();
+	private static Message message = Message.getMessage();
 	
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
 		this.id = UUID.randomUUID();
 		ghostManager = game.getGhostManager();
+
+//		System.out.println("\nProtocolClient's message is " + message + "\n");
 	}
 	
 	public UUID getID() { return id; }
 	
 	@Override
-	protected void processPacket(Object message)	//TODO: make a message class that holds the message type and a single vector and matrix that can be used by the Handles
+	protected void processPacket(Object message)
 	{	String strMessage = (String)message;
 		System.out.println("message received -->" + strMessage);
 		String[] messageTokens = strMessage.split(",");
@@ -124,7 +130,7 @@ public class ProtocolClient extends GameConnectionClient
 				ghostManager.updateGhostAvatar(ghostID, ghostPosition, ghostOrientation);
 	}	}	}
 	
-	
+//TODO: this is where messages are created	
 	// The initial message from the game client requesting to join the 
 	// server. localId is a unique identifier for the client. Recommend 
 	// a random UUID.
@@ -132,7 +138,10 @@ public class ProtocolClient extends GameConnectionClient
 	
 	public void sendJoinMessage()
 	{	try 
-		{	sendPacket(new String("join," + id.toString()));
+		{	message.addItem(id);
+			message.addItem(Message.MessageType.JOIN);
+			sendPacket(message);
+//			sendPacket(new String("join," + id.toString()));
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
