@@ -71,10 +71,8 @@ public class GameObject
 
 	/** returns a reference to the scenegraph root node */
 	public static GameObject root() { return root; }
+
 	//------------------------------------------------------
-
-	public boolean disarmed = false, destroyed = false; //TODO: get rid of this
-
 	private ObjShape shape;
 	private TextureImage texture;
 	private TextureImage heightMap = (TextureImage) new DefaultHeightMap();
@@ -90,6 +88,8 @@ public class GameObject
 
 	private PhysicsObject physicsObject;
 	private boolean isTerrain = false;
+
+	public boolean destroyed, disarmed; //TODO: remove from here and connected actions
 
 	//------------------ CONSTRUCTORS -----------------
 

@@ -13,3 +13,5 @@ del .\tage\physics\*.class
 del .\tage\physics\JBullet\*.class
 del .\tage\rml\*.class
 del .\tage\shapes\*.class
+del .\*.class
+del .\a2\*.class

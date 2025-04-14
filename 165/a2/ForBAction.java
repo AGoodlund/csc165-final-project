@@ -7,13 +7,13 @@ import net.java.games.input.Event;
 import org.joml.*;
 
 public class ForBAction extends AbstractInputAction {    //move camera+avatar forward
-    private GameObject obj = null;
-    private Camera cam = null;
+    private GameObject obj;
+    private MyGame game;
+    private Camera cam;
     private int direction = 1;
     private boolean keyboard = false;
     private float keyValue;
-    private float limit;
-    private ProtocolClient protClient = null;
+    private ProtocolClient protClient;
 
     private Vector3f oldPos, newPos, fwdDir;
     
@@ -31,7 +31,7 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
 /** Constructor for Camera moving independently with keyboard */
     public ForBAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; }
     
-    public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
+    public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; game = g; } //TODO add game = g to the other initializers
 
 @Override
     public void performAction(float time, Event e){
@@ -47,27 +47,26 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
                 keyValue *= direction;
             fwdDir.mul(time*spot.runSpeed * keyValue);
             newPos = oldPos.add(fwdDir.x(),fwdDir.y(),fwdDir.z());
-            if(newPos.y() < limit)
-                ;
-            else
-                cam.setLocation(newPos);
+
+            cam.setLocation(newPos);
         }
 
         if(obj != null){
             fwdDir = obj.getLocalForwardVector();
 
-            if(keyboard)
+//            if(keyboard)
                 keyValue *= direction;
             fwdDir.mul(time*spot.runSpeed*keyValue);
+//            height = game.getTerrainHeight(fwdDir.x(), fwdDir.z());
             obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
         }
         
         if(protClient != null)
 		{
-			//protClient.sendMoveMessage(obj.getWorldLocation());
+			protClient.sendMoveMessage(obj.getWorldLocation());
+//System.out.println("ForBAction moved to " + obj.getWorldLocation());
 			//protClient.sendTurnMessage(obj.getWorldRotation());
 		}
-            
 
 /*      this moves the dolphin and not the camera so cam has to be tied to dolphin explicitely
         object = game.getAvatar();

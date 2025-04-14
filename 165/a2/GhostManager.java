@@ -14,6 +14,7 @@ public class GhostManager
 {
 	private MyGame game;
 	private Vector<GhostAvatar> ghostAvatars = new Vector<GhostAvatar>();
+	private GhostAvatar ghostAvatar;
 
 	public GhostManager(VariableFrameRateGame vfrg)
 	{	game = (MyGame)vfrg;
@@ -33,19 +34,18 @@ public class GhostManager
 	}
 	
 	public void removeGhostAvatar(UUID id)
-	{	GhostAvatar ghostAvatar = findAvatar(id);
+	{	ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
 		{	game.getEngine().getSceneGraph().removeGameObject(ghostAvatar);
 			ghostAvatars.remove(ghostAvatar);
 		}
 		else
-		{	System.out.println("tried to remove, but unable to find ghost in list");
+		{	System.out.println("tried to remove, but unable to find ghost in list\n" + "Cannot find UUID " + id);
 		}
 	}
 
 	private GhostAvatar findAvatar(UUID id)
-	{	GhostAvatar ghostAvatar;
-		Iterator<GhostAvatar> it = ghostAvatars.iterator();
+	{	Iterator<GhostAvatar> it = ghostAvatars.iterator();
 		while(it.hasNext())
 		{	ghostAvatar = it.next();
 			if(ghostAvatar.getID().compareTo(id) == 0)
@@ -55,46 +55,35 @@ public class GhostManager
 		return null;
 	}
 	
-	public void updateGhostAvatar(UUID id, Vector3f position, Matrix4f orientation)
+	public void updateGhostAvatar(UUID id, Vector3f position)
 	{		
 		setGhostPosition(id, position);
+	}
+	public void updateGhostAvatar(UUID id, Matrix4f orientation){
+		turnGhostAvatar(id, orientation);
 	}
 	
 	public void setGhostPosition (UUID id, Vector3f position)
 	{
-		GhostAvatar ghostAvatar = findAvatar(id);
+		ghostAvatar = findAvatar(id);
 		
 		if (ghostAvatar != null)
-		{	
-			float height = game.getTerrainHeight(position.x(), position.z());
-			//Update Altitude
-			position.add(0.0f, height, 0.0f);
 			ghostAvatar.setPosition(position);
-		}
+//System.out.println("ghost " + id + " sent pos " + position);
 		else
-		{	System.out.println("Tried to update ghost avatar position, but unable to find ghost in list");
+		{	System.out.println("Tried to update ghost avatar position, but unable to find ghost in list\nCannot find UUID " + id);
 		}
 	}
 
 	public void turnGhostAvatar(UUID id, Matrix4f orientation){
-		GhostAvatar ghostAvatar = findAvatar(id);
+		ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
-			{
-				/*Matrix4f rotationFix = new Matrix4f(1.0f,1.0f,1.0f,1.0f,
-													1.0f,1.0f,1.0f,1.0f,
-													1.0f,1.0f,1.0f,1.0f,
-													1.0f,1.0f,1.0f,1.0f);
-				orientation = orientation.mul(rotationFix);*/
-				ghostAvatar.setLocalRotation(orientation);
-			}
-			
-		else
-		System.out.println("Tried to update ghost avatar rotation, but unable to find ghost in list");
+			ghostAvatar.setLocalRotation(orientation);
 	}
 
 	public void setGhostScale(UUID id, float scale){ 
-		GhostAvatar ghost = findAvatar(id);
-		if(ghost != null)
-			ghost.setLocalScale(new Matrix4f().scaling(scale));
+		ghostAvatar = findAvatar(id);
+		if(ghostAvatar != null)
+		ghostAvatar.setLocalScale(new Matrix4f().scaling(scale));
 	}
 }

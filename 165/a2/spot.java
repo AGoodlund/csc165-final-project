@@ -27,6 +27,9 @@ public class spot {
 
 //---------------------------   Textures    ---------------------------
     public static String skyboxFile = "lakeIslands";//, avatarTexture, ghostTexture, groundTexture;
+
+//---------------------------   Ghosts      ---------------------------
+    public static float startingScale = 3f;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name

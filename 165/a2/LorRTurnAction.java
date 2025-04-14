@@ -40,7 +40,7 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
             cam.yaw(time * spot.turnSpeed * keyValue);
         if(obj != null)
             obj.yaw(time * spot.turnSpeed * keyValue);
-        //if(protClient != null)
-            //protClient.sendTurnMessage(obj.getWorldRotation());
+        if(protClient != null)
+            protClient.sendTurnMessage(obj.getLocalRotation());
     }    
 }

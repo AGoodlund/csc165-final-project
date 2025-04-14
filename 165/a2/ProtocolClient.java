@@ -16,46 +16,111 @@ public class ProtocolClient extends GameConnectionClient
 {
 	private MyGame game;
 	private GhostManager ghostManager;
-	private UUID id;
-	private Matrix4f ghostOrientation = new Matrix4f();
+	private UUID id, ghostID;
+//	private Matrix4f ghostOrientation = new Matrix4f();
 	private Matrix4f ghostMatrix = new Matrix4f();
 	private Vector3f ghostVector = new Vector3f();
-	private static Message message = Message.getMessage();
+	private Message message = Message.getMessage();
+	private Message.MessageType t;
 	
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
 		this.id = UUID.randomUUID();
 		ghostManager = game.getGhostManager();
-
-//		System.out.println("\nProtocolClient's message is " + message + "\n");
 	}
 	
 	public UUID getID() { return id; }
-	
+
 	@Override
-	protected void processPacket(Object message)
-	{	String strMessage = (String)message;
-		System.out.println("message received -->" + strMessage);
-		String[] messageTokens = strMessage.split(",");
+	protected void processPacket(Object o)
+	{	message.copy((Message)o);
+		t = message.type;
+//System.out.println("At beginning of processPacket in Protocol\n\nmessage is\n" + message);
+					//getID is receiver (here), getRemoteID is sender(GameServer)
+		switch(t){	//making a switch statement because it's faster than if/else
+			case JOIN:
+				if(message.getSuccess())
+				{	System.out.println("join success confirmed");
+					game.setIsConnected(true);
+					sendCreateMessage(game.getPlayerPosition(), game.getPlayerRotation());
+				}
+				else
+				{	System.out.println("join failure confirmed");
+					game.setIsConnected(false);
+				}
+				break;
+			case BYE:
+				ghostID = message.getRemoteID();
+				ghostManager.removeGhostAvatar(ghostID);
+				break;
+			case DSFR: 
+				message.getVector(ghostVector);
+				ghostID = message.getRemoteID();
+				try
+				{	ghostManager.createGhostAvatar(ghostID, ghostVector, spot.startingScale);
+System.out.println("This ghost was made by ID" + id+" in ProtocolClient DSFR at position " + ghostVector.toString());
+				}	catch (IOException e)
+				{	System.out.println("error creating ghost avatar");
+				}
+				break;
+			case CREATE:
+				message.getVector(ghostVector);
+				message.getMatrix(ghostMatrix);
+				ghostID = message.getRemoteID();
+				try
+				{	ghostManager.createGhostAvatar(ghostID, ghostVector, spot.startingScale);
+					ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
+System.out.println("This ghost was made by "+id+" in ProtocolClient CREATE at position " + ghostVector.toString());
+				}	catch (IOException e)
+				{	System.out.println("error creating ghost avatar");
+				}
+				break;
+			case WSDS:
+				ghostID = message.getRemoteID();
+				sendDetailsForMessage(ghostID, game.getPlayerPosition());
+				break;
+			case MOVE:
+				message.getVector(ghostVector);
+				ghostID = message.getRemoteID();
+				ghostManager.updateGhostAvatar(ghostID, ghostVector);
+//System.out.println("in Protocol the ghostVector = " + ghostVector);
+				break;
+			case TURN:
+				message.getMatrix(ghostMatrix);
+				ghostID = message.getRemoteID();
+				ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
+				break;
+			case DEFAULT:
+				break;
+			default:
+				System.out.println("an unknown MessageType was sent to ProtocolClient");
+		}
+	}
+
+//		String strMessage = (String)message;
+//		System.out.println("message received -->" + strMessage);
+//		String[] messageTokens = strMessage.split(",");
 		
 		// Game specific protocol to handle the message
-		if(messageTokens.length > 0)
+//		if(messageTokens.length > 0)
+/*		if(message.type != Message.MessageType.DEFAULT)
 		{
 			// Handle JOIN message
 			// Format: (join,success) or (join,failure)
-			if(messageTokens[0].compareTo("join") == 0)
-			{	if(messageTokens[1].compareTo("success") == 0)
+//			if(messageTokens[0].compareTo("join") == 0)
+			{	//if(messageTokens[1].compareTo("success") == 0)
+				if(message.getSuccess())
 				{	System.out.println("join success confirmed");
 					game.setIsConnected(true);
 					sendCreateMessage(game.getPlayerPosition());
 				}
-				if(messageTokens[1].compareTo("failure") == 0)
+				else
 				{	System.out.println("join failure confirmed");
 					game.setIsConnected(false);
 			}	}
 			
-			// Handle BYE message
+ 			// Handle BYE message
 			// Format: (bye,remoteId)
 			if(messageTokens[0].compareTo("bye") == 0)
 			{	// remove ghost avatar with id = remoteId
@@ -127,8 +192,8 @@ public class ProtocolClient extends GameConnectionClient
 					Float.parseFloat(messageTokens[3]),
 					Float.parseFloat(messageTokens[4]));
 				
-				ghostManager.updateGhostAvatar(ghostID, ghostPosition, ghostOrientation);
-	}	}	}
+				ghostManager.updateGhostAvatar(ghostID, ghostPosition);
+	}	}	}*/
 	
 //TODO: this is where messages are created	
 	// The initial message from the game client requesting to join the 
@@ -141,6 +206,7 @@ public class ProtocolClient extends GameConnectionClient
 		{	message.addItem(id);
 			message.addItem(Message.MessageType.JOIN);
 			sendPacket(message);
+//			message.clear();
 //			sendPacket(new String("join," + id.toString()));
 		} catch (IOException e) 
 		{	e.printStackTrace();
@@ -151,7 +217,12 @@ public class ProtocolClient extends GameConnectionClient
 
 	public void sendByeMessage()
 	{	try 
-		{	sendPacket(new String("bye," + id.toString()));
+		{	
+			message.addItem(id);
+			message.addItem(Message.MessageType.BYE);
+			sendPacket(message);
+			message.clear();
+			//sendPacket(new String("bye," + id.toString()));
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
@@ -161,14 +232,20 @@ public class ProtocolClient extends GameConnectionClient
 	// with the server.
 	// Message Format: (create,localId,x,y,z) where x, y, and z represent the position
 
-	public void sendCreateMessage(Vector3f position)
+	public void sendCreateMessage(Vector3f position, Matrix4f facing)
 	{	try 
-		{	String message = new String("create," + id.toString());
+		{	
+			message.addItem(id);
+			message.addItem(Message.MessageType.CREATE);
+			message.addItem(position);
+			message.addItem(facing);
+			/*String message = new String("create," + id.toString());
 			message += "," + position.x();
 			message += "," + position.y();
-			message += "," + position.z();
-			
+			message += "," + position.z();*/
+
 			sendPacket(message);
+//			message.clear();
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
@@ -181,12 +258,18 @@ public class ProtocolClient extends GameConnectionClient
 
 	public void sendDetailsForMessage(UUID remoteId, Vector3f position)
 	{	try 
-		{	String message = new String("dsfr," + remoteId.toString() + "," + id.toString());
+		{	
+			message.addItem(id);
+			message.addRemoteID(remoteId);
+			message.addItem(Message.MessageType.DSFR);
+			message.addItem(position);
+			/*String message = new String("dsfr," + remoteId.toString() + "," + id.toString());
 			message += "," + position.x();
 			message += "," + position.y();
-			message += "," + position.z();
-			
+			message += "," + position.z();*/
+
 			sendPacket(message);
+//			message.clear();
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
@@ -196,19 +279,29 @@ public class ProtocolClient extends GameConnectionClient
 
 	public void sendMoveMessage(Vector3f position)
 	{	try 
-		{	String message = new String("move," + id.toString());
+		{	
+			message.addItem(id);
+			message.addItem(Message.MessageType.MOVE);
+			message.addItem(position);
+//System.out.println("position in protocol is " + position);
+//System.out.println("message in sendMoveMessage in ProtocolClient\n" +message.toString());
+			/*String message = new String("move," + id.toString());
 			message += "," + position.x();
 			message += "," + position.y();
-			message += "," + position.z();
-			
+			message += "," + position.z();*/
+
 			sendPacket(message);
+//			message.clear();
 		} catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
 
 	public void sendTurnMessage(Matrix4f orientation){
 		try{
-			String message = new String("turn," + id.toString());
+			message.addItem(id);
+			message.addItem(Message.MessageType.TURN);
+			message.addItem(orientation);
+			/*String message = new String("turn," + id.toString());
 			message += "," + orientation.m00();
 			message += "," + orientation.m10();
 			message += "," + orientation.m20();
@@ -224,8 +317,10 @@ public class ProtocolClient extends GameConnectionClient
 			message += "," + orientation.m03();
 			message += "," + orientation.m13();
 			message += "," + orientation.m23();
-			message += "," + orientation.m33();
+			message += "," + orientation.m33();*/
+
 			sendPacket(message);
+//			message.clear();
 			
 		} catch (IOException e){
 			e.printStackTrace();

@@ -239,6 +239,9 @@ public class MyGame extends VariableFrameRateGame
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
 		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
+
+		//------------- Networking Section -------------
+		if(serverPort != -1) setupNetworking();
     
 		// ------------- Node section ------------------
 		//rc = new RotationController(engine, new Vector3f(0,1,0), .001f);
@@ -260,7 +263,7 @@ public class MyGame extends VariableFrameRateGame
 		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
 		//			controller's buttons
 		
-			HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
+		HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 
 		//avatar movement
 		//https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
@@ -285,7 +288,6 @@ public class MyGame extends VariableFrameRateGame
 			//REMEMBER: buttons start at 0, but are shown starting at 1
 
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-			
 		}
 
 		//https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
@@ -297,10 +299,7 @@ public class MyGame extends VariableFrameRateGame
 		HUDCoords = engine.getHUDmanager().addHudElement(dispStr2, hud2Color, 15,15);
 		//engine.getHUDmanager().addHUDElement("Third HUD Test",white, engine.getRenderSystem().getWindowX(),engine.getRenderSystem().getWindowY());
 		//for(int i = 1; i <= 5; i++)
-		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the program
-
-		//------------- Networking Section -------------
-		if(serverPort != -1) setupNetworking();
+		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the progra
 	}
 	
 	private int findViewportMiddleX(String name, String text)
@@ -323,9 +322,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void update()
 	{
-			
 		//--------------Time Keeping--------------
-		// rotate dolphin if not paused
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
@@ -335,9 +332,9 @@ public class MyGame extends VariableFrameRateGame
 		Vector3f loc = avatar.getWorldLocation();
 		float height = getTerrainHeight(loc.x(), loc.z());
 		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+//TODO: pull this out of update() and into the move actions. check if y() == height +/- .005 first so it doesn't need to run repeatedly
+		//I think this also means as long as a ghost doesn't move it will always be at y=0
 		
-		
-
 		//--------------HUD drawing----------------
 		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
 		dispStr2 = "(" + cam.getLocation().x() + ", " + cam.getLocation().y() + ", " + cam.getLocation().z() + ")";
@@ -348,12 +345,13 @@ public class MyGame extends VariableFrameRateGame
 		//--------------Game Loop----------------
 		orb.updateCameraPosition();
 		im.update((float)elapsTime);
+/* 
     	if(isClientConnected)
 		{
         	protClient.sendMoveMessage(avatar.getWorldLocation());
 			protClient.sendTurnMessage(avatar.getWorldRotation());
 		}
-		
+//*/		
 		processNetworking((float)elapsTime);
 	}
 	
@@ -402,6 +400,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
+	public Matrix4f getPlayerRotation() { return avatar.getWorldRotation(); }
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	
