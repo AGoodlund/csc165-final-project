@@ -6,8 +6,10 @@ import java.util.UUID;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-/** class for normalizing client/server communication
- * @author: Aaron Goodlund
+/** Class for normalizing client/server communication
+ *  Built to be used primarily by ProtocolClient and GameServerUDP/TCP
+ * 
+ *  @author: Aaron Goodlund
  */
 
 public class Message implements Serializable{  //the thing that gets sent rather than strings
@@ -76,9 +78,11 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
     public void replyTo(UUID receiver){
         ID = remoteID;
         remoteID = receiver;
+
+//System.out.println("\nreceiver:\t" + receiver + "\nID:\t\t" + ID + "\nremoteID:\t" + remoteID);
     }
 
-    private void setIDType(UUID ID, UUID receiver, MessageType type){ this.ID = ID; receiver = remoteID; this.type = type; }
+    private void setIDType(UUID sender, UUID receiver, MessageType type){ ID = sender; receiver = remoteID; this.type = type; }
 
 /** fill dest with values from message's Vector */
     public void getVector(Vector3f dest){ dest.set(v); }
@@ -94,9 +98,10 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         m.identity();
         v.set(0f,0f,0f);
         type = MessageType.DEFAULT;
+        ID = remoteID = null;
         //ID can't be cleared easily as far as I can tell
     }
-
+/** copy the values from the given Message to this one */
     public void copy(Message m){
         ID = m.ID;
         remoteID = m.remoteID;
@@ -105,16 +110,19 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         respondSuccessful = m.respondSuccessful;
         type = m.type;
     }
+/** return whether connection was successful */
     public boolean getSuccess(){ return respondSuccessful; }
+/** set whether connection was successful */
     public void setSuccess(boolean s){ respondSuccessful = s;} 
-
+/** return the relevant stored values as a String */
     public String toString(){
         String s;
-        s = "MessageType = " + type;
-        s += "\nSender ID = " + ID;
-        s += "\nDestination ID = " + remoteID;
-        s += "\nv:\n" + v;
-        s += "\nm:\n" + m;
+        s = "\nContents of Message:\n";
+        s += "\tMessageType = " + type;
+        s += "\n\tSender ID = " + ID;
+        s += "\n\tDestination ID = " + remoteID;
+        s += "\n\tv:\n" + v;
+        s += "\n\tm:\n" + m;
 
         return s;
     }
