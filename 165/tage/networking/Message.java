@@ -13,7 +13,7 @@ import org.joml.Vector3f;
  */
 
 public class Message implements Serializable{  //the thing that gets sent rather than strings
-    private UUID ID, remoteID;  //ID is sender, remoteID is receiver
+    private UUID senderID, receiverID;
     private static Message message;//singleton to force reuse
     private boolean respondSuccessful;
     private int i;
@@ -69,42 +69,42 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
 /** add a Matrix4f to the message */
     public void addItem(Matrix4f input){ m.set(input); }
 /** add sender UUID to the message */
-    public void addItem(UUID sender){ ID = sender; }
+    public void addItem(UUID sender){ senderID = sender; }
 /** add a MessageType enum to the message */
     public void addItem(MessageType type){ this.type = type; }
 /** add a receiver UUID to the message */
-    public void addRemoteID(UUID receiver){ remoteID = receiver; }
-/** set ID to self and receiver to given UUID */
+    public void addDestination(UUID receiver){ receiverID = receiver; }
+/* * set ID to self and receiver to given UUID * /
     public void replyTo(UUID receiver){
-        ID = remoteID;
-        remoteID = receiver;
+        senderID = receiverID;
+        receiverID = receiver;
 
 //System.out.println("\nreceiver:\t" + receiver + "\nID:\t\t" + ID + "\nremoteID:\t" + remoteID);
-    }
+    }*/
 
-    private void setIDType(UUID sender, UUID receiver, MessageType type){ ID = sender; receiver = remoteID; this.type = type; }
+    private void setIDType(UUID sender, UUID receiver, MessageType type){ senderID = sender; receiver = receiverID; this.type = type; }
 
 /** fill dest with values from message's Vector */
     public void getVector(Vector3f dest){ dest.set(v); }
 /** fill dest with values from message's Matrix */
     public void getMatrix(Matrix4f dest){ dest.set(m); }
-/** get UUID number of the receiver */
-    public UUID getID(){ return remoteID; }
 /** get UUID number of the sender */
-    public UUID getRemoteID(){ return ID; } 
+    public UUID getSenderID(){ return senderID; }
+/** get UUID number of the receiver */
+    public UUID getReceiverID(){ return receiverID; } 
 
 /** clear vector, matrix, and MessageType data from the message. keeps sender and receiver UUIDs intact */
     public void clear(){
         m.identity();
         v.set(0f,0f,0f);
         type = MessageType.DEFAULT;
-        ID = remoteID = null;
+        senderID = receiverID = null;
         //ID can't be cleared easily as far as I can tell
     }
 /** copy the values from the given Message to this one */
     public void copy(Message m){
-        ID = m.ID;
-        remoteID = m.remoteID;
+        senderID = m.senderID;
+        receiverID = m.receiverID;
         v.set(m.v);
         this.m.set(m.m);
         respondSuccessful = m.respondSuccessful;
@@ -119,8 +119,8 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         String s;
         s = "\nContents of Message:\n";
         s += "\tMessageType = " + type;
-        s += "\n\tSender ID = " + ID;
-        s += "\n\tDestination ID = " + remoteID;
+        s += "\n\tSender ID = " + senderID;
+        s += "\n\tDestination ID = " + receiverID;
         s += "\n\tv:\n" + v;
         s += "\n\tm:\n" + m;
 

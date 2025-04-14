@@ -28,11 +28,11 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 					//RemoteID is the sender (protocolClient), ID is receiver (here) 
 		switch(t){
 			case JOIN:
-trace();
+
 				try{	
 					IClientInfo ci;					
 					ci = getServerSocket().createClientInfo(senderIP, senderPort);
-					clientID = message.getRemoteID();//UUID.fromString(messageTokens[1]);
+					clientID = message.getSenderID();//UUID.fromString(messageTokens[1]);
 					addClient(ci, clientID);
 					System.out.println("Join request received from - " + clientID.toString());
 					sendJoinedMessage(clientID, true);
@@ -40,46 +40,46 @@ trace();
 				catch (IOException e) { e.printStackTrace(); }
 				break;
 			case BYE:
-trace();
-				clientID = message.getRemoteID();
+
+				clientID = message.getSenderID();
 				System.out.println("Exit request received from - " + clientID.toString());
 				sendByeMessages(clientID);
 				removeClient(clientID);
 				break;
 			case CREATE:
-trace();
-				clientID = message.getRemoteID();
+
+				clientID = message.getSenderID();
 //				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendCreateMessages(clientID);//v);
 				sendWantsDetailsMessages(clientID);
 				break;
 			case DSFR:
-trace();
-				remoteID = message.getID();
+
+				remoteID = message.getReceiverID();
 //				String[] pos = {messageTokens[3], messageTokens[4], messageTokens[5]};
 				sendDetailsForMessage(remoteID);//v);
 				break;
 			case TURN:
-trace();
-				ghostID = message.getRemoteID();
+
+				ghostID = message.getSenderID();
 				sendTurnMessages(ghostID);//m);
 				break;
 			case MOVE:
-trace();
-				ghostID = message.getRemoteID();
+
+				ghostID = message.getSenderID();
 //System.out.println("message in case MOVE in GameServer\n" + message.toString());
 				sendMoveMessages(ghostID);//vf);
 				break;
 			case WSDS:
-trace();
+
 				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
 				break;
 			case DEFAULT:
-trace();
+
 				System.out.println("received blank message");
 				break;
 			default:
-trace();
+
 				System.out.println("an unknown MessageType was sent to GameServerUDP.java");
 		}
 	}
@@ -180,6 +180,6 @@ trace();
 	}	}
 
 public void trace(){
-	System.out.println("GAME_SERVER_UDP\n" +message.toString());
+	System.out.println("GAME_SERVER_UDP" +message.toString());
 }
 }

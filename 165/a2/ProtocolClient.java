@@ -40,7 +40,7 @@ public class ProtocolClient extends GameConnectionClient
 					//getID is receiver (here), getRemoteID is sender(GameServer)
 		switch(t){	//making a switch statement because it's faster than if/else
 			case JOIN:
-trace();
+
 				if(message.getSuccess())
 				{	System.out.println("join success confirmed");
 					game.setIsConnected(true);
@@ -52,15 +52,15 @@ trace();
 				}
 				break;
 			case BYE:
-trace();
-				ghostID = message.getRemoteID();
+
+				ghostID = message.getSenderID();
 				ghostManager.removeGhostAvatar(ghostID);
 				break;
 			case DSFR: 
-trace();
+
 				message.getVector(ghostVector);
 				message.getMatrix(ghostMatrix);
-				ghostID = message.getRemoteID();
+				ghostID = message.getSenderID();
 				try
 				{	ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
 //System.out.println("This ghost was made by ID" + id+" in ProtocolClient DSFR at position " + ghostVector.toString());
@@ -69,10 +69,10 @@ trace();
 				}
 				break;
 			case CREATE:
-trace();
+
 				message.getVector(ghostVector);
 				message.getMatrix(ghostMatrix);
-				ghostID = message.getRemoteID();
+				ghostID = message.getSenderID();
 				try
 				{	ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
 //					ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
@@ -82,28 +82,28 @@ trace();
 				}
 				break;
 			case WSDS:
-trace();
-				ghostID = message.getRemoteID();
+
+				ghostID = message.getSenderID();
 				sendDetailsForMessage(ghostID, game.getPlayerPosition());
 				break;
 			case MOVE:
-trace();
+
 				message.getVector(ghostVector);
-				ghostID = message.getRemoteID();
+				ghostID = message.getSenderID();
 				ghostManager.updateGhostAvatar(ghostID, ghostVector);
 //System.out.println("in Protocol the ghostVector = " + ghostVector);
 				break;
 			case TURN:
-trace();
+
 				message.getMatrix(ghostMatrix);
-				ghostID = message.getRemoteID();
+				ghostID = message.getSenderID();
 				ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
 				break;
 			case DEFAULT:
-trace();
+
 				break;
 			default:
-trace();
+
 				System.out.println("an unknown MessageType was sent to ProtocolClient");
 				break;
 		}
@@ -168,7 +168,7 @@ trace();
 	{	try 
 		{	//System.out.println("sent remoteID = " + remoteId);
 			message.addItem(id);
-			message.addRemoteID(remoteId);
+			message.addDestination(remoteId);
 			message.addItem(Message.MessageType.DSFR);
 			message.addItem(position);
 
@@ -204,6 +204,6 @@ trace();
 		}
 	}
 public void trace(){
-	System.out.println("\nPROTOCOL_CLIENT\n" + message.toString());
+	System.out.println("\nPROTOCOL_CLIENT" + message.toString());
 }
 }
