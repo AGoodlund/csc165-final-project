@@ -1,6 +1,7 @@
 package tage;
 import org.joml.*;
-
+import a2.spot;
+import java.lang.Math;
 
 
 
@@ -46,6 +47,13 @@ public class Camera
 		v.rotateAxis(rad, u.x(), u.y(), u.z());
 		n.rotateAxis(rad, u.x(), u.y(), u.z());
 	}
+/** limit the pitch angles between predetermined bounds */
+	public void limitedPitch(float rad){
+			pitch(rad);
+//TODO:this is the right method, but need to make it so it doesn't only work in the +x direction
+		if(n.angle(defaultV) < Math.toRadians(spot.pitchMaxUp) || n.angle(defaultV) > Math.toRadians(spot.pitchMatchDown))
+			pitch(-rad);
+	}
 
 	private void yaw(float rad, boolean isGlobal){		//works perfectly
 		if(isGlobal){
@@ -58,9 +66,9 @@ public class Camera
 			n.rotateAxis(rad, v.x(), v.y(), v.z());	
 		}
 	}
-/** turns camera left or right around its own V vector */
+/** turns camera left or right */
 	public void yaw(float rad){ yaw(rad, true); } //global yaw is default when yawing
-/** option for camera to use local yaw */
+/** yaws around camera's own V vector */
 	public void localYaw(float rad){ yaw(rad, false); } 
 
 

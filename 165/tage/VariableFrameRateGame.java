@@ -119,10 +119,7 @@ public abstract class VariableFrameRateGame implements KeyListener, MouseListene
 	*/
 	public void keyPressed(KeyEvent e)
 	{	switch (e.getKeyCode())
-		{	case KeyEvent.VK_ESCAPE:
-				shutdown();
-				System.exit(0);
-				break;
+		{	
 			case KeyEvent.VK_EQUALS:
 				(eng.getRenderSystem()).toggleFullScreenMode();
 				break;
