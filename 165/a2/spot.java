@@ -14,6 +14,8 @@ public class spot {
     zoomMax = 10f, zoomMin = .75f, azimuthMax = 270f, azimuthMin = 90f, defaultA=0f, defaultE=30f, defaultR = 5f,
     lookAboveFocus = .5f, orbitSpeed = .2f;
 
+    public static float mouseSensitivity = 0.1f, pitchMaxUp = 15f, pitchMatchDown = 120f;
+
     public static boolean limitAzimuth = false, limitZoom = true, limitElevation = true, followCamera = false;
 
 //---------------------------   Axes        ---------------------------

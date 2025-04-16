@@ -182,6 +182,10 @@ void main(void)
 		else if (colorSplashPointer == 1){// (&& has_texture == 0)
 			fragColor = min(varyingColor * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
 		}
+		
+//there is potential that gl_FragCoord can get the pixel's coordinate on screen to make color based on movement
+//https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
+		
 		else if (has_texture == 0)
 		{	fragColor = min(0.5 * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
 		}

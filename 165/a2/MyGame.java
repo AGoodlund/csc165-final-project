@@ -27,11 +27,13 @@ import java.util.ArrayList;
 import javax.swing.*;
 import tage.nodeControllers.*;
 
+import com.jogamp.opengl.awt.GLCanvas;
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
 	private Camera cam;
-	private CameraOrbit3D orb;
+//	private CameraOrbit3D orb;
 	private InputManager im;
 
 	private ArrayList<GameObject> hideableShapes = new ArrayList<GameObject>();
@@ -45,10 +47,10 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, cube, x, y, z, sphere, torus,  crystal, terr, puffer;
-	private ObjShape dolS, cubeS, xAxis, yAxis, zAxis, sphereS, torusS,  crystalS, terrS, pufferS;
+	private GameObject avatar, x, y, z, terr, puffer;//, cube, sphere, torus, crystal;
+	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS;//, sphereS, torusS,  crystalS, cubeS;
 	private TextureImage doltx, hills, grass, pufferX;
-	private Light light1, spotlightR, spotlightG, spotlightB;
+	private Light light1;//, spotlightR, spotlightG, spotlightB;
 	private int skybox;
 
 //-------------Node Controllers-------------
@@ -64,6 +66,13 @@ public class MyGame extends VariableFrameRateGame
 	private boolean isClientConnected = false;
 	private ObjShape ghostS;
 	private TextureImage ghostT;
+
+//-------------Mouse Controls----------------
+	private Robot robot;
+	private float curMouseX, curMouseY, centerX, centerY;
+	private float prevMouseX, prevMouseY; // loc of mouse prior to move
+	private boolean isRecentering; //indicates the Robot is in action
+	private float tilt;
 
 
 	public MyGame() { super(); }
@@ -84,7 +93,7 @@ public class MyGame extends VariableFrameRateGame
 		if(args.length == 0)
 			game = new MyGame();
 		else
-		game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+			game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -99,10 +108,10 @@ public class MyGame extends VariableFrameRateGame
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
 		pufferS = new ImportedModel("PufferFish_Angry.obj");
 		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
-    	cubeS = new Cube();
- 		sphereS = new Sphere();
-		torusS = new Torus(0.5f, 0.2f, 48);
-		crystalS = new ManualCrystal();
+//    	cubeS = new Cube();
+// 		sphereS = new Sphere();
+//		torusS = new Torus(0.5f, 0.2f, 48);
+//		crystalS = new ManualCrystal();
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
 		yAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
@@ -238,7 +247,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
+//		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
 
 		//------------- Networking Section -------------
 		if(serverPort != -1) setupNetworking();
@@ -265,9 +274,9 @@ public class MyGame extends VariableFrameRateGame
 		
 		HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 
-		//avatar movement
-		//https://www.javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.Key.html
-		ForBAction forward = new ForBAction(this, 1, protClient);			//move actions
+		//------------- avatar movement section -------------
+			//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
+		ForBAction forward = new ForBAction(this, 1, protClient);				//move actions
 		ForBAction back = new ForBAction(this, -1, protClient);
 		LorRTurnAction left = new LorRTurnAction(this, 1, protClient); 			//yaw left and right
 		LorRTurnAction right = new LorRTurnAction(this, -1, protClient);
@@ -276,8 +285,8 @@ public class MyGame extends VariableFrameRateGame
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.D, right, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-		//all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
-		
+//all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
+			//controller
 		if(gamepad != null)
 		{	//if a gamepad is plugged in
 
@@ -289,8 +298,7 @@ public class MyGame extends VariableFrameRateGame
 
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		}
-
-		//https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
+//https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
 
 
 		// ------------- HUD section ------------------
@@ -299,18 +307,20 @@ public class MyGame extends VariableFrameRateGame
 		HUDCoords = engine.getHUDmanager().addHudElement(dispStr2, hud2Color, 15,15);
 		//engine.getHUDmanager().addHUDElement("Third HUD Test",white, engine.getRenderSystem().getWindowX(),engine.getRenderSystem().getWindowY());
 		//for(int i = 1; i <= 5; i++)
-		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	//test if deleting a middle one causes it to delete properly or crash the progra
+		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
+				//test if deleting a middle one causes it to delete properly or crash the program
+
+//------------------mouse control----------------------
+		initMouseMode();
 	}
 	
 	private int findViewportMiddleX(String name, String text)
-	{ 	//middle of viewport's width compared to x from MAIN
-		float size = engine.getRenderSystem().getViewport(name).getActualWidth();
-		//float ratio = engine.getRenderSystem().getViewport(name).getRelativeWidth();
-		float middle = size/2;
-		float drawAt = engine.getRenderSystem().getViewport("MAIN").getActualWidth() - middle - textMidpoint(text);
-		return (int)drawAt; 
+	{ 	
+		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualWidth() - engine.getRenderSystem().getViewport(name).getActualWidth()/2 - textMidpoint(text)); 
 	}
-	
+	private int findViewportMiddleY(String name, String text){
+		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualHeight() - engine.getRenderSystem().getViewport(name).getActualHeight()/2 - textMidpoint(text)); 
+	}
 	private int textMidpoint(String text)
 	{ 
 		if(text.isEmpty())
@@ -318,6 +328,35 @@ public class MyGame extends VariableFrameRateGame
 		return (int)(text.length()*10)/2; 
 	} //assumes default of GLUT.BITMAP_TIMES_ROMAN_24
 	
+	private int screenMiddleY(){
+		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualHeight() - engine.getRenderSystem().getViewport("MAIN").getActualHeight()/2);
+	}
+	private int screenMiddleX(){
+		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualWidth() - engine.getRenderSystem().getViewport("MAIN").getActualWidth()/2); 
+	}
+	private void initMouseMode()
+	{ 	RenderSystem rs = engine.getRenderSystem();
+		//Viewport vw = rs.getViewport("MAIN");
+		//float left = vw.getActualLeft();
+		//float bottom = vw.getActualBottom();
+		//float width = vw.getActualWidth();
+		//float height = vw.getActualHeight();
+		centerX = screenMiddleX();//(int) (left + width/2);
+		centerY = screenMiddleY();//(int) (bottom - height/2);
+		isRecentering = false;
+		try
+			{ robot = new Robot(); } //some platforms don't support Robot
+		catch (AWTException ex)
+			{ throw new RuntimeException("Couldn't create Robot!"); }
+		recenterMouse();
+		prevMouseX = centerX; // 'prevMouse' defines the initial
+		prevMouseY = centerY; // mouse position
+		// also change the cursor
+		Image mouse = new ImageIcon("./assets/textures/custom_mouse_test.png").getImage();
+		Cursor faceCursor = Toolkit.getDefaultToolkit().createCustomCursor(mouse, new Point(0,0), "FaceCursor");
+		GLCanvas canvas = rs.getGLCanvas();
+		canvas.setCursor(faceCursor);
+	}
 	
 	@Override
 	public void update()
@@ -343,7 +382,7 @@ public class MyGame extends VariableFrameRateGame
 		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
 		
 		//--------------Game Loop----------------
-		orb.updateCameraPosition();
+//		orb.updateCameraPosition();
 		im.update((float)elapsTime);
 /* 
     	if(isClientConnected)
@@ -363,6 +402,48 @@ public class MyGame extends VariableFrameRateGame
 				System.exit(0);
 				break;
 		}
+	}
+//-------Mouse control------
+	@Override
+	public void mouseMoved(MouseEvent e)
+	{ 	// if robot is recentering and the MouseEvent location is in the center,
+		// then this event was generated by the robot
+		if (isRecentering && centerX == e.getXOnScreen() && centerY == e.getYOnScreen())
+		{ // mouse recentered, recentering complete
+			isRecentering = false;
+		}
+		else
+		{ // event was due to a user mouse-move, and must be processed
+			curMouseX = e.getXOnScreen();
+			curMouseY = e.getYOnScreen();
+			yaw(prevMouseX - curMouseX);
+			pitch(prevMouseY - curMouseY);
+			prevMouseX = curMouseX;
+			prevMouseY = curMouseY;
+			// tell robot to put the cursor to the center (since user just moved it)
+			recenterMouse();
+			prevMouseX = centerX; // reset prev to center
+			prevMouseY = centerY;
+		}
+	}	
+	private void recenterMouse()
+	{
+		centerX = screenMiddleX();
+		centerY = screenMiddleY();
+		isRecentering = true;
+		robot.mouseMove((int)centerX, (int)centerY);
+	}
+	public void yaw(float mouseDeltaX){
+		if (mouseDeltaX < 0.0) tilt = -spot.mouseSensitivity;
+		else if (mouseDeltaX > 0.0) tilt = spot.mouseSensitivity;
+		else tilt = 0.0f;
+		engine.getRenderSystem().getViewport("MAIN").getCamera().yaw(tilt);
+	}
+	public void pitch(float mouseDeltaY){
+		if (mouseDeltaY < 0.0) tilt = -spot.mouseSensitivity;
+		else if (mouseDeltaY > 0.0) tilt = spot.mouseSensitivity;
+		else tilt = 0.0f;
+		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
 
 		// ---------- NETWORKING SECTION ----------------

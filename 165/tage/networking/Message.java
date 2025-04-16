@@ -12,17 +12,16 @@ import org.joml.Vector3f;
  *  @author: Aaron Goodlund
  */
 
-public class Message implements Serializable{  //the thing that gets sent rather than strings
+public class Message implements Serializable{
     private UUID senderID, receiverID;
-    private static Message message;//singleton to force reuse
+    private static Message message; //singleton to force reuse and lower memory overhead
     private boolean respondSuccessful;
-    private int i;
     //private float scale;
 
     private Vector3f v;
     private Matrix4f m; 
 
-    public MessageType type;    //left as public so it's very easy to use
+    public MessageType type;    //left as public so it's easier to access
     
 /** an enum that holds the type of message is being sent/received. This may need to be its own thing */
     public enum MessageType{
@@ -33,8 +32,7 @@ public class Message implements Serializable{  //the thing that gets sent rather
     DSFR,
     WSDS,
     TURN,
-    MOVE,
-//    RESPOND
+    MOVE
     }
 
     private Message(){
@@ -74,16 +72,6 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
     public void addItem(MessageType type){ this.type = type; }
 /** add a receiver UUID to the message */
     public void addDestination(UUID receiver){ receiverID = receiver; }
-/* * set ID to self and receiver to given UUID * /
-    public void replyTo(UUID receiver){
-        senderID = receiverID;
-        receiverID = receiver;
-
-//System.out.println("\nreceiver:\t" + receiver + "\nID:\t\t" + ID + "\nremoteID:\t" + remoteID);
-    }*/
-
-    private void setIDType(UUID sender, UUID receiver, MessageType type){ senderID = sender; receiver = receiverID; this.type = type; }
-
 /** fill dest with values from message's Vector */
     public void getVector(Vector3f dest){ dest.set(v); }
 /** fill dest with values from message's Matrix */
@@ -99,7 +87,6 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         v.set(0f,0f,0f);
         type = MessageType.DEFAULT;
         senderID = receiverID = null;
-        //ID can't be cleared easily as far as I can tell
     }
 /** copy the values from the given Message to this one */
     public void copy(Message m){
@@ -126,4 +113,6 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
 
         return s;
     }
+
+    private void setIDType(UUID sender, UUID receiver, MessageType type){ senderID = sender; receiver = receiverID; this.type = type; }
 }
