@@ -31,7 +31,8 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
 /** Constructor for Camera moving independently with keyboard */
     public ForBAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; }
     
-    public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; game = g; } //TODO add game = g to the other initializers
+    public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
+    public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
 
 @Override
     public void performAction(float time, Event e){
@@ -39,7 +40,26 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
 
-        if(cam != null){
+        if(obj != null){
+            fwdDir = obj.getLocalForwardVector();
+
+//            if(keyboard) //TODO:if controller has wacky movement this is why
+                keyValue *= direction;
+            fwdDir.mul(time*spot.runSpeed*keyValue);
+//            height = game.getTerrainHeight(fwdDir.x(), fwdDir.z());
+            obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
+        }
+
+        if(cam != null){    //specifically for moving along floor
+            cam.setLocation(obj.getLocalLocation());
+            cam.translate(0f,.75f,0f);
+//            if(keyboard)
+//            keyValue *= direction;
+//            fwdDir.mul(time*spot.runSpeed * keyValue);
+//            cam.translate(fwdDir);
+//            newPos = cam.getLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z());
+
+/* for free movement 
             oldPos = cam.getLocation();
             fwdDir = cam.getN(); //N is the camera's forward vector
 
@@ -49,34 +69,14 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             newPos = oldPos.add(fwdDir.x(),fwdDir.y(),fwdDir.z());
 
             cam.setLocation(newPos);
-        }
-
-        if(obj != null){
-            fwdDir = obj.getLocalForwardVector();
-
-//            if(keyboard)
-                keyValue *= direction;
-            fwdDir.mul(time*spot.runSpeed*keyValue);
-//            height = game.getTerrainHeight(fwdDir.x(), fwdDir.z());
-            obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
-        }
-        
+*/        }
         if(protClient != null)
 		{
 			protClient.sendMoveMessage(obj.getWorldLocation());
 //System.out.println("ForBAction moved to " + obj.getWorldLocation());
 			//protClient.sendTurnMessage(obj.getWorldRotation());
 		}
-
-/*      this moves the dolphin and not the camera so cam has to be tied to dolphin explicitely
-        object = game.getAvatar();
-        oldPos = object.getWorldLocation();
-        fwdDir = new Vector4f(0f,0f,1f,1f);
-        fwdDir.mul(object.getWorldRotation());
-        fwdDir.mul(0.01f);
-        newPos = oldPos.add(fwdDir.x(),fwdDir.y(),fwdDir.z());
-        object.setLocalLocation(newPos);
-*/    }    
+    }    
 }
 /*@Override
 public void performAction(float time, Event e)

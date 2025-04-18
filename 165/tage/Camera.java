@@ -54,7 +54,6 @@ public class Camera
 		if(n.angle(defaultV) < Math.toRadians(spot.pitchMaxUp) || n.angle(defaultV) > Math.toRadians(spot.pitchMatchDown))
 			pitch(-rad);
 	}
-
 	private void yaw(float rad, boolean isGlobal){		//works perfectly
 		if(isGlobal){
 			u.rotateAxis(rad, defaultV.x(), defaultV.y(), defaultV.z());
@@ -71,9 +70,19 @@ public class Camera
 /** yaws around camera's own V vector */
 	public void localYaw(float rad){ yaw(rad, false); } 
 
+	public void translate(float x, float y, float z){
+		location.add(x,y,z);
+	}
+	public void translate(Vector3f xyz){ location.add(xyz); }
+	public void heightAdjust(float y){
+		if(location.y() != y)
+			location.set(location.x(), y, location.z());
+	}
 
 	/** sets the world location of this Camera */
 	public void setLocation(Vector3f l) { location.set(l); }
+/** sets the world location of this Camera */
+	public void setLocation(float x, float y, float z){ location.set(x,y,z); }
 
 	/** sets the U (right-facing) vector for this Camera */
 	public void setU(Vector3f newU) { u.set(newU); }

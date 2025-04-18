@@ -28,6 +28,7 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
     public LorRTurnAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; } 
 
     public LorRTurnAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
+    public LorRTurnAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
 
 @Override
     public void performAction(float time, Event e){

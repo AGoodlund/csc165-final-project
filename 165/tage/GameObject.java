@@ -85,6 +85,7 @@ public class GameObject
 	private boolean propagateTranslation, propagateRotation, propagateScale;
 	private boolean applyParentRotationToPosition, applyParentScaleToPosition;
 	private Vector3f v = new Vector3f(); // utility vector for JOML calls
+	private Vector3f up = new Vector3f(spot.y);
 
 	private PhysicsObject physicsObject;
 	private boolean isTerrain = false;
@@ -155,16 +156,20 @@ public class GameObject
 
 // --------------------------------------------------- pitch is up/down movement, yaw is left right movement
 	private void yaw(float rad, boolean isGlobal){
-		Matrix4f addedRotation;
-		Matrix4f worldRot = getWorldRotation();
-		if(isGlobal){	//global yaw	//prof says it should always be going around 0,1,0		//works perfectly
-			addedRotation = (new Matrix4f()).rotation(rad, new Vector3f(spot.y));
+//		Matrix4f addedRotation;
+//		Matrix4f worldRot = getWorldRotation();
+		if(isGlobal){
+			localRotation.rotate(rad, up);
+			update();
+//			addedRotation = (new Matrix4f()).rotation(rad, new Vector3f(spot.y));
 		}
 		else{			//local yaw turns around object's up vector
-			Vector3f localUp = getWorldUpVector();
-			addedRotation = (new Matrix4f()).rotation(rad, localUp);
+//			Vector3f localUp = getWorldUpVector();
+			localRotation.rotate(rad, getWorldUpVector());
+			update();
+//			addedRotation = (new Matrix4f()).rotation(rad, localUp);
 		}
-		setLocalRotation(addedRotation.mul(worldRot));
+//		setLocalRotation(addedRotation.mul(worldRot));
 	}
 /** yaws avatar around its V vector */
 	public void yaw(float rad){ yaw(rad, true); }
@@ -172,28 +177,26 @@ public class GameObject
 	public void localYaw(float rad){ yaw(rad, false); }
 /** pitches avatar around its U vector */
 	public void pitch(float rad){
-		Vector3f worldRight = getWorldRightVector();
-		Matrix4f worldRot = getWorldRotation(), addedRotation = (new Matrix4f()).rotation(rad, worldRight);
-		setLocalRotation(addedRotation.mul(worldRot));	
+//		Vector3f worldRight = getWorldRightVector();
+//		Matrix4f worldRot = getWorldRotation(), addedRotation = (new Matrix4f()).rotation(rad, worldRight);
+//		setLocalRotation(addedRotation.mul(worldRot));	
+		localRotation.rotate(rad,getWorldRightVector());
+		update();
 	}
 //	public void roll() {
 //		rotate around the n axis aka the forward vector
 //	}
-/*Here is a strategy that [Dr Gordon has] verified works perfectly for yaw:
-
-1. Get the dolphin's "world" rotation matrix
-2. Get the dolphin's "world" up vector
-3. Make a separate rotation matrix that does a small rotation around the dolphin up vector
-   To build this matrix, use the "rotation" command, like this:
-     addedRotation = (new Matrix4f()).rotation(0.01f, dolphinUp);
-4. Build a new dolphin rotation matrix by concatenating the "added" matrix and the "old" matrix.
-   For this, the order is important!
-   Multiplication is written left-to-right, but executed right-to-left.
-   The proper order is therefore:
-     newRotation = addedRotation.mul(oldRotation);
-5. Set the dolphin's "local" rotation matrix to the newRotation matrix.
-
-The same strategy works for pitch (using the dolphin's world right vector). */
+	public void translate(float x, float y, float z){
+		localTranslation.translate(x,y,z);
+		update();
+	}
+	public void heightAdjust(float y){
+//		y -= localTranslation.m31(); localTranslation.translate(0,y,0);
+	//not tested, just a potential way to avoid the if
+	//if they're the same no movement happens, if y is bigger it will go up by the difference, if smaller down by difference
+		localTranslation.m31(y);
+		update();
+	}
 
 	/** returns a reference to the ObjShape associated with this GameObject */
 	public ObjShape getShape() { return shape; }
@@ -302,21 +305,21 @@ The same strategy works for pitch (using the dolphin's world right vector). */
 				worldTranslation.translation(loc.x(), loc.y(), loc.z());
 			}
 			else
-			{	worldTranslation = new Matrix4f(localTranslation);
+			{	worldTranslation.set(localTranslation);// = new Matrix4f(localTranslation);
 			}
 			if (propagateRotation)
-			{	worldRotation = new Matrix4f(parent.getWorldRotation());
+			{	worldRotation.set(parent.getWorldRotation());// = new Matrix4f(parent.getWorldRotation());
 				worldRotation.mul(localRotation);
 			}
 			else
-			{	worldRotation = new Matrix4f(localRotation);
+			{	worldRotation.set(localRotation);// = new Matrix4f(localRotation);
 			}
 			if (propagateScale)
-			{	worldScale = new Matrix4f(parent.getWorldScale());
+			{	worldScale.set(parent.getWorldScale());// = new Matrix4f(parent.getWorldScale());
 				worldScale.mul(localScale);
 			}
 			else
-			{	worldScale = new Matrix4f(localScale);
+			{	worldScale.set(localScale);// = new Matrix4f(localScale);
 			}
 		}
 		Iterator<GameObject> i = children.iterator();
@@ -328,55 +331,69 @@ The same strategy works for pitch (using the dolphin's world right vector). */
 //local vectors are relative to parent, world vectors are relative to the world
 
 	/** copies a specified Matrix4f into this GameObject's local translation matrix */
-	public void setLocalTranslation(Matrix4f m) { localTranslation = new Matrix4f(m); update(); }
+	public void setLocalTranslation(Matrix4f m) { localTranslation.set(m); update(); }// = new Matrix4f(m); update(); }
 
 	/** copies a specified Matrix4f into this GameObject's local rotation matrix */
-	public void setLocalRotation(Matrix4f l) { localRotation = new Matrix4f(l); update(); }
+	public void setLocalRotation(Matrix4f l) { localRotation.set(l); update(); }// = new Matrix4f(l); update(); }
 
 	/** copies a specified Matrix4f into this GameObject's local scale matrix */
-	public void setLocalScale(Matrix4f s) { localScale = new Matrix4f(s); update(); }
+	public void setLocalScale(Matrix4f s) { localScale.set(s); update(); }// = new Matrix4f(s); update(); }
 
 	/** returns a copy of this GameObject's local translation matrix */
 	public Matrix4f getLocalTranslation() { return new Matrix4f(localTranslation); }
+	public void getLocalTranslation(Matrix4f dest){ dest.set(localTranslation); }
 
 	/** returns a copy of this GameObject's local rotation matrix */
 	public Matrix4f getLocalRotation() { return new Matrix4f(localRotation); }
+	public void getLocalRotation(Matrix4f dest){ dest.set(localRotation); }
 
 	/** returns a copy of this GameObject's local scale matrix */
 	public Matrix4f getLocalScale() { return new Matrix4f(localScale); }
+	public void getLocalScale(Matrix4f dest){ dest.set(localScale); }
 
 	/** returns a copy of this GameObject's world translation matrix */
 	public Matrix4f getWorldTranslation() { return new Matrix4f(worldTranslation); }
+	public void getWorldTranslation(Matrix4f dest){ dest.set(worldTranslation); }
 
 	/** returns a copy of this GameObject's world rotation matrix */
 	public Matrix4f getWorldRotation() { return new Matrix4f(worldRotation); }
+	public void getWorldRotation(Matrix4f dest){ dest.set(worldRotation); }
 
 	/** returns a copy of this GameObject's world scale matrix */
 	public Matrix4f getWorldScale() { return new Matrix4f(worldScale); }
+	public void getWorldScale(Matrix4f dest){ dest.set(worldScale); }
 
 	/** returns a forward-facing Vector3f based on the local rotation matrix */
 	public Vector3f getLocalForwardVector() { return new Vector3f(localRotation.getColumn(2, v)); }
+	public void getLocalForwardVector(Vector3f dest){ localRotation.getColumn(2,dest); }
 
 	/** returns a upward-facing Vector3f based on the local rotation matrix */
 	public Vector3f getLocalUpVector() { return new Vector3f(localRotation.getColumn(1, v)); }
+	public void getLocalUpVector(Vector3f dest){ localRotation.getColumn(1,dest); }
 
 	/** returns a right-facing Vector3f based on the local rotation matrix */
 	public Vector3f getLocalRightVector() { return (new Vector3f(localRotation.getColumn(0, v))).negate(); }
+	public void getLocalRightVector(Vector3f dest){ localRotation.getColumn(0,dest); dest.negate(); }
 
 	/** returns a forward-facing Vector3f based on the world rotation matrix */
 	public Vector3f getWorldForwardVector() { return new Vector3f(worldRotation.getColumn(2, v)); }
+	public void getWorldForwardVector(Vector3f dest){ worldRotation.getColumn(2,dest); }
 
 	/** returns a upward-facing Vector3f based on the world rotation matrix */
 	public Vector3f getWorldUpVector() { return new Vector3f(worldRotation.getColumn(1, v)); }
+	public void getWorldUpVector(Vector3f dest){ worldRotation.getColumn(1,dest); }
 
 	/** returns a right-facing Vector3f based on the world rotation matrix */
 	public Vector3f getWorldRightVector() { return (new Vector3f(worldRotation.getColumn(0, v))).negate(); }
+	public void getWorldRightVector(Vector3f dest){ worldRotation.getColumn(0,dest); dest.negate(); }
 
 	/** returns the location of this object relative to its parent node */
 	public Vector3f getLocalLocation() { return new Vector3f(localTranslation.getTranslation(v)); }
+	public void getLocalLocation(Vector3f dest){ localTranslation.getTranslation(dest); }
 
 	/** returns the location of this object in world space */
 	public Vector3f getWorldLocation() { return new Vector3f(worldTranslation.getTranslation(v)); }
+	public void getWorldLocation(Vector3f dest){ worldTranslation.getTranslation(dest); }
 
 	/** sets the location of this object relative to its parent node */
 	public void setLocalLocation(Vector3f location) { localTranslation.setTranslation(location); update(); }
@@ -440,6 +457,10 @@ The same strategy works for pitch (using the dolphin's world right vector). */
 		z = 1.0f - (z / localScale.m00() + 1.0f) / 2.0f;
 		
 		return localScale.m11() * Engine.getEngine().getRenderSystem().getHeightAt(heightMap.getTexture(), x, z);
+	}
+/** gets the y value of the GameObject */
+	public float getHeight(){
+		return localTranslation.m31();
 	}
 
 	// --------------- private class for default height map ----------------
