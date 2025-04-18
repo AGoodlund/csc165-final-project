@@ -25,3 +25,9 @@ replay_pid*
 
 # javadocs
 165/javadocs/*
+
+# blender/csp files
+*.blend
+*.blend1
+*.clip
+*.mtl
