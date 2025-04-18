@@ -16,7 +16,8 @@ public class Message implements Serializable{
     private UUID senderID, receiverID;
     private static Message message; //singleton to force reuse and lower memory overhead
     private boolean respondSuccessful;
-    //private float scale;
+    private String text;
+    private float num;
 
     private Vector3f v;
     private Matrix4f m; 
@@ -70,6 +71,12 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
     public void addItem(UUID sender){ senderID = sender; }
 /** add a MessageType enum to the message */
     public void addItem(MessageType type){ this.type = type; }
+
+    public void addItem(float f){ num = f; }
+    public void addItem(String s){ text = s; }
+    public float getNum(){ return num; } 
+    public String getText(){ return text; }
+
 /** add a receiver UUID to the message */
     public void addDestination(UUID receiver){ receiverID = receiver; }
 /** fill dest with values from message's Vector */
