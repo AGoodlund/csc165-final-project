@@ -24,7 +24,7 @@ hs_err_pid*
 replay_pid*
 
 # javadocs
-165/javadocs/*
+165/javadoc/tage/*
 
 # blender/csp files
 *.blend
