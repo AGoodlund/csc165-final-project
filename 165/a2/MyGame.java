@@ -74,6 +74,10 @@ public class MyGame extends VariableFrameRateGame
 	private boolean isRecentering; //indicates the Robot is in action
 	private float tilt;
 
+//-------------Height Map----------------
+	private float height;
+	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
+	private Vector3f loc = new Vector3f();
 
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
@@ -138,6 +142,7 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(0.75f);
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
+		mappable.add(avatar);
 /*
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
@@ -164,6 +169,7 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(10f);
 		puffer.setLocalTranslation(initialTranslation);
 		puffer.setLocalScale(initialScale);
+		mappable.add(puffer);
 
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
@@ -247,6 +253,8 @@ public class MyGame extends VariableFrameRateGame
 
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
+		cam.setLocation(avatar.getWorldLocation());
+		cam.translate(0f,.5f, 0f);
 //		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
 
 		//------------- Networking Section -------------
@@ -260,7 +268,6 @@ public class MyGame extends VariableFrameRateGame
 		//rc.addTarget(sphere);
 		//rc.addTarget(cube);
 		//rc.toggle();
-
 		//roll = new RollController(.001f);
 		//engine.getSceneGraph().addNodeController(roll);
 		//roll.setPitchSpeed(.001f);
@@ -276,10 +283,12 @@ public class MyGame extends VariableFrameRateGame
 
 		//------------- avatar movement section -------------
 			//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
-		ForBAction forward = new ForBAction(this, 1, protClient);				//move actions
-		ForBAction back = new ForBAction(this, -1, protClient);
-		LorRTurnAction left = new LorRTurnAction(this, 1, protClient); 			//yaw left and right
-		LorRTurnAction right = new LorRTurnAction(this, -1, protClient);
+		ForBAction forward = new ForBAction(this, cam, 1, protClient);				//move actions
+		ForBAction back = new ForBAction(this, cam, -1, protClient);
+		LorRStrafeAction right = new LorRStrafeAction(this, cam, 1, protClient);
+		LorRStrafeAction left = new LorRStrafeAction(this, cam, -1, protClient);
+//		LorRTurnAction left = new LorRTurnAction(this, 1, protClient); 			//yaw left and right
+//		LorRTurnAction right = new LorRTurnAction(this, -1, protClient);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, back, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -357,6 +366,18 @@ public class MyGame extends VariableFrameRateGame
 		GLCanvas canvas = rs.getGLCanvas();
 		canvas.setCursor(faceCursor);
 	}
+
+	public void applyHeightMap(){
+//		loc.set(cam.getLocation());
+//		height = getTerrainHeight(loc.x(), loc.z());
+//		cam.heightAdjust(height+0.5f);	//has to be done manually because it's not a GameObject
+
+		for(GameObject obj: mappable){
+			loc.set(obj.getWorldLocation());
+			height = getTerrainHeight(loc.x(), loc.z());
+			obj.heightAdjust(height);
+		}
+	}
 	
 	@Override
 	public void update()
@@ -368,11 +389,13 @@ public class MyGame extends VariableFrameRateGame
 
 		//--------------Altitude--------------
 		// update altitude of dolphin based on height map
-		Vector3f loc = avatar.getWorldLocation();
-		float height = getTerrainHeight(loc.x(), loc.z());
-		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+
+//		Vector3f loc = avatar.getWorldLocation();
+//		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 //TODO: pull this out of update() and into the move actions. check if y() == height +/- .005 first so it doesn't need to run repeatedly
-		//I think this also means as long as a ghost doesn't move it will always be at y=0
+		applyHeightMap();
+
+//I think this also means as long as a ghost doesn't move it will always be at y=0
 		
 		//--------------HUD drawing----------------
 		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
@@ -383,14 +406,7 @@ public class MyGame extends VariableFrameRateGame
 		
 		//--------------Game Loop----------------
 //		orb.updateCameraPosition();
-		im.update((float)elapsTime);
-/* 
-    	if(isClientConnected)
-		{
-        	protClient.sendMoveMessage(avatar.getWorldLocation());
-			protClient.sendTurnMessage(avatar.getWorldRotation());
-		}
-//*/		
+		im.update((float)elapsTime);		
 		processNetworking((float)elapsTime);
 	}
 	
@@ -424,6 +440,8 @@ public class MyGame extends VariableFrameRateGame
 			recenterMouse();
 			prevMouseX = centerX; // reset prev to center
 			prevMouseY = centerY;
+//turn avatar to match direction and send to protClient
+
 		}
 	}	
 	private void recenterMouse()
@@ -438,6 +456,7 @@ public class MyGame extends VariableFrameRateGame
 		else if (mouseDeltaX > 0.0) tilt = spot.mouseSensitivity;
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().yaw(tilt);
+		avatar.yaw(tilt);
 	}
 	public void pitch(float mouseDeltaY){
 		if (mouseDeltaY < 0.0) tilt = -spot.mouseSensitivity;

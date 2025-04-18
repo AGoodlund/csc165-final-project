@@ -10,11 +10,12 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
     private MyGame game;
     private GameObject obj;
     private Camera cam;
-    private int direction;
-    private boolean keyboard;
+    private int direction = 1;
+    private boolean keyboard = false;
     private float keyValue;
+    private ProtocolClient protClient;
 
-    private Vector3f oldPos, newPos, strafeDir;
+    private Vector3f strafeDir;//oldPos, newPos, strafeDir;
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public LorRStrafeAction(MyGame g, Camera c){ game = g; cam = c; obj = g.getAvatar(); keyboard = false; }
@@ -30,12 +31,29 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
 /** Constructor for Camera moving independently with keyboard */
     public LorRStrafeAction(Camera c, int dir){ cam = c; game = null; obj = null; direction = dir; keyboard = true; } 
 
+    public LorRStrafeAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
+    public LorRStrafeAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
+
 @Override
     public void performAction(float time, Event e){
+
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
 
+        if(obj != null){
+            strafeDir = obj.getLocalRightVector();
+//            obj.getLocalRightVector(strafeDir);
+
+//            if(keyboard)
+                keyValue *= direction;
+            strafeDir.mul(time*spot.runSpeed*keyValue);
+            obj.setLocalLocation(obj.getWorldLocation().add(strafeDir.x(),strafeDir.y(),strafeDir.z()));
+        }
+
         if(cam != null){
+            cam.setLocation(obj.getLocalLocation());
+            cam.translate(0f,.75f,0f);
+/* for cameras not locked to the model
             oldPos = cam.getLocation();
             strafeDir = cam.getU(); //U is the camera's right vector
 
@@ -44,15 +62,9 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
             strafeDir.mul(time*spot.runSpeed * keyValue);
             newPos = oldPos.add(strafeDir.x(),strafeDir.y(),strafeDir.z());
             cam.setLocation(newPos);
-        }
+*/        }
 
-        if(game != null){
-            strafeDir = obj.getLocalRightVector();
-
-            if(keyboard)
-                keyValue *= direction;
-            strafeDir.mul(time*spot.runSpeed*keyValue);
-            obj.setLocalLocation(obj.getWorldLocation().add(strafeDir.x(),strafeDir.y(),strafeDir.z()));
-        }
+        if(protClient != null)
+			protClient.sendMoveMessage(obj.getWorldLocation());
     }    
 }
