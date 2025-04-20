@@ -85,12 +85,11 @@ public class GameObject
 	private boolean propagateTranslation, propagateRotation, propagateScale;
 	private boolean applyParentRotationToPosition, applyParentScaleToPosition;
 	private Vector3f v = new Vector3f(); // utility vector for JOML calls
+	private Matrix4f m = new Matrix4f(); // utility matrix for refactored getters
 	private Vector3f up = new Vector3f(spot.y);
 
 	private PhysicsObject physicsObject;
 	private boolean isTerrain = false;
-
-	public boolean destroyed, disarmed; //TODO: remove from here and connected actions
 
 	//------------------ CONSTRUCTORS -----------------
 
@@ -165,7 +164,8 @@ public class GameObject
 		}
 		else{			//local yaw turns around object's up vector
 //			Vector3f localUp = getWorldUpVector();
-			localRotation.rotate(rad, getWorldUpVector());
+			getWorldUpVector(v);
+			localRotation.rotate(rad, v);//getWorldUpVector());
 			update();
 //			addedRotation = (new Matrix4f()).rotation(rad, localUp);
 		}
@@ -180,7 +180,8 @@ public class GameObject
 //		Vector3f worldRight = getWorldRightVector();
 //		Matrix4f worldRot = getWorldRotation(), addedRotation = (new Matrix4f()).rotation(rad, worldRight);
 //		setLocalRotation(addedRotation.mul(worldRot));	
-		localRotation.rotate(rad,getWorldRightVector());
+		getWorldRightVector(v);
+		localRotation.rotate(rad,v);//getWorldRightVector());
 		update();
 	}
 //	public void roll() {
@@ -253,15 +254,19 @@ public class GameObject
 	protected void removeChild(GameObject g) { children.remove(g); }
 	protected Iterator getChildrenIterator() { return children.iterator(); }
 
-	public GameObject getFirstChild(){ //TODO: delete this
-			Iterator i = getChildrenIterator();
-			return (GameObject)i.next();
-	}
+//	public GameObject getFirstChild(){ //this was only used by disarmAction
+//			Iterator i = getChildrenIterator();
+//			return (GameObject)i.next();
+//	}
 
 	// ------------------ Look At methods ------------------------------
 
 	/** Orients this GameObject so that it faces a specified GameObject */
-	public void lookAt(GameObject go) { lookAt(go.getWorldLocation()); }
+	public void lookAt(GameObject go) { 
+		go.getWorldLocation(v);
+		lookAt(v);
+//		lookAt(go.getWorldLocation()); 
+	}
 
 	/** Orients this GameObject so that it faces a location specified in a Vector3f */
 	public void lookAt(Vector3f target) { lookAt(target.x(), target.y(), target.z()); }
@@ -340,7 +345,7 @@ public class GameObject
 	public void setLocalScale(Matrix4f s) { localScale.set(s); update(); }// = new Matrix4f(s); update(); }
 
 	/** returns a copy of this GameObject's local translation matrix */
-	public Matrix4f getLocalTranslation() { return new Matrix4f(localTranslation); }
+	public Matrix4f getLocalTranslation() { return new Matrix4f(localTranslation); } 						//TODO:comment out all of these with return statements and replace every implementation with the refactored version
 	public void getLocalTranslation(Matrix4f dest){ dest.set(localTranslation); }
 
 	/** returns a copy of this GameObject's local rotation matrix */
@@ -445,12 +450,15 @@ public class GameObject
 
 	/** gets the height at (x,z) if this is a terrain plane -- returns 0 if not terrain, only works if flat on y=0 plane. */
 	public float getHeight(float x, float z)
-	{	x = x - getLocalLocation().x;
-		z = z - getLocalLocation().z;
+	{	getLocalLocation(v);
+		x = x - v.x;//getLocalLocation().x;
+		z = z - v.z;//getLocalLocation().z;
 
-		Matrix4f rot = getLocalRotation().transpose();
+//		Matrix4f rot = getLocalRotation().transpose();
+		getLocalRotation(m);
+		m.transpose();
 		Vector4f vec = new Vector4f(x,0,z,1f);
-		vec.mul(rot);
+		vec.mul(m);//rot);
 		x = vec.x; z = vec.z;
 
 		x = (x / localScale.m00() + 1.0f) / 2.0f;

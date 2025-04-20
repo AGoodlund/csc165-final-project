@@ -215,7 +215,7 @@ public class MyGame extends VariableFrameRateGame
 
 		Viewport main = engine.getRenderSystem().getViewport("MAIN");
 		Camera mainCam = main.getCamera();
-		mainCam.setLocation(new Vector3f(-2,0,2));
+		mainCam.setLocation(new Vector3f(-2,2,2));
 		mainCam.setU(new Vector3f(spot.x));
 		mainCam.setV(new Vector3f(spot.y));
 		mainCam.setN(new Vector3f(spot.z));
@@ -373,7 +373,8 @@ public class MyGame extends VariableFrameRateGame
 //		cam.heightAdjust(height+0.5f);	//has to be done manually because it's not a GameObject
 
 		for(GameObject obj: mappable){
-			loc.set(obj.getWorldLocation());
+			obj.getWorldLocation(loc);
+//			loc.set(obj.getWorldLocation());
 			height = getTerrainHeight(loc.x(), loc.z());
 			obj.heightAdjust(height);
 		}
@@ -387,15 +388,8 @@ public class MyGame extends VariableFrameRateGame
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
 
-		//--------------Altitude--------------
-		// update altitude of dolphin based on height map
-
-//		Vector3f loc = avatar.getWorldLocation();
-//		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
-//TODO: pull this out of update() and into the move actions. check if y() == height +/- .005 first so it doesn't need to run repeatedly
+		//--------------Altitude--------------	
 		applyHeightMap();
-
-//I think this also means as long as a ghost doesn't move it will always be at y=0
 		
 		//--------------HUD drawing----------------
 		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
@@ -406,7 +400,7 @@ public class MyGame extends VariableFrameRateGame
 		
 		//--------------Game Loop----------------
 //		orb.updateCameraPosition();
-		im.update((float)elapsTime);		
+		im.update((float)elapsTime);	
 		processNetworking((float)elapsTime);
 	}
 	
@@ -465,7 +459,7 @@ public class MyGame extends VariableFrameRateGame
 		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
 
-		// ---------- NETWORKING SECTION ----------------
+// ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }
 	public TextureImage getGhostTexture() { return ghostT; }
