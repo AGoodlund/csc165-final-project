@@ -30,6 +30,7 @@ public class RenderObjectStandard
 	private Matrix4f vMat = new Matrix4f();  // view matrix
 	private Matrix4f mMat = new Matrix4f();  // model matrix
 	private Matrix4f invTrMat = new Matrix4f(); // inverse-transpose
+	private Matrix4f m = new Matrix4f(); //helper matrix
 	private int mLoc, vLoc, pLoc, nLoc, tLoc, lLoc, eLoc, fLoc, sLoc, cLoc, hLoc, oLoc, tfLoc;
 	private int globalAmbLoc,mambLoc,mdiffLoc,mspecLoc,mshiLoc;
 	private int hasSolidColor, hasTex, thisTexture, defaultTexture, tiling, tilingOption, tileFactor, heightMapped;
@@ -70,10 +71,10 @@ public class RenderObjectStandard
 		csLoc = gl.glGetUniformLocation(renderingProgram, "colorSplashPointer");
 		
 		mMat.identity();
-		mMat.mul(go.getWorldTranslation());
-		mMat.mul(go.getWorldRotation());
-		mMat.mul(go.getRenderStates().getModelOrientationCorrection());
-		mMat.mul(go.getWorldScale());
+		go.getWorldTranslation(m); mMat.mul(m);//go.getWorldTranslation());
+		go.getWorldRotation(m); mMat.mul(m);//go.getWorldRotation());
+		go.getRenderStates().getModelOrientationCorrection(m); mMat.mul(m);//go.getRenderStates().getModelOrientationCorrection());
+		go.getWorldScale(m); mMat.mul(m);//go.getWorldScale());
 
 		if ((go.getRenderStates()).hasSolidColor())
 		{	hasSolidColor = 1;

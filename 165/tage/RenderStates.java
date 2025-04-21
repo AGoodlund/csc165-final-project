@@ -124,5 +124,6 @@ public class RenderStates
 	public boolean willRenderHiddenFaces() { return renderHiddenFaces; }
 
 	/** returns a copy of the matrix that contains the model orientation correction, if one has been specified */
-	public Matrix4f getModelOrientationCorrection() { return new Matrix4f(modelOrientationCorrection); }
+//	public Matrix4f getModelOrientationCorrection() { return new Matrix4f(modelOrientationCorrection); }
+	public void getModelOrientationCorrection(Matrix4f dest){ dest.set(modelOrientationCorrection); }
 }

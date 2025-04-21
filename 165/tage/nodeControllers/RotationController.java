@@ -34,7 +34,7 @@ public class RotationController extends NodeController
 	*/
 	public void apply(GameObject go)
 	{	float elapsedTime = super.getElapsedTime();
-		curRotation = go.getLocalRotation();
+		go.getLocalRotation(curRotation);// = go.getLocalRotation();
 		float rotAmt = elapsedTime * rotationSpeed;
 		rotMatrix.rotation(rotAmt, rotationAxis);
 		newRotation = curRotation.mul(rotMatrix);

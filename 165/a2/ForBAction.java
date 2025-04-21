@@ -70,8 +70,8 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             cam.setLocation(newPos);
 */        }
         if(protClient != null)
-		{
-			protClient.sendMoveMessage(obj.getWorldLocation());
+		{   obj.getWorldLocation(v);
+			protClient.sendMoveMessage(v);//obj.getWorldLocation());
 //System.out.println("ForBAction moved to " + obj.getWorldLocation());
 		}
     }    

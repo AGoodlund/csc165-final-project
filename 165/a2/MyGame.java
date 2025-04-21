@@ -79,6 +79,10 @@ public class MyGame extends VariableFrameRateGame
 	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
 	private Vector3f loc = new Vector3f();
 
+//-------------Helpers----------------
+	private Vector3f v = new Vector3f();
+	private Matrix4f m = new Matrix4f();
+
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
@@ -253,7 +257,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-		cam.setLocation(avatar.getWorldLocation());
+		avatar.getWorldLocation(v); cam.setLocation(v);//avatar.getWorldLocation());
 		cam.translate(0f,.5f, 0f);
 //		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
 
@@ -393,7 +397,8 @@ public class MyGame extends VariableFrameRateGame
 		
 		//--------------HUD drawing----------------
 		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
-		dispStr2 = "(" + cam.getLocation().x() + ", " + cam.getLocation().y() + ", " + cam.getLocation().z() + ")";
+		cam.getLocation(v);
+		dispStr2 = "(" + v.x() + ", " + v.y() + ", " + v.z() + ")";
 		engine.getHUDmanager().setHUDValue(HUDscore, dispStr1);
 		engine.getHUDmanager().setHUDValue(HUDCoords, dispStr2);
 		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
@@ -493,8 +498,8 @@ public class MyGame extends VariableFrameRateGame
          System.out.println("protClient is null");
 	}
 
-	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
-	public Matrix4f getPlayerRotation() { return avatar.getWorldRotation(); }
+	public void getPlayerPosition(Vector3f dest) { avatar.getWorldLocation(v); dest.set(v); }//return avatar.getWorldLocation(); }
+	public void getPlayerRotation(Matrix4f dest) { avatar.getWorldRotation(m); dest.set(m); }//return avatar.getWorldRotation(); }
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	

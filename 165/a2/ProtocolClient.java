@@ -44,7 +44,8 @@ public class ProtocolClient extends GameConnectionClient
 				if(message.getSuccess())
 				{	System.out.println("join success confirmed");
 					game.setIsConnected(true);
-					sendCreateMessage(game.getPlayerPosition(), game.getPlayerRotation());
+					game.getPlayerPosition(ghostVector); game.getPlayerRotation(ghostMatrix);
+					sendCreateMessage(ghostVector, ghostMatrix);//game.getPlayerPosition(), game.getPlayerRotation());
 				}
 				else
 				{	System.out.println("join failure confirmed");
@@ -82,9 +83,9 @@ public class ProtocolClient extends GameConnectionClient
 				}
 				break;
 			case WSDS:
-
 				ghostID = message.getSenderID();
-				sendDetailsForMessage(ghostID, game.getPlayerPosition());
+				game.getPlayerPosition(ghostVector);
+				sendDetailsForMessage(ghostID, ghostVector);//game.getPlayerPosition());
 				break;
 			case MOVE:
 

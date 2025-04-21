@@ -50,7 +50,6 @@ public class Camera
 /** limit the pitch angles between predetermined bounds */
 	public void limitedPitch(float rad){
 			pitch(rad);
-//TODO:this is the right method, but need to make it so it doesn't only work in the +x direction
 		if(n.angle(defaultV) < Math.toRadians(spot.pitchMaxUp) || n.angle(defaultV) > Math.toRadians(spot.pitchMatchDown))
 			pitch(-rad);
 	}
@@ -94,23 +93,30 @@ public class Camera
 	public void setN(Vector3f newN) { n.set(newN); }
 
 	/** returns the world location of this Camera */
-	public Vector3f getLocation() { return new Vector3f(location); }
+//	public Vector3f getLocation() { return new Vector3f(location); }
+	public void getLocation(Vector3f dest){ dest.set(location); }
 
 	/** gets the U (right-facing) vector for this Camera */
-	public Vector3f getU() { return new Vector3f(u); }
+//	public Vector3f getU() { return new Vector3f(u); }
+	public void getU(Vector3f dest){ dest.set(u); }
 
 	/** gets the V (upward-facing) vector for this Camera */
-	public Vector3f getV() { return new Vector3f(v); }
+//	public Vector3f getV() { return new Vector3f(v); }
+	public void getV(Vector3f dest){ dest.set(v); }
 
 	/** gets the N (forward-facing) vector for this Camera */
-	public Vector3f getN() { return new Vector3f(n); }
+//	public Vector3f getN() { return new Vector3f(n); }
+	public void getN(Vector3f dest){ dest.set(n); }
 
 
 	/** orients this Camera so that it faces a specified Vector3f world location */
 	public void lookAt(Vector3f target) { lookAt(target.x(), target.y(), target.z()); }
 
 	/** orients this Camera so that it faces a specified GameObject */
-	public void lookAt(GameObject go) { lookAt(go.getWorldLocation()); }
+	public void lookAt(GameObject go) { 
+		go.getWorldLocation(v);
+		lookAt(v); 
+	}
 
 	/** orients this Camera so that it faces a specified (x,y,z) world location */
 	public void lookAt(float x, float y, float z)

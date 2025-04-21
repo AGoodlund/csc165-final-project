@@ -84,6 +84,7 @@ public class GameObject
 	private Matrix4f worldTranslation, worldRotation, worldScale;
 	private boolean propagateTranslation, propagateRotation, propagateScale;
 	private boolean applyParentRotationToPosition, applyParentScaleToPosition;
+
 	private Vector3f v = new Vector3f(); // utility vector for JOML calls
 	private Matrix4f m = new Matrix4f(); // utility matrix for refactored getters
 	private Vector3f up = new Vector3f(spot.y);
@@ -273,8 +274,9 @@ public class GameObject
 
 	/** Orients this GameObject so that it faces a specified (x,y,z) location */
 	public void lookAt(float x, float y, float z)
-	{	Vector3f right, up, fwd, l, copyFwd, copyRight;
-		l = getWorldLocation();
+	{	Vector3f right, up, fwd, l = new Vector3f(), copyFwd, copyRight;
+		getWorldLocation(l);
+//		l = getWorldLocation();
 		fwd = (new Vector3f(x-l.x(), y-l.y(), z-l.z())).normalize();
 		copyFwd = new Vector3f(fwd);
 		if ((fwd.equals(0,1,0)) || (fwd.equals(0,-1,0)))
@@ -304,23 +306,26 @@ public class GameObject
 	{	if (this != root)
 		{	if (propagateTranslation)
 			{	Vector4f loc = (new Vector4f(0,0,0,1)).mul(localTranslation);
-				if (applyParentRotationToPosition) loc.mul(parent.getWorldRotation());
-				if (applyParentScaleToPosition)	loc.mul(parent.getWorldScale());
-				loc.mul(parent.getWorldTranslation());
+				if (applyParentRotationToPosition) {parent.getWorldRotation(m); loc.mul(m);}//loc.mul(parent.getWorldRoataion()); }
+				if (applyParentScaleToPosition)	{parent.getWorldScale(m); loc.mul(m);}//loc.mul(parent.getWorldScale());}
+				parent.getWorldTranslation(m);
+				loc.mul(m);//parent.getWorldTranslation());
 				worldTranslation.translation(loc.x(), loc.y(), loc.z());
 			}
 			else
 			{	worldTranslation.set(localTranslation);// = new Matrix4f(localTranslation);
 			}
 			if (propagateRotation)
-			{	worldRotation.set(parent.getWorldRotation());// = new Matrix4f(parent.getWorldRotation());
+			{	parent.getWorldRotation(m);
+				worldRotation.set(m);//parent.getWorldRotation());// = new Matrix4f(parent.getWorldRotation());
 				worldRotation.mul(localRotation);
 			}
 			else
 			{	worldRotation.set(localRotation);// = new Matrix4f(localRotation);
 			}
 			if (propagateScale)
-			{	worldScale.set(parent.getWorldScale());// = new Matrix4f(parent.getWorldScale());
+			{	parent.getWorldScale(m);
+				worldScale.set(m);//parent.getWorldScale());// = new Matrix4f(parent.getWorldScale());
 				worldScale.mul(localScale);
 			}
 			else
@@ -332,7 +337,6 @@ public class GameObject
 	}
 
 	// ---------------- ACCESSORS FOR MATRICES ---------------------
-
 //local vectors are relative to parent, world vectors are relative to the world
 
 	/** copies a specified Matrix4f into this GameObject's local translation matrix */
@@ -345,59 +349,59 @@ public class GameObject
 	public void setLocalScale(Matrix4f s) { localScale.set(s); update(); }// = new Matrix4f(s); update(); }
 
 	/** returns a copy of this GameObject's local translation matrix */
-	public Matrix4f getLocalTranslation() { return new Matrix4f(localTranslation); } 						//TODO:comment out all of these with return statements and replace every implementation with the refactored version
+//	public Matrix4f getLocalTranslation() { return new Matrix4f(localTranslation); } 	//TODO:comment out all of these with return statements and replace every implementation with the refactored version
 	public void getLocalTranslation(Matrix4f dest){ dest.set(localTranslation); }
 
 	/** returns a copy of this GameObject's local rotation matrix */
-	public Matrix4f getLocalRotation() { return new Matrix4f(localRotation); }
+//	public Matrix4f getLocalRotation() { return new Matrix4f(localRotation); }
 	public void getLocalRotation(Matrix4f dest){ dest.set(localRotation); }
 
 	/** returns a copy of this GameObject's local scale matrix */
-	public Matrix4f getLocalScale() { return new Matrix4f(localScale); }
+//	public Matrix4f getLocalScale() { return new Matrix4f(localScale); }
 	public void getLocalScale(Matrix4f dest){ dest.set(localScale); }
 
 	/** returns a copy of this GameObject's world translation matrix */
-	public Matrix4f getWorldTranslation() { return new Matrix4f(worldTranslation); }
+//	public Matrix4f getWorldTranslation() { return new Matrix4f(worldTranslation); }
 	public void getWorldTranslation(Matrix4f dest){ dest.set(worldTranslation); }
 
 	/** returns a copy of this GameObject's world rotation matrix */
-	public Matrix4f getWorldRotation() { return new Matrix4f(worldRotation); }
+//	public Matrix4f getWorldRotation() { return new Matrix4f(worldRotation); }
 	public void getWorldRotation(Matrix4f dest){ dest.set(worldRotation); }
 
 	/** returns a copy of this GameObject's world scale matrix */
-	public Matrix4f getWorldScale() { return new Matrix4f(worldScale); }
+//	public Matrix4f getWorldScale() { return new Matrix4f(worldScale); }
 	public void getWorldScale(Matrix4f dest){ dest.set(worldScale); }
 
 	/** returns a forward-facing Vector3f based on the local rotation matrix */
-	public Vector3f getLocalForwardVector() { return new Vector3f(localRotation.getColumn(2, v)); }
+//	public Vector3f getLocalForwardVector() { return new Vector3f(localRotation.getColumn(2, v)); }
 	public void getLocalForwardVector(Vector3f dest){ localRotation.getColumn(2,dest); }
 
 	/** returns a upward-facing Vector3f based on the local rotation matrix */
-	public Vector3f getLocalUpVector() { return new Vector3f(localRotation.getColumn(1, v)); }
+//	public Vector3f getLocalUpVector() { return new Vector3f(localRotation.getColumn(1, v)); }
 	public void getLocalUpVector(Vector3f dest){ localRotation.getColumn(1,dest); }
 
 	/** returns a right-facing Vector3f based on the local rotation matrix */
-	public Vector3f getLocalRightVector() { return (new Vector3f(localRotation.getColumn(0, v))).negate(); }
+//	public Vector3f getLocalRightVector() { return (new Vector3f(localRotation.getColumn(0, v))).negate(); }
 	public void getLocalRightVector(Vector3f dest){ localRotation.getColumn(0,dest); dest.negate(); }
 
 	/** returns a forward-facing Vector3f based on the world rotation matrix */
-	public Vector3f getWorldForwardVector() { return new Vector3f(worldRotation.getColumn(2, v)); }
+//	public Vector3f getWorldForwardVector() { return new Vector3f(worldRotation.getColumn(2, v)); }
 	public void getWorldForwardVector(Vector3f dest){ worldRotation.getColumn(2,dest); }
 
 	/** returns a upward-facing Vector3f based on the world rotation matrix */
-	public Vector3f getWorldUpVector() { return new Vector3f(worldRotation.getColumn(1, v)); }
+//	public Vector3f getWorldUpVector() { return new Vector3f(worldRotation.getColumn(1, v)); }
 	public void getWorldUpVector(Vector3f dest){ worldRotation.getColumn(1,dest); }
 
 	/** returns a right-facing Vector3f based on the world rotation matrix */
-	public Vector3f getWorldRightVector() { return (new Vector3f(worldRotation.getColumn(0, v))).negate(); }
+//	public Vector3f getWorldRightVector() { return (new Vector3f(worldRotation.getColumn(0, v))).negate(); }
 	public void getWorldRightVector(Vector3f dest){ worldRotation.getColumn(0,dest); dest.negate(); }
 
 	/** returns the location of this object relative to its parent node */
-	public Vector3f getLocalLocation() { return new Vector3f(localTranslation.getTranslation(v)); }
+//	public Vector3f getLocalLocation() { return new Vector3f(localTranslation.getTranslation(v)); }
 	public void getLocalLocation(Vector3f dest){ localTranslation.getTranslation(dest); }
 
 	/** returns the location of this object in world space */
-	public Vector3f getWorldLocation() { return new Vector3f(worldTranslation.getTranslation(v)); }
+//	public Vector3f getWorldLocation() { return new Vector3f(worldTranslation.getTranslation(v)); }
 	public void getWorldLocation(Vector3f dest){ worldTranslation.getTranslation(dest); }
 
 	/** sets the location of this object relative to its parent node */

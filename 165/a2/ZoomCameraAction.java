@@ -7,7 +7,7 @@ import org.joml.*;
 
 public class ZoomCameraAction extends AbstractInputAction{      //TODO: add a direction to overload this into one class over in/out
     private Camera cam;
-    private Vector3f loc;
+    private Vector3f loc = new Vector3f();
     private int direction;
     private boolean keyboard;
 
@@ -22,18 +22,18 @@ public class ZoomCameraAction extends AbstractInputAction{      //TODO: add a di
     public ZoomInAction(Camera c){ cam = c; loc = cam.getN(); keyboard = false; }
 */
     public ZoomCameraAction(Camera c, GameObject obj, int dir){
-        cam = c; loc = new Vector3f(obj.getWorldLocation()); keyboard = true;
+        cam = c; keyboard = true; obj.getWorldLocation(loc);//loc = new Vector3f(obj.getWorldLocation()); 
     }
     public ZoomCameraAction(Camera c, Vector3f target, int dir){
-        cam = c; loc = new Vector3f(target); keyboard = true; direction = dir;
+        cam = c; keyboard = true; direction = dir; loc.set(target);//loc = new Vector3f(target); 
     }
-    public ZoomCameraAction(Camera c, int dir){ cam = c; loc = cam.getN(); keyboard = true; direction = dir; }
+    public ZoomCameraAction(Camera c, int dir){ cam = c; keyboard = true; direction = dir; cam.getN(loc); }//loc = cam.getN(); }
 
 @Override
     public void performAction(float time, Event e){
         cam.lookAt(loc);
-        oldPos = cam.getLocation();
-        fwdDir = cam.getN();
+        cam.getLocation(oldPos);// = cam.getLocation();
+        cam.getN(fwdDir);// = cam.getN();
         if(keyboard)
             fwdDir.mul(spot.zoomSpeed*time*direction);
         else
