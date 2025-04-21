@@ -439,6 +439,8 @@ public class MyGame extends VariableFrameRateGame
 			recenterMouse();
 			prevMouseX = centerX; // reset prev to center
 			prevMouseY = centerY;
+			getPlayerRotation(m);
+			protClient.sendTurnMessage(m);
 //turn avatar to match direction and send to protClient
 
 		}
