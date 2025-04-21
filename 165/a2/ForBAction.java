@@ -15,7 +15,7 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     private float keyValue;
     private ProtocolClient protClient;
 
-    private Vector3f oldPos, newPos, fwdDir;
+    private Vector3f fwdDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, fwdDir;
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
@@ -41,23 +41,22 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
 
         if(obj != null){
-            fwdDir = obj.getLocalForwardVector();
+//            fwdDir = obj.getLocalForwardVector();
+            obj.getLocalForwardVector(fwdDir);
 
 //            if(keyboard) //TODO:if controller has wacky movement this is why
                 keyValue *= direction;
             fwdDir.mul(time*spot.runSpeed*keyValue);
-//            height = game.getTerrainHeight(fwdDir.x(), fwdDir.z());
-            obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
+            obj.getWorldLocation(v);
+            v.add(fwdDir);
+            obj.setLocalLocation(v);
+//            obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
         }
 
-        if(cam != null){    //specifically for moving along floor
-            cam.setLocation(obj.getLocalLocation());
-            cam.translate(0f,.75f,0f);
-//            if(keyboard)
-//            keyValue *= direction;
-//            fwdDir.mul(time*spot.runSpeed * keyValue);
-//            cam.translate(fwdDir);
-//            newPos = cam.getLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z());
+        if(cam != null){    //specifically for moving along floor with avatar
+//            obj.getLocalLocation(v);
+            cam.setLocation(v);
+            cam.translate(0f,2f,0f);
 
 /* for free movement 
             oldPos = cam.getLocation();
@@ -71,10 +70,9 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             cam.setLocation(newPos);
 */        }
         if(protClient != null)
-		{
-			protClient.sendMoveMessage(obj.getWorldLocation());
+		{   obj.getWorldLocation(v);
+			protClient.sendMoveMessage(v);//obj.getWorldLocation());
 //System.out.println("ForBAction moved to " + obj.getWorldLocation());
-			//protClient.sendTurnMessage(obj.getWorldRotation());
 		}
     }    
 }

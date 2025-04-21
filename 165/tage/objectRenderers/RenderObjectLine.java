@@ -22,6 +22,7 @@ public class RenderObjectLine
 	private Matrix4f pMat = new Matrix4f();  // perspective matrix
 	private Matrix4f vMat = new Matrix4f();  // view matrix
 	private Matrix4f mMat = new Matrix4f();  // model matrix
+	private Matrix4f m = new Matrix4f(); //helper matrix
 	private int mLoc, vLoc, pLoc, cLoc;
 
 	/** for engine use only. */
@@ -41,9 +42,9 @@ public class RenderObjectLine
 		cLoc = gl.glGetUniformLocation(lineProgram, "lineColor");
 		
 		mMat.identity();
-		mMat.mul(go.getWorldTranslation());
-		mMat.mul(go.getWorldRotation());
-		mMat.mul(go.getWorldScale());
+		go.getWorldTranslation(m); mMat.mul(m);//go.getWorldTranslation());
+		go.getWorldRotation(m); mMat.mul(m);//go.getWorldRotation());
+		go.getWorldScale(m); mMat.mul(m);//go.getWorldScale());
 		
 		gl.glUniformMatrix4fv(mLoc, 1, false, mMat.get(vals));
 		gl.glUniformMatrix4fv(vLoc, 1, false, vMat.get(vals));

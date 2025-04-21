@@ -18,7 +18,8 @@ public class DisarmAction extends AbstractInputAction{
     private NodeController node, node2;//roller, rotation;
 
     public DisarmAction(GameObject obj, ArrayList<GameObject> armed, NodeController action, NodeController action2){//node, NodeController rot){
-        avatar = obj;
+        
+/*        avatar = obj;
         node = action;
         node2 = action2;
 //        roller = node;
@@ -27,10 +28,12 @@ public class DisarmAction extends AbstractInputAction{
             disarmables.add(object);
         closest = disarmables.get(0);
         distance = avatar.getWorldLocation().distance(closest.getWorldLocation());
-    }
+*/    }
     
 @Override
     public void performAction(float time, Event e){
+        System.out.println("DisarmAction called for some reason");
+/*
 //Determine if closest object is close enough to be disarmed
         for(GameObject current : disarmables){
             if(avatar.getWorldLocation().distance(current.getWorldLocation()) < distance){
@@ -59,6 +62,6 @@ public class DisarmAction extends AbstractInputAction{
         }
         if(!disarmables.isEmpty())
             closest = disarmables.get(0);
-        distance = 1000f;
+        distance = 1000f;*/ 
     }
 }

@@ -36,8 +36,8 @@ public class UorDMoveAction extends AbstractInputAction {    //move camera+avata
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
 
         if(cam != null){
-            oldPos = cam.getLocation();
-            upDir = cam.getV(); //V is the camera's up vector
+            cam.getLocation(oldPos);//oldPos = cam.getLocation();
+            cam.getV(upDir);//upDir = cam.getV(); //V is the camera's up vector
 
             if(keyboard)
                 keyValue *= direction;
@@ -47,12 +47,12 @@ public class UorDMoveAction extends AbstractInputAction {    //move camera+avata
         }
 
         if(game != null){
-            upDir = obj.getLocalUpVector();
+            obj.getLocalUpVector(upDir);//upDir = obj.getLocalUpVector();
 
             if(keyboard)
                 keyValue *= direction;
             upDir.mul(time*spot.runSpeed*keyValue);
-            obj.setLocalLocation(obj.getWorldLocation().add(upDir.x(),upDir.y(),upDir.z()));
+            obj.getWorldLocation(newPos); obj.setLocalLocation(newPos.add(upDir.x(),upDir.y(),upDir.z()));
         }
     }    
 }

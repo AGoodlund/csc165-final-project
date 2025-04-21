@@ -24,7 +24,7 @@ public class CameraOrbit3D extends Camera{ //code from https://csus.instructure.
 //azimuth: counted in degrees away from object's facing
 //elevation: counted in degrees above object's facing
 
-    private Vector3f avatarRot;
+    private Vector3f avatarRot, v = new Vector3f();
     private double avatarAngle, phi, theta;
     private float totalAz, x, y, z;
     
@@ -86,7 +86,7 @@ double phi = Math.toRadians(e);
 cam.setLocation(new Vector3f(getX(phi, theta), getY(theta), getZ(phi, theta)).add(focus.getWorldLocation()));
 cam.lookAt(focus);*/
 
-            avatarRot = focus.getWorldForwardVector();
+            focus.getWorldForwardVector(avatarRot);//avatarRot = focus.getWorldForwardVector();
             avatarAngle = Math.toDegrees((double)avatarRot.angleSigned(new Vector3f(0,0,-1), new Vector3f(0,1,0)));
             totalAz = a - (float)avatarAngle;
             theta = Math.toRadians(totalAz);
@@ -94,7 +94,8 @@ cam.lookAt(focus);*/
             x = r * (float)(Math.cos(phi) * Math.sin(theta));
             y = r * (float)(Math.sin(phi));
             z = r * (float)(Math.cos(phi) * Math.cos(theta));
-            cam.setLocation(new Vector3f(x,y,z).add(focus.getWorldLocation()));
+            focus.getWorldLocation(v);
+            cam.setLocation(new Vector3f(x,y,z).add(v));//focus.getWorldLocation()));
             cam.lookAt(focus);
 
     }

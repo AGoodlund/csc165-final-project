@@ -1,6 +1,7 @@
 package a2;
 import tage.GameObject;
 import tage.Camera;
+import org.joml.Matrix4f;
 
 import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
@@ -12,6 +13,8 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
     private boolean keyboard = false;
     private float keyValue;
     private ProtocolClient protClient = null;
+
+    private Matrix4f m = new Matrix4f();
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public LorRTurnAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
@@ -41,7 +44,8 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
             cam.yaw(time * spot.turnSpeed * keyValue);
         if(obj != null)
             obj.yaw(time * spot.turnSpeed * keyValue);
-        if(protClient != null)
-            protClient.sendTurnMessage(obj.getLocalRotation());
+        if(protClient != null){
+            obj.getLocalRotation(m); ;protClient.sendTurnMessage(m);//obj.getLocalRotation());
+        }
     }    
 }

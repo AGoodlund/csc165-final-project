@@ -79,6 +79,10 @@ public class MyGame extends VariableFrameRateGame
 	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
 	private Vector3f loc = new Vector3f();
 
+//-------------Helpers----------------
+	private Vector3f v = new Vector3f();
+	private Matrix4f m = new Matrix4f();
+
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
@@ -215,7 +219,7 @@ public class MyGame extends VariableFrameRateGame
 
 		Viewport main = engine.getRenderSystem().getViewport("MAIN");
 		Camera mainCam = main.getCamera();
-		mainCam.setLocation(new Vector3f(-2,0,2));
+		mainCam.setLocation(new Vector3f(-2,2,2));
 		mainCam.setU(new Vector3f(spot.x));
 		mainCam.setV(new Vector3f(spot.y));
 		mainCam.setN(new Vector3f(spot.z));
@@ -253,7 +257,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-		cam.setLocation(avatar.getWorldLocation());
+		avatar.getWorldLocation(v); cam.setLocation(v);//avatar.getWorldLocation());
 		cam.translate(0f,.5f, 0f);
 //		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
 
@@ -373,7 +377,8 @@ public class MyGame extends VariableFrameRateGame
 //		cam.heightAdjust(height+0.5f);	//has to be done manually because it's not a GameObject
 
 		for(GameObject obj: mappable){
-			loc.set(obj.getWorldLocation());
+			obj.getWorldLocation(loc);
+//			loc.set(obj.getWorldLocation());
 			height = getTerrainHeight(loc.x(), loc.z());
 			obj.heightAdjust(height);
 		}
@@ -387,26 +392,20 @@ public class MyGame extends VariableFrameRateGame
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
 
-		//--------------Altitude--------------
-		// update altitude of dolphin based on height map
-
-//		Vector3f loc = avatar.getWorldLocation();
-//		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
-//TODO: pull this out of update() and into the move actions. check if y() == height +/- .005 first so it doesn't need to run repeatedly
+		//--------------Altitude--------------	
 		applyHeightMap();
-
-//I think this also means as long as a ghost doesn't move it will always be at y=0
 		
 		//--------------HUD drawing----------------
 		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
-		dispStr2 = "(" + cam.getLocation().x() + ", " + cam.getLocation().y() + ", " + cam.getLocation().z() + ")";
+		cam.getLocation(v);
+		dispStr2 = "(" + v.x() + ", " + v.y() + ", " + v.z() + ")";
 		engine.getHUDmanager().setHUDValue(HUDscore, dispStr1);
 		engine.getHUDmanager().setHUDValue(HUDCoords, dispStr2);
 		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
 		
 		//--------------Game Loop----------------
 //		orb.updateCameraPosition();
-		im.update((float)elapsTime);		
+		im.update((float)elapsTime);	
 		processNetworking((float)elapsTime);
 	}
 	
@@ -440,6 +439,8 @@ public class MyGame extends VariableFrameRateGame
 			recenterMouse();
 			prevMouseX = centerX; // reset prev to center
 			prevMouseY = centerY;
+			getPlayerRotation(m);
+			protClient.sendTurnMessage(m);
 //turn avatar to match direction and send to protClient
 
 		}
@@ -465,7 +466,7 @@ public class MyGame extends VariableFrameRateGame
 		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
 
-		// ---------- NETWORKING SECTION ----------------
+// ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }
 	public TextureImage getGhostTexture() { return ghostT; }
@@ -499,8 +500,8 @@ public class MyGame extends VariableFrameRateGame
          System.out.println("protClient is null");
 	}
 
-	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
-	public Matrix4f getPlayerRotation() { return avatar.getWorldRotation(); }
+	public void getPlayerPosition(Vector3f dest) { avatar.getWorldLocation(v); dest.set(v); }//return avatar.getWorldLocation(); }
+	public void getPlayerRotation(Matrix4f dest) { avatar.getWorldRotation(m); dest.set(m); }//return avatar.getWorldRotation(); }
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	

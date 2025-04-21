@@ -13,12 +13,12 @@ public class MountAction extends AbstractInputAction {
     public MountAction(MyGame g, Camera c){ game = g; cam = c; obj = g.getAvatar(); }
 @Override
     public void performAction(float time, Event e){ 
-        if((float)cam.getLocation().distance(obj.getWorldLocation()) < spot.mountingDistance){
+//        if((float)cam.getLocation().distance(obj.getWorldLocation()) < spot.mountingDistance){
  /*            game.mounted = !game.mounted;
             if(game.mounted)
                 game.jumpToDol();
             else
                 game.dismountDol();
-*/        }
-    }
+        }
+*/    }
 }
