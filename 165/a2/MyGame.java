@@ -466,7 +466,33 @@ public class MyGame extends VariableFrameRateGame
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
+//TODO: physics from https://athena.ecs.csus.edu/~gordonvs/165/165techTips.html
+private void checkForCollisions()
+{	com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+	com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+	com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+	com.bulletphysics.dynamics.RigidBody object1, object2;
+	com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
 
+	dynamicsWorld = ((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
+	dispatcher = dynamicsWorld.getDispatcher();
+	int manifoldCount = dispatcher.getNumManifolds();
+	for (int i=0; i < manifoldCount; i++)
+	{	manifold = dispatcher.getManifoldByIndexInternal(i);
+		object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
+		object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
+		JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+		JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+		for (int j = 0; j < manifold.getNumContacts(); j++)
+		{	contactPoint = manifold.getContactPoint(j);
+			if (contactPoint.getDistance() < 0.0f)
+			{	System.out.println("---- hit between " + obj1 + " and " + obj2);
+				break;
+			}
+		}
+	}
+}
+	
 // ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }
