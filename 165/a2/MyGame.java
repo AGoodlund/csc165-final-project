@@ -219,10 +219,11 @@ public class MyGame extends VariableFrameRateGame
 
 		Viewport main = engine.getRenderSystem().getViewport("MAIN");
 		Camera mainCam = main.getCamera();
-		mainCam.setLocation(new Vector3f(-2,2,2));
-		mainCam.setU(new Vector3f(spot.x));
-		mainCam.setV(new Vector3f(spot.y));
-		mainCam.setN(new Vector3f(spot.z));
+		avatar.getLocalLocation(v);
+		mainCam.setLocation(v.translate(0f,2f,0f));//(new Vector3f(-2,2,2)));
+//		mainCam.setU(new Vector3f(spot.x)); UVN already default to these values
+//		mainCam.setV(new Vector3f(spot.y));
+//		mainCam.setN(new Vector3f(spot.z));
 
 /* 		Viewport map = engine.getRenderSystem().getViewport("MAP");
 		Camera mapCam = map.getCamera();

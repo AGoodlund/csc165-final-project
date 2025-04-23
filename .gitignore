@@ -25,9 +25,3 @@ replay_pid*
 
 # javadocs
 165/javadoc/tage/*
-
-# blender/csp files
-*.blend
-*.blend1
-*.clip
-*.mtl
