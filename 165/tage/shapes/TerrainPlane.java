@@ -20,11 +20,11 @@ import static java.lang.Math.*;
 */
 public class TerrainPlane extends ObjShape
 {
-	private int numIndices, prec;
-	private int[] indices;
-	private Vector3f[] vertices;
-	private Vector2f[] texCoords;
-	private Vector3f[] normals;
+	protected int numIndices, prec;
+	protected int[] indices;
+	protected Vector3f[] vertices;
+	protected Vector2f[] texCoords;
+	protected Vector3f[] normals;
 
 	/** sets default precision of 100, or 10,000 vertices. */
 	public TerrainPlane()
@@ -42,7 +42,7 @@ public class TerrainPlane extends ObjShape
 		loadVertexArrays();
 	}
 
-	private void initTerrainPlane()
+	protected void initTerrainPlane()
 	{	int numVertices = prec * prec;
 		super.setNumVertices(numVertices);
 		numIndices = (prec-1) * (prec-1) * 6;
@@ -77,14 +77,14 @@ public class TerrainPlane extends ObjShape
 				indices[6*(i*(prec-1)+j)+5] = (i+1)*prec+j;
 	}	}	}
 
-	private void loadVertexArrays()
+	protected void loadVertexArrays()
 	{	setNumVertices(this.getNumIndices());
 		setVerticesIndexed(this.getIndices(), this.getVerticesVector());
 		setTexCoordsIndexed(this.getIndices(), this.getTexCoordsVector());
 		setNormalsIndexed(this.getIndices(), this.getNormalsVector());
 		setWindingOrderCCW(true);
 	}
-
+//below are the only parts that were originally protected and not private
 	protected int getNumIndices() { return numIndices; }
 	protected int[] getIndices() { return indices; }
 	protected Vector3f[] getVerticesVector() { return vertices; }
