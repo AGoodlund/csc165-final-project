@@ -53,6 +53,11 @@ public class MyGame extends VariableFrameRateGame
 	private Light light1;//, spotlightR, spotlightG, spotlightB;
 	private int skybox;
 
+	private GameObject raft;
+	private ObjShape raftS;
+	private TextureImage raftx;
+
+
 //-------------Node Controllers-------------
 //	private RotationController rc;
 //	private RollController roll;
@@ -112,10 +117,11 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadShapes(){	
-		dolS = new ImportedModel("ULPD.obj");
+		dolS = new ImportedModel("ULPD.obj"); //TODO:turn player model into a cube so it's never seen
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
 		pufferS = new ImportedModel("PufferFish_Angry.obj");
 		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
+		raftS = new Cube();
 //    	cubeS = new Cube();
 // 		sphereS = new Sphere();
 //		torusS = new Torus(0.5f, 0.2f, 48);
@@ -197,6 +203,14 @@ public class MyGame extends VariableFrameRateGame
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
+		terr.translate(0f,-10f,0f);
+
+		raft = new GameObject(GameObject.root(),raftS);
+		initialTranslation=(new Matrix4f()).translate(0f,-.5f,0f);
+		raft.setLocalTranslation(initialTranslation);
+		initialScale = (new Matrix4f()).scaling(3f,.5f,5f);
+		raft.setLocalScale(initialScale);
+		raft.getRenderStates().setPositionalColor(true);
 	}
 	
 	public float getTerrainHeight(float x, float z)
@@ -220,7 +234,7 @@ public class MyGame extends VariableFrameRateGame
 		Viewport main = engine.getRenderSystem().getViewport("MAIN");
 		Camera mainCam = main.getCamera();
 		avatar.getLocalLocation(v);
-		mainCam.setLocation(v.translate(0f,2f,0f));//(new Vector3f(-2,2,2)));
+		mainCam.setLocation(v.add(0f,2f,0f));//(new Vector3f(-2,2,2)));
 //		mainCam.setU(new Vector3f(spot.x)); UVN already default to these values
 //		mainCam.setV(new Vector3f(spot.y));
 //		mainCam.setN(new Vector3f(spot.z));
@@ -242,6 +256,8 @@ public class MyGame extends VariableFrameRateGame
 		skybox = engine.getSceneGraph().loadCubeMap(spot.skyboxFile);
 		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
+
+		//underwater skybox that activates when the camera goes below the water line
 	}
 
 	@Override
@@ -413,7 +429,8 @@ public class MyGame extends VariableFrameRateGame
 	public void keyPressed(KeyEvent a)
 	{	switch (a.getKeyCode())
 		{	case KeyEvent.VK_ESCAPE:
-				protClient.sendByeMessage();
+				if(protClient != null)
+					protClient.sendByeMessage();
 				shutdown();
 				System.exit(0);
 				break;
@@ -466,6 +483,7 @@ public class MyGame extends VariableFrameRateGame
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
+/* 
 //TODO: physics from https://athena.ecs.csus.edu/~gordonvs/165/165techTips.html
 private void checkForCollisions()
 {	com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
@@ -491,8 +509,9 @@ private void checkForCollisions()
 			}
 		}
 	}
-}
-	
+	}
+*/
+
 // ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }

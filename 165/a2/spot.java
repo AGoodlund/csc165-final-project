@@ -16,7 +16,7 @@ public class spot {
 //---------------------------   Orbit Camera---------------------------
     public static boolean limitAzimuth = false, limitZoom = true, limitElevation = true, followCamera = false;
 //---------------------------   Mouse Camera---------------------------
-    public static float mouseSensitivity = 0.075f, pitchMaxUp = 15f, pitchMatchDown = 120f;
+    public static float mouseSensitivity = 0.075f, pitchMaxUp = 0f, pitchMatchDown = 180f;
 
 //---------------------------   Axes        ---------------------------
     public static float[] x = {1f,0f,0f}, y = {0f,1f,0f}, z = {0f,0f,-1f}; //-1 for z because that's default
@@ -42,6 +42,10 @@ public class spot {
  * character selection upon joining
  *      model or texture choosing
  *      doesn't *have* to be both
+ * 
+ * TODO:
+ * water class that extends TerrainPlane to make water with perlin noise and a texture reader that pushes
+ *      along any of the axes
 
 COMPLETED
  * 
