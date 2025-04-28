@@ -13,17 +13,19 @@ public class spot {
     public static float orbitLook = .1f, zoomSpeed = .03f, lookSpeed = .002f, elevationMax = 80f, elevationMin = 0f,
     zoomMax = 10f, zoomMin = .75f, azimuthMax = 270f, azimuthMin = 90f, defaultA=0f, defaultE=30f, defaultR = 5f,
     lookAboveFocus = .5f, orbitSpeed = .2f;
+
+    public static float cameraOffset = 2f;
 //---------------------------   Orbit Camera---------------------------
     public static boolean limitAzimuth = false, limitZoom = true, limitElevation = true, followCamera = false;
 //---------------------------   Mouse Camera---------------------------
-    public static float mouseSensitivity = 0.075f, pitchMaxUp = 0f, pitchMatchDown = 180f;
+    public static float mouseSensitivity = 0.09f, pitchMaxUp = 0f, pitchMatchDown = 180f;
 
 //---------------------------   Axes        ---------------------------
     public static float[] x = {1f,0f,0f}, y = {0f,1f,0f}, z = {0f,0f,-1f}; //-1 for z because that's default
 
 //---------------------------   Colors      ---------------------------
     public static float[] 	red = {1,0,0}, green = {0,1,0}, blue = {0,0,1},
-        purple = {1,1,0}, yellow = {1,0,1}, teal = {0,1,1},
+        yellow = {1,1,0}, purple = {1,0,1}, teal = {0,1,1},
         white = {1,1,1}, black = {0,0,0};
 
 //---------------------------   Textures    ---------------------------
