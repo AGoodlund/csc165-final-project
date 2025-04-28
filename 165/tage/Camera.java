@@ -75,6 +75,11 @@ public class Camera
 	public void translate(Vector3f xyz){ location.add(xyz); }
 	public void heightAdjust(float y){
 		if(location.y() != y)
+			location.add(0f,y,0f);
+	}
+	public float getHeight(){ return location.y(); }
+	public void setHeight(float y){
+		if(location.y() != y)
 			location.set(location.x(), y, location.z());
 	}
 

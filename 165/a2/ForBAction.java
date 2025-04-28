@@ -54,9 +54,9 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
         }
 
         if(cam != null){    //specifically for moving along floor with avatar
-//            obj.getLocalLocation(v);
             cam.setLocation(v);
-            cam.translate(0f,2f,0f);
+            cam.heightAdjust(spot.cameraOffset);
+//            cam.translate(spot.cameraOffset);
 
 /* for free movement 
             oldPos = cam.getLocation();

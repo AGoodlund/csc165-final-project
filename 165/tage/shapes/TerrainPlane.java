@@ -84,7 +84,7 @@ public class TerrainPlane extends ObjShape
 		setNormalsIndexed(this.getIndices(), this.getNormalsVector());
 		setWindingOrderCCW(true);
 	}
-
+//below are the only parts that were originally protected and not private
 	protected int getNumIndices() { return numIndices; }
 	protected int[] getIndices() { return indices; }
 	protected Vector3f[] getVerticesVector() { return vertices; }
