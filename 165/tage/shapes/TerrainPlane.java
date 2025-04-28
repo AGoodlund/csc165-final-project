@@ -20,11 +20,11 @@ import static java.lang.Math.*;
 */
 public class TerrainPlane extends ObjShape
 {
-	protected int numIndices, prec;
-	protected int[] indices;
-	protected Vector3f[] vertices;
-	protected Vector2f[] texCoords;
-	protected Vector3f[] normals;
+	private int numIndices, prec;
+	private int[] indices;
+	private Vector3f[] vertices;
+	private Vector2f[] texCoords;
+	private Vector3f[] normals;
 
 	/** sets default precision of 100, or 10,000 vertices. */
 	public TerrainPlane()
@@ -42,7 +42,7 @@ public class TerrainPlane extends ObjShape
 		loadVertexArrays();
 	}
 
-	protected void initTerrainPlane()
+	private void initTerrainPlane()
 	{	int numVertices = prec * prec;
 		super.setNumVertices(numVertices);
 		numIndices = (prec-1) * (prec-1) * 6;
@@ -77,7 +77,7 @@ public class TerrainPlane extends ObjShape
 				indices[6*(i*(prec-1)+j)+5] = (i+1)*prec+j;
 	}	}	}
 
-	protected void loadVertexArrays()
+	private void loadVertexArrays()
 	{	setNumVertices(this.getNumIndices());
 		setVerticesIndexed(this.getIndices(), this.getVerticesVector());
 		setTexCoordsIndexed(this.getIndices(), this.getTexCoordsVector());
