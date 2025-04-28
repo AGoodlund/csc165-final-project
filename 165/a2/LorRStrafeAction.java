@@ -54,8 +54,8 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
         }
 
         if(cam != null){
-            obj.getLocalLocation(v); cam.setLocation(v);//obj.getLocalLocation());
-            cam.translate(0f,2f,0f);
+            cam.setLocation(v);
+            cam.heightAdjust(spot.cameraOffset);
         }
 
         if(protClient != null){

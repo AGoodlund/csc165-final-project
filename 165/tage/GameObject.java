@@ -452,7 +452,9 @@ public class GameObject
 
 	// -------------- accessor for height of terrain map at specified position ------------
 
-	/** gets the height at (x,z) if this is a terrain plane -- returns 0 if not terrain, only works if flat on y=0 plane. */
+	/** gets the height at (x,z) if this is a terrain plane -- returns 0 if not terrain, only works if flat on y=0 plane. 
+	 *  altered to send height at (x,z) from the plane's y position
+	*/
 	public float getHeight(float x, float z)
 	{	getLocalLocation(v);
 		x = x - v.x;//getLocalLocation().x;
@@ -468,7 +470,7 @@ public class GameObject
 		x = (x / localScale.m00() + 1.0f) / 2.0f;
 		z = 1.0f - (z / localScale.m00() + 1.0f) / 2.0f;
 		
-		return localScale.m11() * Engine.getEngine().getRenderSystem().getHeightAt(heightMap.getTexture(), x, z);
+		return localScale.m11() * Engine.getEngine().getRenderSystem().getHeightAt(heightMap.getTexture(), x, z)+localTranslation.m31();
 	}
 /** gets the y value of the GameObject */
 	public float getHeight(){
