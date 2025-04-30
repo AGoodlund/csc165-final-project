@@ -331,13 +331,12 @@ public class MyGame extends VariableFrameRateGame
 		//roll.toggle();
 
 		// ------------- inputs section ------------------
-//TODO: update controls to work with controller to fit requirements
 		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
 		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
 		//			controller's buttons
 		HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 		//------------- avatar movement section -------------
-			//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
+//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
 		ForBAction forward = new ForBAction(this, cam, 1, protClient);				//move actions
 		ForBAction back = new ForBAction(this, cam, -1, protClient);
 		LorRStrafeAction right = new LorRStrafeAction(this, cam, 1, protClient);
@@ -351,9 +350,8 @@ public class MyGame extends VariableFrameRateGame
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 //all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
 			//controller
-		if(gamepad != null)
-		{	//if a gamepad is plugged in
-
+		if(gamepad != null){	//if a gamepad is plugged in
+//TODO: update controls to work with controller to fit requirements
 			LorRTurnAction rc = new LorRTurnAction(this, -1);
 			ForBAction fc = new ForBAction(this, -1);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
@@ -375,8 +373,6 @@ public class MyGame extends VariableFrameRateGame
 				//test if deleting a middle one causes it to delete properly or crash the program
 		//TODO: basic GUI to fit requirements
 //------------------sound section----------------------
-		puffer.getWorldLocation(v);
-		bubbles.setLocation(v); 
 		updateEar();
 		bubbles.play();
 
@@ -385,6 +381,8 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public void updateEar(){
+		puffer.getWorldLocation(v);
+		bubbles.setLocation(v);
 		cam.getLocation(v);
 		am.getEar().setLocation(v);
 		cam.getN(v);
