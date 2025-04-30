@@ -31,13 +31,13 @@ public class spot {
         white = {1,1,1}, black = {0,0,0};
 
 //---------------------------   Textures    ---------------------------
-    public static String skyboxFile = "lakeIslands";//, avatarTexture, ghostTexture, groundTexture;
+    public static String skyboxFile = "lakeIslands", underwaterFile = "da sea";
 
 //---------------------------   Ghosts      ---------------------------
     public static float startingScale = 3f;
 
 //---------------------------   Sound       ---------------------------    
-    public static int bubbleVolume = 50;
+    public static int bubbleVolume = 100;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name

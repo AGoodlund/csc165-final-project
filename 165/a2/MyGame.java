@@ -245,6 +245,8 @@ public class MyGame extends VariableFrameRateGame
 		light1 = new Light();
 		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(light1);
+
+		//TODO:add 3 more nonambient lights to fit requirements
 	}
 
 	@Override
@@ -277,14 +279,16 @@ public class MyGame extends VariableFrameRateGame
 		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
 
-		//underwater skybox that activates when the camera goes below the water line
+		//TODO:underwater skybox that activates when the camera goes below the water line
+			//wants to see a skybox that isn't from the base code
 	}
 
 	@Override
 	public void loadSounds(){
 		AudioResource bubbling;
 		am = engine.getAudioManager();
-		bubbling = am.createAudioResource("567455__sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);	//sound_ahead is the name of the sound's creator
+//		bubbling = am.createAudioResource("567455__sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);	//sound_ahead is the name of the sound's creator
+		bubbling = am.createAudioResource("bubbles16b.wav", AudioResourceType.AUDIO_SAMPLE);
 		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
 		bubbles.initialize(am);
 		bubbles.setMaxDistance(7f);
@@ -327,6 +331,7 @@ public class MyGame extends VariableFrameRateGame
 		//roll.toggle();
 
 		// ------------- inputs section ------------------
+//TODO: update controls to work with controller to fit requirements
 		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
 		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
 		//			controller's buttons
@@ -368,7 +373,7 @@ public class MyGame extends VariableFrameRateGame
 		//for(int i = 1; i <= 5; i++)
 		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
 				//test if deleting a middle one causes it to delete properly or crash the program
-
+		//TODO: basic GUI to fit requirements
 //------------------sound section----------------------
 		puffer.getWorldLocation(v);
 		bubbles.setLocation(v); 
@@ -379,10 +384,11 @@ public class MyGame extends VariableFrameRateGame
 		initMouseMode();
 	}
 
-	public void updateEar(){ //
+	public void updateEar(){
 		cam.getLocation(v);
 		am.getEar().setLocation(v);
 		cam.getN(v);
+		cam.getV(up);
 		am.getEar().setOrientation(v, up);
 	}
 	
@@ -441,6 +447,19 @@ public class MyGame extends VariableFrameRateGame
 //		cam.heightAdjust(spot.cameraOffset);
 	}
 	
+//TODO:implement choosing character when loading in for requirements. Example code below
+	//needs to send information so the ghosts are the same
+public void changeAvatar(GameObject obj, TextureImage img, ObjShape shape){
+	obj.setTextureImage(img);
+	obj.setShape(shape);
+}
+public void changeAvatar(GameObject obj, TextureImage img){
+	obj.setTextureImage(img);
+}
+public void changeAvatar(GameObject obj, ObjShape shape){
+	obj.setShape(shape);
+}
+
 	@Override
 	public void update()
 	{
