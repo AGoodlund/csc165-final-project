@@ -64,6 +64,7 @@ public class MyGame extends VariableFrameRateGame
 
 //-------------Sounds--------------
 	private Sound bubbles;
+	private Vector3f up = new Vector3f(spot.y);
 
 //-------------Node Controllers-------------
 //	private RotationController rc;
@@ -94,6 +95,7 @@ public class MyGame extends VariableFrameRateGame
 //-------------Helpers----------------
 	private Vector3f v = new Vector3f();
 	private Matrix4f m = new Matrix4f();
+
 
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
@@ -377,14 +379,11 @@ public class MyGame extends VariableFrameRateGame
 		initMouseMode();
 	}
 
-	public void updateEar(){
-		//TODO:make these into functions that the vectors can be sent to have ear.location = camera.location; ear.forward = camera.n; ear.up = camera.defaultV
-		//if it works for sending by reference and making the ear's vectors point to the same location as the camera's vectors it would mean this doesn't need to be called more than once
+	public void updateEar(){ //
 		cam.getLocation(v);
 		am.getEar().setLocation(v);
 		cam.getN(v);
-		am.getEar().setOrientation(v, new Vector3f(spot.y));
-
+		am.getEar().setOrientation(v, up);
 	}
 	
 	private int findViewportMiddleX(String name, String text)
