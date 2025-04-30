@@ -15,8 +15,10 @@ public class spot {
     lookAboveFocus = .5f, orbitSpeed = .2f;
 
     public static float cameraOffset = 2f;
+
 //---------------------------   Orbit Camera---------------------------
     public static boolean limitAzimuth = false, limitZoom = true, limitElevation = true, followCamera = false;
+
 //---------------------------   Mouse Camera---------------------------
     public static float mouseSensitivity = 0.09f, pitchMaxUp = 0f, pitchMatchDown = 180f;
 
@@ -33,6 +35,9 @@ public class spot {
 
 //---------------------------   Ghosts      ---------------------------
     public static float startingScale = 3f;
+
+//---------------------------   Sound       ---------------------------    
+    public static int bubbleVolume = 50;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name
