@@ -291,8 +291,8 @@ public class MyGame extends VariableFrameRateGame
 		bubbling = am.createAudioResource("bubbles16b.wav", AudioResourceType.AUDIO_SAMPLE);
 		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
 		bubbles.initialize(am);
-		bubbles.setMaxDistance(7f);
-		bubbles.setMinDistance(.5f);
+		bubbles.setMaxDistance(100f);
+		bubbles.setMinDistance(10f);
 		bubbles.setRollOff(5f);
 	}
 
