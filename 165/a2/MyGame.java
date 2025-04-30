@@ -4,6 +4,9 @@ import tage.*;
 import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
+import tage.networking.IGameConnection.ProtocolType;
+import tage.nodeControllers.*;
+import tage.audio.*;
 
 import java.lang.Math;
 import java.awt.*;
@@ -21,13 +24,11 @@ import org.joml.*;
 
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
-import tage.networking.IGameConnection.ProtocolType;
 
 import java.util.ArrayList;
 import javax.swing.*;
-import tage.nodeControllers.*;
 
-import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.awt.GLCanvas;//this is for mouse movement
 
 public class MyGame extends VariableFrameRateGame
 {
@@ -35,6 +36,7 @@ public class MyGame extends VariableFrameRateGame
 	private Camera cam;
 //	private CameraOrbit3D orb;
 	private InputManager im;
+	private IAudioManager am;
 
 	private ArrayList<GameObject> hideableShapes = new ArrayList<GameObject>();
 	
@@ -60,6 +62,10 @@ public class MyGame extends VariableFrameRateGame
 	private GameObject water;
 	private ObjShape waterS;
 
+//-------------Sounds--------------
+	private Sound bubbles;
+	private Vector3f up = new Vector3f(spot.y);
+
 //-------------Node Controllers-------------
 //	private RotationController rc;
 //	private RollController roll;
@@ -80,6 +86,7 @@ public class MyGame extends VariableFrameRateGame
 	private float prevMouseX, prevMouseY; // loc of mouse prior to move
 	private boolean isRecentering; //indicates the Robot is in action
 	private float tilt;
+	private float sensitivity;
 
 //-------------Height Map----------------
 	private float height;
@@ -88,6 +95,7 @@ public class MyGame extends VariableFrameRateGame
 //-------------Helpers----------------
 	private Vector3f v = new Vector3f();
 	private Matrix4f m = new Matrix4f();
+
 
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
@@ -237,6 +245,8 @@ public class MyGame extends VariableFrameRateGame
 		light1 = new Light();
 		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(light1);
+
+		//TODO:add 3 more nonambient lights to fit requirements
 	}
 
 	@Override
@@ -269,7 +279,21 @@ public class MyGame extends VariableFrameRateGame
 		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
 
-		//underwater skybox that activates when the camera goes below the water line
+		//TODO:underwater skybox that activates when the camera goes below the water line
+			//wants to see a skybox that isn't from the base code
+	}
+
+	@Override
+	public void loadSounds(){
+		AudioResource bubbling;
+		am = engine.getAudioManager();
+//		bubbling = am.createAudioResource("567455__sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);	//sound_ahead is the name of the sound's creator
+		bubbling = am.createAudioResource("bubbles16b.wav", AudioResourceType.AUDIO_SAMPLE);
+		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
+		bubbles.initialize(am);
+		bubbles.setMaxDistance(7f);
+		bubbles.setMinDistance(.5f);
+		bubbles.setRollOff(5f);
 	}
 
 	@Override
@@ -307,15 +331,12 @@ public class MyGame extends VariableFrameRateGame
 		//roll.toggle();
 
 		// ------------- inputs section ------------------
- 		
 		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
 		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
 		//			controller's buttons
-		
 		HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
-
 		//------------- avatar movement section -------------
-			//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
+//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
 		ForBAction forward = new ForBAction(this, cam, 1, protClient);				//move actions
 		ForBAction back = new ForBAction(this, cam, -1, protClient);
 		LorRStrafeAction right = new LorRStrafeAction(this, cam, 1, protClient);
@@ -329,9 +350,8 @@ public class MyGame extends VariableFrameRateGame
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 //all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
 			//controller
-		if(gamepad != null)
-		{	//if a gamepad is plugged in
-
+		if(gamepad != null){	//if a gamepad is plugged in
+//TODO: update controls to work with controller to fit requirements
 			LorRTurnAction rc = new LorRTurnAction(this, -1);
 			ForBAction fc = new ForBAction(this, -1);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
@@ -351,9 +371,23 @@ public class MyGame extends VariableFrameRateGame
 		//for(int i = 1; i <= 5; i++)
 		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
 				//test if deleting a middle one causes it to delete properly or crash the program
+		//TODO: basic GUI to fit requirements
+//------------------sound section----------------------
+		updateEar();
+		bubbles.play();
 
 //------------------mouse control----------------------
 		initMouseMode();
+	}
+
+	public void updateEar(){
+		puffer.getWorldLocation(v);
+		bubbles.setLocation(v);
+		cam.getLocation(v);
+		am.getEar().setLocation(v);
+		cam.getN(v);
+		cam.getV(up);
+		am.getEar().setOrientation(v, up);
 	}
 	
 	private int findViewportMiddleX(String name, String text)
@@ -369,7 +403,6 @@ public class MyGame extends VariableFrameRateGame
 			return 0;
 		return (int)(text.length()*10)/2; 
 	} //assumes default of GLUT.BITMAP_TIMES_ROMAN_24
-	
 	private int screenMiddleY(){
 		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualHeight() - engine.getRenderSystem().getViewport("MAIN").getActualHeight()/2);
 	}
@@ -383,6 +416,7 @@ public class MyGame extends VariableFrameRateGame
 		//float bottom = vw.getActualBottom();
 		//float width = vw.getActualWidth();
 		//float height = vw.getActualHeight();
+		sensitivity = spot.mouseSensitivity;
 		centerX = screenMiddleX();//(int) (left + width/2);
 		centerY = screenMiddleY();//(int) (bottom - height/2);
 		isRecentering = false;
@@ -394,14 +428,13 @@ public class MyGame extends VariableFrameRateGame
 		prevMouseX = centerX; // 'prevMouse' defines the initial
 		prevMouseY = centerY; // mouse position
 		// also change the cursor
-		Image mouse = new ImageIcon("./assets/textures/custom_mouse_test.png").getImage();
+		Image mouse = new ImageIcon("./assets/textures/mouse reticle.png").getImage();//custom_mouse_test.png").getImage();
 		Cursor faceCursor = Toolkit.getDefaultToolkit().createCustomCursor(mouse, new Point(0,0), "FaceCursor");
 		GLCanvas canvas = rs.getGLCanvas();
 		canvas.setCursor(faceCursor);
 	}
 
 	public void applyHeightMap(){
-
 		for(GameObject obj: mappable){ 
 //TODO: refactor so it just changes the height of the floor collider instead of obj location
 			obj.getWorldLocation(v);
@@ -412,6 +445,19 @@ public class MyGame extends VariableFrameRateGame
 //		cam.heightAdjust(spot.cameraOffset);
 	}
 	
+//TODO:implement choosing character when loading in for requirements. Example code below
+	//needs to send information so the ghosts are the same
+public void changeAvatar(GameObject obj, TextureImage img, ObjShape shape){
+	obj.setTextureImage(img);
+	obj.setShape(shape);
+}
+public void changeAvatar(GameObject obj, TextureImage img){
+	obj.setTextureImage(img);
+}
+public void changeAvatar(GameObject obj, ObjShape shape){
+	obj.setShape(shape);
+}
+
 	@Override
 	public void update()
 	{
@@ -423,6 +469,9 @@ public class MyGame extends VariableFrameRateGame
 		//--------------Altitude--------------	
 		applyHeightMap();
 		
+		//--------------Sound--------------
+		updateEar();
+
 		//--------------HUD drawing----------------
 		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
 		cam.getLocation(v);
@@ -437,16 +486,6 @@ public class MyGame extends VariableFrameRateGame
 		processNetworking((float)elapsTime);
 	}
 	
-	public void keyPressed(KeyEvent a)
-	{	switch (a.getKeyCode())
-		{	case KeyEvent.VK_ESCAPE:
-				if(protClient != null)
-					protClient.sendByeMessage();
-				shutdown();
-				System.exit(0);
-				break;
-		}
-	}
 //-------Mouse control------
 	@Override
 	public void mouseMoved(MouseEvent e)
@@ -482,15 +521,15 @@ public class MyGame extends VariableFrameRateGame
 		robot.mouseMove((int)centerX, (int)centerY);
 	}
 	public void yaw(float mouseDeltaX){
-		if (mouseDeltaX < 0.0) tilt = -spot.mouseSensitivity;
-		else if (mouseDeltaX > 0.0) tilt = spot.mouseSensitivity;
+		if (mouseDeltaX < 0.0) tilt = -sensitivity;
+		else if (mouseDeltaX > 0.0) tilt = sensitivity;
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().yaw(tilt);
 		avatar.yaw(tilt);
 	}
 	public void pitch(float mouseDeltaY){
-		if (mouseDeltaY < 0.0) tilt = -spot.mouseSensitivity;
-		else if (mouseDeltaY > 0.0) tilt = spot.mouseSensitivity;
+		if (mouseDeltaY < 0.0) tilt = -sensitivity;
+		else if (mouseDeltaY > 0.0) tilt = sensitivity;
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
@@ -568,6 +607,27 @@ private void checkForCollisions()
 		{	if(protClient != null && isClientConnected == true)
 			{	protClient.sendByeMessage();
 			}
+		}
+	}
+
+	public void keyPressed(KeyEvent a)
+	{	switch (a.getKeyCode())
+		{	case KeyEvent.VK_ESCAPE:
+				if(protClient != null)
+					protClient.sendByeMessage();
+				shutdown();
+				System.exit(0);
+				break;
+			case KeyEvent.VK_UP:
+				sensitivity+=0.001f;
+				if(sensitivity > 1f)
+					sensitivity = 1f;
+				break;
+			case KeyEvent.VK_DOWN:
+				sensitivity-=0.001f;
+				if(sensitivity<0.05f)
+					sensitivity = 0.05f;
+				break;
 		}
 	}
 }
