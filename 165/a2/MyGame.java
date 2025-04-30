@@ -53,7 +53,7 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS;//, sphereS, torusS,  crystalS, cubeS;
 	private TextureImage doltx, hills, grass, pufferX;
 	private Light light1;//, spotlightR, spotlightG, spotlightB;
-	private int skybox;
+	private int skybox, seabox;
 
 	private GameObject raft;
 	private ObjShape raftS;
@@ -246,7 +246,8 @@ public class MyGame extends VariableFrameRateGame
 		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(light1);
 
-		//TODO:add 3 more nonambient lights to fit requirements
+//TODO:add 3 more nonambient lights to fit requirements
+		//"glowing" jellyfish/coral models?
 	}
 
 	@Override
@@ -275,12 +276,14 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadSkyBoxes(){
-		skybox = engine.getSceneGraph().loadCubeMap(spot.skyboxFile);
-		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
+		skybox = engine.getSceneGraph().loadCubeMap("lakeIslands");
+		seabox = engine.getSceneGraph().loadCubeMap("unda da sea");
+//		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
+		engine.getSceneGraph().setActiveSkyBoxTexture(seabox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
 
-		//TODO:underwater skybox that activates when the camera goes below the water line
-			//wants to see a skybox that isn't from the base code
+//TODO:underwater skybox that activates when the camera goes below the water line
+	//wants to see a skybox that isn't from the base code
 	}
 
 	@Override
@@ -371,7 +374,7 @@ public class MyGame extends VariableFrameRateGame
 		//for(int i = 1; i <= 5; i++)
 		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
 				//test if deleting a middle one causes it to delete properly or crash the program
-		//TODO: basic GUI to fit requirements
+//TODO: basic GUI to fit requirements
 //------------------sound section----------------------
 		updateEar();
 		bubbles.play();

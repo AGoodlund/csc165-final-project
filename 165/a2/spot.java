@@ -30,9 +30,6 @@ public class spot {
         yellow = {1,1,0}, purple = {1,0,1}, teal = {0,1,1},
         white = {1,1,1}, black = {0,0,0};
 
-//---------------------------   Textures    ---------------------------
-    public static String skyboxFile = "lakeIslands", underwaterFile = "da sea";
-
 //---------------------------   Ghosts      ---------------------------
     public static float startingScale = 3f;
 
