@@ -235,7 +235,7 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = new Matrix4f().scaling(20.0f, 1.0f, 20.0f);
 		water.setLocalScale(initialScale);
 
-		diver = new GameObject(GameObject.root(), diverS);	//TODO:get the diver to be visible
+		diver = new GameObject(GameObject.root(), diverS);
 		initialTranslation = new Matrix4f().translation(0f,1.5f,-1f);
 		initialScale = new Matrix4f().scaling(.5f);
 		diver.setLocalTranslation(initialTranslation);
