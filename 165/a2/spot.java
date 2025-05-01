@@ -34,7 +34,7 @@ public class spot {
     public static float startingScale = 3f;
 
 //---------------------------   Sound       ---------------------------    
-    public static int bubbleVolume = 100;
+    public static int bubbleVolume = 500;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name

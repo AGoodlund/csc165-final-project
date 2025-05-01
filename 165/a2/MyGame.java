@@ -291,11 +291,11 @@ public class MyGame extends VariableFrameRateGame
 		AudioResource bubbling;
 		am = engine.getAudioManager();
 //		bubbling = am.createAudioResource("567455__sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);	//sound_ahead is the name of the sound's creator
-		bubbling = am.createAudioResource("bubbles16b.wav", AudioResourceType.AUDIO_SAMPLE);
+		bubbling = am.createAudioResource("sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);
 		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
 		bubbles.initialize(am);
-		bubbles.setMaxDistance(7f);
-		bubbles.setMinDistance(.5f);
+		bubbles.setMaxDistance(100f); //This is the distance at which you hear the quiet version of the sound. Anything past this is imperceptable.
+		bubbles.setMinDistance(10f); //This is the distance at which you hear the loud version of the sound.
 		bubbles.setRollOff(5f);
 	}
 
