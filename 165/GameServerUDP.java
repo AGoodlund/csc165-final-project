@@ -42,29 +42,44 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	}
 	
 	public void sendCheckForAvatarNear() //throws IOException
-	{ //try
-		{ 
-			message.addItem(npcCtrl.getNPC().getPosition());
-			//message.addItem((npcCtrl.getNPC()).getCriteria());
+	{ 
+		message.addItem(npcCtrl.getNPC().getPosition());
+		sendToAll();
+		//message.addItem((npcCtrl.getNPC()).getCriteria());
+/* 		try
+		{ 	
 			sendPacketToAll(message);
 		}
-		
-	  /*catch (IOException e)
-	  { System.out.println("couldnt send msg"); e.printStackTrace(); } */
-	}	
+	  catch (IOException e)
+	  { System.out.println("couldnt send msg"); e.printStackTrace(); } 
+*/	}	
 	
 	public void sendNPCinfo()
-	{
+	{ 
 		message.addItem(npcCtrl.getNPC().getPosition());
 		message.addItem(npcCtrl.getNPC().getOrientation());
-		sendPacketToAll(message);
+		sendToAll();
+/* 		try{	
+			sendPacketToAll(message);
+		}
+		catch(IOException e){
+			System.out.println("couldnt send msg"); e.printStackTrace();
+		}
+*/	}
+	public void sendNPCstart(UUID clientID) 
+	{
+//		message.addItem();
+//		sendPacketToAll(message);
 	}
-public void sendNPCstart(UUID clientID) 
-{
-	message.addItem();
-	sendPacketToAll(message);
-}
 
+	private void sendToAll(){
+		try{	
+			sendPacketToAll(message);
+		}
+		catch(IOException e){
+			System.out.println("couldnt send msg"); e.printStackTrace();
+		}
+	}
 	@Override
 	public void processPacket(Object o, InetAddress senderIP, int senderPort)
 	{

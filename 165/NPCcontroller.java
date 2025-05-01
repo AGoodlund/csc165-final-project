@@ -28,7 +28,7 @@ public class NPCcontroller
 	}
 	public void setupNPCs()
 	{ 
-		npc = new NPC();
+		npc = new GhostNPC();
 		npc.randomizeLocation(rn.nextInt(40),rn.nextInt(40));
 	}
 	
@@ -80,7 +80,7 @@ public class NPCcontroller
 		return nearFlag;
 	}
 	
-	public NPC getNPC ()
+	public GhostNPC getNPC ()
 	{
 		return npc;
 	}

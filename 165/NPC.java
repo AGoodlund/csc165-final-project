@@ -1,3 +1,4 @@
+
 public class NPC
 { 
 	double locationX, locationY, locationZ;
