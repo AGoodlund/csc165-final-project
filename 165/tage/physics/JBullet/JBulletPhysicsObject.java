@@ -41,6 +41,7 @@ public abstract class JBulletPhysicsObject implements PhysicsObject {
         this.isDynamic = (mass != 0f);
         this.shape = shape;
 		this.buoyancy = mass * 9.807f; //Fluid density of 1025 for a mass of 1 kg in salt water. Multiply by the mass to get the buoyancy
+									  //Actually NOT how buoyancy works, I found out T_T Way too complex given the scope of the project. -SL
 
         localInertia = new Vector3f(0, 0, 0);
         if (isDynamic) {

@@ -1,5 +1,5 @@
 public class NPC
-{/* 
+{ 
 	double locationX, locationY, locationZ;
 	double dir = 0.1;
 	double size = 1.0;
@@ -9,6 +9,7 @@ public class NPC
 		locationY=0.0;
 		locationZ=0.0;
 	}
+	
 	public void randomizeLocation(int seedX, int seedZ)
 	{ 
 		locationX = ((double)seedX)/4.0 - 5.0;
@@ -27,5 +28,5 @@ public class NPC
 		if (locationX < -10) dir=0.1;
 		
 		locationX = locationX + dir;
-	}*/ 
-} //TODO: reinstate this
+	} 
+}

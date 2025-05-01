@@ -155,7 +155,8 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 		} 
 		catch (IOException e) 
 		{	e.printStackTrace();
-	}	}
+		}	
+	}
 	
 	// Informs a client that a remote client�s avatar has changed position. x, y, and z represent 
 	// the new position of the remote avatar. This message is meant to be forwarded to all clients

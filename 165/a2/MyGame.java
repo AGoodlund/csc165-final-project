@@ -88,6 +88,7 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape ghostS;
 	private TextureImage ghostT;
 
+
 //-------------Mouse Controls----------------
 	private Robot robot;
 	private float curMouseX, curMouseY, centerX, centerY;
@@ -112,11 +113,7 @@ public class MyGame extends VariableFrameRateGame
 	public float[] gravity = {0f, -9.8f, 0f}; //Making this public in case we want to change it anywhere
 	private float vals[] = new float[16]; 
 	//mappableP.add(pufferP);
-	
-//Networking
-	public ObjShape getEnemyShape() { return pufferS; }
-	public TextureImage getEnemyTexture() { return pufferAltX; }
-	
+
 //-------------My Game----------------
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
@@ -283,7 +280,8 @@ public class MyGame extends VariableFrameRateGame
 		float height = terr.getHeight(x,z);
 		return height;
 	}
-
+	
+		
 	@Override
 	public void initializeLights()
 	{	Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
@@ -792,8 +790,95 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 
 // ---------- NETWORKING SECTION ----------------
 
-	public ObjShape getGhostShape() { return ghostS; }
-	public TextureImage getGhostTexture() { return ghostT; }
+	public AnimatedShape getAnimatedGhostShape(int ghostShapeID) 
+	{
+		AnimatedShape ghostShape;
+		switch(ghostShapeID)
+		{
+			case 0:
+			ghostShape = diverS;
+			break;
+			
+			default:
+			ghostShape = diverS;
+			break;
+			
+		}
+		return ghostShape;
+	}
+	
+	public ObjShape getGhostShape(int ghostShapeID) 
+	{
+		ObjShape ghostShape;
+		switch(ghostShapeID)
+		{
+			
+			case 0:
+			ghostShape = dolS;
+			break;
+			case 1:
+			ghostShape = pufferS;
+			break;
+			case 2:
+			ghostShape = pufferCalmS;
+			break;
+			/*case 3:
+			ghostShape = sphereS;
+			break;
+			case 4:
+			ghostShape = torusS;
+			break;
+			case 5:
+			ghostShape = crystalS;
+			break;
+			case 6:
+			ghostShape = cubeS;
+			break;*/
+			
+			default:
+			ghostShape = pufferS;
+			break;
+		}
+		return ghostShape;
+	}
+	public TextureImage getGhostTexture(int ghostTexID) 
+	{
+				/*
+					private GameObject avatar, x, y, z, terr, puffer, enemy, diver;//, cube, sphere, torus, crystal;
+					private AnimatedShape diverS;
+					private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;//, sphereS, torusS,  crystalS, cubeS;
+					private TextureImage doltx, hills, grass, pufferX, pufferAltX;
+			*/
+		TextureImage ghostTex;
+		switch(ghostTexID)
+		{
+			case 0:
+			ghostTex = ghostT;
+			break;
+			
+			case 1:
+			ghostTex = doltx;
+			break;
+			
+			case 2:
+			ghostTex = pufferX;
+			break;
+			
+			case 3:
+			ghostTex = pufferAltX;
+			break;
+			
+			/*case 4:
+			ghostTex = pufferCalmX;
+			break;*/ //add if time
+			
+			default:
+			ghostTex = pufferX;
+			break;
+		}
+		return ghostTex;
+	}
+	
 	public GhostManager getGhostManager() { return gm; }
 	public Engine getEngine() { return engine; }
 	
@@ -851,12 +936,12 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 				break;
 
 			case KeyEvent.VK_DOWN:
-				if (sensitivity > 0.1f)
+				if (sensitivity > 0.2f)
 					sensitivity = sensitivity - 0.1f;
 				break;
 				
 			case KeyEvent.VK_UP:
-				if (sensitivity < 1.9f)
+				if (sensitivity < 1.8f)
 					sensitivity = sensitivity + 0.1f;
 				break;
 		}

@@ -1,4 +1,4 @@
-/*import tage.ai.behaviortrees.BTCondition;
+import tage.ai.behaviortrees.BTCondition;
 public class AvatarNear extends BTCondition
 { 
 	NPC npc;
@@ -13,7 +13,9 @@ public class AvatarNear extends BTCondition
 	
 	protected boolean check()
 	{ 
-		server.sendCheckForAvatarNear();
+		try
+		{server.sendCheckForAvatarNear();}
+		catch (Exception e) { System.out.println("Error in checking for avatar near.");}
 		return npcc.getNearFlag();
 	} 
-}*/
+}

@@ -1,5 +1,6 @@
 package a2;
 
+import tage.GhostNPC;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -22,31 +23,35 @@ public class ProtocolClient extends GameConnectionClient
 	private Vector3f ghostVector = new Vector3f();
 	private Message message = Message.getMessage();
 	private Message.MessageType t;
-	/*private GhostNPC ghostNPC;
+	private GhostNPC ghostNPC;
 	
 	
 	// ------------- GHOST NPC SECTION --------------
-	private void createGhostNPC(Vector3f position) throws IOException
+	private void createGhostNPC(Vector3f position) //throws IOException
 	{ 
-		if (ghostNPC == null)
-			ghostNPC = new GhostNPC(0, game.getNPCshape(),game.getNPCtexture(), position);
+		//if (ghostNPC == null)
+			//ghostNPC = new GhostNPC(0, game.getNPCshape ,game.getNPCtexture, position);
+		//TODO: Idk why this is broken
 	}
-	private void updateGhostNPC(Vector3f position, double gsize)
+	
+	private void updateGhostNPC(Vector3f position, double gsize) 
 	{ 
 		boolean gs;
-		if (ghostNPC == null)
+		
+	//TODO: This needs to be updated with the new protocol to work
+		/*if (ghostNPC == null)
 		{ try{ createGhostNPC(position);}
-		  catch (IOException e) { System.out.println("error creating npc"); }
+		  catch (IOException g) { System.out.println(System.out.println("error creating npc"); }
+		}*/
+	
+		ghostNPC.setPosition(position);
+		if (gsize == 1.0)
+			gs=false;
+	
+		else 
+			gs=true;
+		ghostNPC.setSize(gs);
 	}
-	
-	ghostNPC.setPosition(position);
-	if (gsize == 1.0)
-		gs=false;
-	
-	else 
-		gs=true;
-	ghostNPC.setSize(gs);
-}*/
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
@@ -139,7 +144,7 @@ public class ProtocolClient extends GameConnectionClient
 				} catch (IOException e) { System.out.println("Error creating ghost npc"); } // error creating ghost avatar
 				break;*/
 				
-			case MNPC:
+			case MNPC: //TODO: Add to these
 				break;
 			case IS_NEAR:
 				break;

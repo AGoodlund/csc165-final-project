@@ -103,7 +103,7 @@ cam.lookAt(focus);*/
     private float getY(double phi){ return r * (float)(Math.sin(phi)); }
     private float getZ(double phi, double theta){ return r * (float)(Math.cos(phi) * Math.cos(theta)); }
 
-private class OrbitAzimuthAction extends AbstractInputAction{//TODO: moves in sin wave
+private class OrbitAzimuthAction extends AbstractInputAction{
         private int direction;
         private boolean keyboard;
         private float rotAmount;

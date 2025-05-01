@@ -36,7 +36,8 @@ public class Message implements Serializable{
     MOVE,
 	CREATE_NPC,
 	MNPC,
-	IS_NEAR
+	IS_NEAR,
+	NPC_REQUEST
     }
 
     private Message(){
