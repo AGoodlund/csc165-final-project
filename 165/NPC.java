@@ -1,4 +1,6 @@
-public class NPC
+import tage.GhostNPC;
+
+public class NPC extends GhostNPC
 { 
 	double locationX, locationY, locationZ;
 	double dir = 0.1;

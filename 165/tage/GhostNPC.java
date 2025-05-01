@@ -24,6 +24,15 @@ public class GhostNPC extends GameObject
 	
 	public Vector3f getPosition ()
 	{
-		return World
+		Vector3f loc = new Vector3f();
+		this.getWorldLocation(loc);
+		return loc;
+	}
+	
+		public Matrix4f getOrientation ()
+	{
+		Matrix4f ori = new Matrix4f();
+		this.getWorldRotation(ori);
+		return ori;
 	}
 }

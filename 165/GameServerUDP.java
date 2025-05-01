@@ -44,10 +44,8 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	public void sendCheckForAvatarNear() //throws IOException
 	{ //try
 		{ 
-			message.addItem((npcCtrl.getNPC()).getX());
-			message.addItem((npcCtrl.getNPC()).getY());
-			message.addItem((npcCtrl.getNPC()).getZ());
-			message.addItem((npcCtrl.getNPC()).getCriteria());
+			message.addItem(npcCtrl.getNPC().getPosition());
+			//message.addItem((npcCtrl.getNPC()).getCriteria());
 			sendPacketToAll(message);
 		}
 		
@@ -57,12 +55,13 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	
 	public void sendNPCinfo()
 	{
-		message.addItem(npc);
+		message.addItem(npcCtrl.getNPC().getPosition());
+		message.addItem(npcCtrl.getNPC().getOrientation());
 		sendPacketToAll(message);
 	}
 public void sendNPCstart(UUID clientID) 
 {
-	message.addItem(npc);
+	message.addItem();
 	sendPacketToAll(message);
 }
 

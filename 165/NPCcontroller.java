@@ -1,8 +1,9 @@
 import java.util.*;
 import tage.ai.behaviortrees.*;
+import tage.GhostNPC;
 public class NPCcontroller
 { 
-	private NPC npc;
+	private GhostNPC npc;
 	Random rn = new Random();
 	BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
 	boolean nearFlag = false;
@@ -79,4 +80,8 @@ public class NPCcontroller
 		return nearFlag;
 	}
 	
+	public NPC getNPC ()
+	{
+		return npc;
+	}
 }
