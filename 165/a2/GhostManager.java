@@ -43,6 +43,19 @@ public class GhostManager
 		ghostAvatars.add(newAvatar);
 		
 	}
+	public void createGhostAvatar(UUID id, Vector3f position, Matrix4f rotation, String ghostShape, String ghostTexture, float scale) throws IOException{
+		System.out.println("adding ghost with ID --> " + id);
+		ObjShape s = game.getGhostShape();
+			//TODO: pull the ghosts shape from a list of shapes initialized in MyGame
+		TextureImage t = game.getGhostTexture();
+			//TODO: pull ghost texture from a list of textures initialized in MyGame
+		GhostAvatar newAvatar = new GhostAvatar(id, s, t, position);
+		Matrix4f initialScale = (new Matrix4f()).scaling(scale);
+		newAvatar.setLocalScale(initialScale);
+		newAvatar.setLocalRotation(rotation);
+		ghostAvatars.add(newAvatar);
+		
+	}
 	public void removeGhostAvatar(UUID id)
 	{	ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)

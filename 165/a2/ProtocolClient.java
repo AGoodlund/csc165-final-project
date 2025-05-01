@@ -63,19 +63,20 @@ public class ProtocolClient extends GameConnectionClient
 				message.getMatrix(ghostMatrix);
 				ghostID = message.getSenderID();
 				try
-				{	ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
+				{	//ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, message.getShape(), message.getTexture(), spot.startingScale);
+					ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
 //System.out.println("This ghost was made by ID" + id+" in ProtocolClient DSFR at position " + ghostVector.toString());
 				}	catch (IOException e)
 				{	System.out.println("error creating ghost avatar");
 				}
 				break;
 			case CREATE:
-
 				message.getVector(ghostVector);
 				message.getMatrix(ghostMatrix);
 				ghostID = message.getSenderID();
 				try
-				{	ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
+				{	//ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, message.getShape(), message.getTexture(), spot.startingScale);
+					ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
 //					ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
 //System.out.println("This ghost was made by "+id+" in ProtocolClient CREATE at position " + ghostVector.toString());
 				}	catch (IOException e)
@@ -86,6 +87,7 @@ public class ProtocolClient extends GameConnectionClient
 				ghostID = message.getSenderID();
 				game.getPlayerPosition(ghostVector);
 				sendDetailsForMessage(ghostID, ghostVector);//game.getPlayerPosition());
+				//TODO: also needs to get the player's ObjShape and TextureImage name
 				break;
 			case MOVE:
 
@@ -146,13 +148,15 @@ public class ProtocolClient extends GameConnectionClient
 	// with the server.
 	// Message Format: (create,localId,x,y,z) where x, y, and z represent the position
 
-	public void sendCreateMessage(Vector3f position, Matrix4f facing)
+	public void sendCreateMessage(Vector3f position, Matrix4f facing)//, String shapeName, String textureName)
 	{	try 
 		{	
 			message.addItem(id);
 			message.addItem(Message.MessageType.CREATE);
 			message.addItem(position);
 			message.addItem(facing);
+//			message.addShape(shapeName);
+//			message.addTexture(textureName);
 
 			sendPacket(message);
 		} catch (IOException e) 

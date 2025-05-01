@@ -49,11 +49,12 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z, terr, puffer;//, cube, sphere, torus, crystal;
+	private GameObject avatar, x, y, z, terr, puffer, diver;//, cube, sphere, torus, crystal;
+	private AnimatedShape diverS;
 	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS;//, sphereS, torusS,  crystalS, cubeS;
 	private TextureImage doltx, hills, grass, pufferX;
 	private Light light1;//, spotlightR, spotlightG, spotlightB;
-	private int skybox;
+	private int skybox, seabox;
 
 	private GameObject raft;
 	private ObjShape raftS;
@@ -132,6 +133,8 @@ public class MyGame extends VariableFrameRateGame
 		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
 		raftS = new Cube();
 		waterS = new Plane();
+		diverS = new AnimatedShape("Diver.rkm", "Diver.rks");
+			diverS.loadAnimation("WALK", "Diver_walk.rka");
 //    	cubeS = new Cube();
 // 		sphereS = new Sphere();
 //		torusS = new Torus(0.5f, 0.2f, 48);
@@ -231,6 +234,15 @@ public class MyGame extends VariableFrameRateGame
 		water.setLocalTranslation(initialTranslation);
 		initialScale = new Matrix4f().scaling(20.0f, 1.0f, 20.0f);
 		water.setLocalScale(initialScale);
+
+		diver = new GameObject(GameObject.root(), diverS);
+		initialTranslation = new Matrix4f().translation(0f,1.5f,-1f);
+		initialScale = new Matrix4f().scaling(.5f);
+		diver.setLocalTranslation(initialTranslation);
+		diver.setLocalScale(initialScale);
+		diver.yaw(180f);
+		diver.getRenderStates().setPositionalColor(true);
+		mappable.add(diver);
 	}
 	
 	public float getTerrainHeight(float x, float z)
@@ -246,7 +258,8 @@ public class MyGame extends VariableFrameRateGame
 		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(light1);
 
-		//TODO:add 3 more nonambient lights to fit requirements
+//TODO:add 3 more nonambient lights to fit requirements
+		//"glowing" jellyfish/coral models?
 	}
 
 	@Override
@@ -275,12 +288,14 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadSkyBoxes(){
-		skybox = engine.getSceneGraph().loadCubeMap(spot.skyboxFile);
-		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
+		skybox = engine.getSceneGraph().loadCubeMap("lakeIslands");
+		seabox = engine.getSceneGraph().loadCubeMap("unda da sea");
+//		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
+		engine.getSceneGraph().setActiveSkyBoxTexture(seabox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
 
-		//TODO:underwater skybox that activates when the camera goes below the water line
-			//wants to see a skybox that isn't from the base code
+//TODO:underwater skybox that activates when the camera goes below the water line
+	//wants to see a skybox that isn't from the base code
 	}
 
 	@Override
@@ -371,13 +386,16 @@ public class MyGame extends VariableFrameRateGame
 		//for(int i = 1; i <= 5; i++)
 		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
 				//test if deleting a middle one causes it to delete properly or crash the program
-		//TODO: basic GUI to fit requirements
+//TODO: basic GUI to fit requirements
 //------------------sound section----------------------
 		updateEar();
 		bubbles.play();
 
 //------------------mouse control----------------------
 		initMouseMode();
+
+//--------------Animation section--------------
+		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
 	}
 
 	public void updateEar(){
@@ -411,11 +429,6 @@ public class MyGame extends VariableFrameRateGame
 	}
 	private void initMouseMode()
 	{ 	RenderSystem rs = engine.getRenderSystem();
-		//Viewport vw = rs.getViewport("MAIN");
-		//float left = vw.getActualLeft();
-		//float bottom = vw.getActualBottom();
-		//float width = vw.getActualWidth();
-		//float height = vw.getActualHeight();
 		sensitivity = spot.mouseSensitivity;
 		centerX = screenMiddleX();//(int) (left + width/2);
 		centerY = screenMiddleY();//(int) (bottom - height/2);
@@ -438,13 +451,14 @@ public class MyGame extends VariableFrameRateGame
 		for(GameObject obj: mappable){ 
 //TODO: refactor so it just changes the height of the floor collider instead of obj location
 			obj.getWorldLocation(v);
-			height = getTerrainHeight(v.x(), v.z()) + terr.getHeight();
+			height = getTerrainHeight(v.x(), v.z()) + terr.getHeight(); //height map + y position of the plane
 			if(obj.getHeight() < height)
 				obj.heightAdjust(height);
 		}
 //		cam.heightAdjust(spot.cameraOffset);
 	}
-	
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //TODO:implement choosing character when loading in for requirements. Example code below
 	//needs to send information so the ghosts are the same
 public void changeAvatar(GameObject obj, TextureImage img, ObjShape shape){
@@ -457,6 +471,7 @@ public void changeAvatar(GameObject obj, TextureImage img){
 public void changeAvatar(GameObject obj, ObjShape shape){
 	obj.setShape(shape);
 }
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	@Override
 	public void update()
@@ -472,8 +487,9 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		//--------------Sound--------------
 		updateEar();
 
+		//--------------Animation--------------
+		diverS.updateAnimation();
 		//--------------HUD drawing----------------
-		//		System.out.println("actualWidth() = " + (int)engine.getRenderSystem().getViewport("MAIN").getActualWidth());
 		cam.getLocation(v);
 		dispStr2 = "(" + v.x() + ", " + v.y() + ", " + v.z() + ")";
 		engine.getHUDmanager().setHUDValue(HUDscore, dispStr1);
