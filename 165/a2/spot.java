@@ -34,23 +34,22 @@ public class spot {
     public static float startingScale = 3f;
 
 //---------------------------   Sound       ---------------------------    
-    public static int bubbleVolume = 500;
+    public static int bubbleVolume = 25;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name
 //      if nothing else try to run it after changing the folder to see what breaks
 
-//make a node controller that causes and object to scale up and down by an amount so it pulses
 /* NOTES: circa milestone 1
- * skybox not from tage or 155
  * character selection upon joining
  *      model or texture choosing
  *      doesn't *have* to be both
  * 
  * TODO:
- * water class that extends TerrainPlane to make water with perlin noise and a texture reader that pushes
- *      along any of the axes
+ * character selection effects the texture and/or shape of ghosts
+ * animated model added to game
 
 COMPLETED
  * 
+ * skybox not from tage or 155
  */

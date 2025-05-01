@@ -16,7 +16,7 @@ public class Message implements Serializable{
     private UUID senderID, receiverID;
     private static Message message; //singleton to force reuse and lower memory overhead
     private boolean respondSuccessful;
-    private String text, text2;
+    private String shape, texture;
     private float num;
 
     private Vector3f v;
@@ -74,15 +74,15 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
 /** add an arbitrary float to the message */
     public void addItem(float f){ num = f; }
 /** add shape name to the message */
-    public void addShape(String s){ text = s; }
+    public void addShape(String s){ shape = s; }
 /** retrieve a float from the message */
     public float getNum(){ return num; } 
 /** retrieve shape name the message */
-    public String getShape(){ return text; }
+    public String getShape(){ return shape; }
 /** add texture name string */
-    public void addTexture(String s){ text2 = s; }
+    public void addTexture(String s){ texture = s; }
 /** retrieve texture name */
-    public String getTexture(){ return text2; }
+    public String getTexture(){ return texture; }
 
 /** add a receiver UUID to the message */
     public void addDestination(UUID receiver){ receiverID = receiver; }
@@ -122,6 +122,8 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         s += "\tMessageType = " + type;
         s += "\n\tSender ID = " + senderID;
         s += "\n\tDestination ID = " + receiverID;
+        s += "\n\tshape = " + shape;
+        s += "\n\ttexture = " + texture;
         s += "\n\tv:\n" + v;
         s += "\n\tm:\n" + m;
 
