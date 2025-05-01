@@ -53,9 +53,9 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z, terr, puffer;//, cube, sphere, torus, crystal;
-	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS;//, sphereS, torusS,  crystalS, cubeS;
-	private TextureImage doltx, hills, grass, pufferX;
+	private GameObject avatar, x, y, z, terr, puffer, enemy;//, cube, sphere, torus, crystal;
+	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;//, sphereS, torusS,  crystalS, cubeS;
+	private TextureImage doltx, hills, grass, pufferX, pufferAltX;
 	private Light light1;//, spotlightR, spotlightG, spotlightB;
 	private int skybox;
 
@@ -101,8 +101,12 @@ public class MyGame extends VariableFrameRateGame
 	private PhysicsEngine physicsEngine;
 	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP;
 	public float[] gravity = {0f, -9.8f, 0f}; //Making this public in case we want to change it anywhere
-	private float vals[] = new float[16]; //Todo: Change?
+	private float vals[] = new float[16]; 
 	//mappableP.add(pufferP);
+	
+//Networking
+	public ObjShape getEnemyShape() { return pufferS; }
+	public TextureImage getEnemyTexture() { return pufferAltX; }
 	
 //-------------My Game----------------
 	public MyGame() { super(); }
@@ -137,6 +141,7 @@ public class MyGame extends VariableFrameRateGame
 		dolS = new ImportedModel("ULPD.obj"); //TODO:turn player model into a cube so it's never seen
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
 		pufferS = new ImportedModel("PufferFish_Angry.obj");
+		pufferCalmS = new ImportedModel("PufferFish_Calm.obj");
 		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
 		raftS = new Cube();
 //    	cubeS = new Cube();
@@ -154,6 +159,7 @@ public class MyGame extends VariableFrameRateGame
 		doltx = new TextureImage("ULPDuv.png");
 		ghostT = new TextureImage("oiter.png");
 		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
+		pufferAltX = new TextureImage("Pufferfish_Angry_SpineyAlt.png");
 
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
@@ -170,6 +176,15 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalTranslation(initialTranslation);
 		avatar.setLocalScale(initialScale);
 		mappable.add(avatar);
+
+
+		// build Enemy Pufferfish
+		enemy = new GameObject(GameObject.root(), pufferS, pufferAltX);
+		initialTranslation = (new Matrix4f()).translation(8f,0f,-3f);
+		initialScale = (new Matrix4f()).scaling(5f);
+		enemy.setLocalTranslation(initialTranslation);
+		enemy.setLocalScale(initialScale);
+		mappable.add(enemy);
 /*
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
@@ -558,19 +573,11 @@ public class MyGame extends VariableFrameRateGame
 			for (int j = 0; j < manifold.getNumContacts(); j++)
 			{ 
 				contactPoint = manifold.getContactPoint(j);
-				/*if (contactPoint.getDistance() < 0.0f)
-				{ 
-					System.out.println("---- hit between " + obj1 + " and " + obj2);
-					break; //TODO: Delete?
-				} */
+
 			} 
 		} 
 	}
 	
-	/*private void checkForTerrain
-	{
-		
-	}*/
 	
 //-------------Misc. Input----------------
 	@Override
@@ -605,11 +612,6 @@ public class MyGame extends VariableFrameRateGame
 				go.setLocalRotation(mat3);
 				} 
 			} 
-			//TODO: Buoyancy is more complex than I thought
-			//pufferP.applyBuoyancy();
-			//checkForCollisionWithAvatar(puffer);
-			
-			//nonPhysicsCollision(avatar, puffer, 10.0f);
 
 			calculateAvatarCollision(puffer);
 		
