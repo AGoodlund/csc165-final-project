@@ -30,6 +30,12 @@ import javax.swing.*;
 
 import com.jogamp.opengl.awt.GLCanvas;//this is for mouse movement
 
+import tage.physics.PhysicsEngine;
+import tage.physics.PhysicsObject;
+import tage.physics.JBullet.*;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
@@ -49,10 +55,11 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z, terr, puffer, diver;//, cube, sphere, torus, crystal;
+	private GameObject avatar, x, y, z, terr, puffer, enemy, diver;//, cube, sphere, torus, crystal;
 	private AnimatedShape diverS;
-	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS;//, sphereS, torusS,  crystalS, cubeS;
-	private TextureImage doltx, hills, grass, pufferX;
+	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;//, sphereS, torusS,  crystalS, cubeS;
+	private TextureImage doltx, hills, grass, pufferX, pufferAltX;
+
 	private Light light1;//, spotlightR, spotlightG, spotlightB;
 	private int skybox, seabox;
 
@@ -87,17 +94,30 @@ public class MyGame extends VariableFrameRateGame
 	private float prevMouseX, prevMouseY; // loc of mouse prior to move
 	private boolean isRecentering; //indicates the Robot is in action
 	private float tilt;
-	private float sensitivity;
+	private float sensitivity = 1.0f;
 
 //-------------Height Map----------------
 	private float height;
 	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
+	//private ArrayList<PhysicsObject> mappableP = new ArrayList<PhysicsObject>(); //Physics objects that follow height map
+	private Vector3f loc = new Vector3f();
 
 //-------------Helpers----------------
 	private Vector3f v = new Vector3f();
 	private Matrix4f m = new Matrix4f();
-
-
+	
+//-------------Physics----------------
+	private PhysicsEngine physicsEngine;
+	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP, diverP;
+	public float[] gravity = {0f, -9.8f, 0f}; //Making this public in case we want to change it anywhere
+	private float vals[] = new float[16]; 
+	//mappableP.add(pufferP);
+	
+//Networking
+	public ObjShape getEnemyShape() { return pufferS; }
+	public TextureImage getEnemyTexture() { return pufferAltX; }
+	
+//-------------My Game----------------
 	public MyGame() { super(); }
 	public MyGame(String serverAddress, int serverPort, String protocol)
 	{	super();
@@ -130,6 +150,7 @@ public class MyGame extends VariableFrameRateGame
 		dolS = new ImportedModel("ULPD.obj");
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
 		pufferS = new ImportedModel("PufferFish_Angry.obj");
+		pufferCalmS = new ImportedModel("PufferFish_Calm.obj");
 		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
 		raftS = new Cube();
 		waterS = new Plane();
@@ -150,6 +171,7 @@ public class MyGame extends VariableFrameRateGame
 		//doltx = new TextureImage("ULPDuv.png");
 		ghostT = new TextureImage("oiter.png");
 		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
+		pufferAltX = new TextureImage("Pufferfish_Angry_SpineyAlt.png");
 
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
@@ -161,13 +183,22 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin in the center of the window
 		avatar = new GameObject(GameObject.root(), new Cube());//dolS, doltx);
-		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		initialTranslation = (new Matrix4f()).translation(0f,0f,10.0f);
 //		initialScale = (new Matrix4f()).scaling(0.75f);
 		avatar.setLocalTranslation(initialTranslation);
 //		avatar.setLocalScale(initialScale);
 		mappable.add(avatar);
 		avatar.getRenderStates().setColor(new Vector3f(spot.black));
 		avatar.getRenderStates().setHasSolidColor(true);
+
+
+		// build Enemy Pufferfish
+		enemy = new GameObject(GameObject.root(), pufferS, pufferAltX);
+		initialTranslation = (new Matrix4f()).translation(5f,2f,-1f); 
+		initialScale = (new Matrix4f()).scaling(5f);
+		enemy.setLocalTranslation(initialTranslation);
+		enemy.setLocalScale(initialScale);
+		mappable.add(enemy);
 /*
 		//build crystal
 		crystal = new GameObject(GameObject.root(),crystalS);
@@ -190,10 +221,12 @@ public class MyGame extends VariableFrameRateGame
 		//build Pufferfish
 		
 		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
-		initialTranslation = (new Matrix4f()).translation(5f,2f,-1f);
+		initialTranslation = (new Matrix4f()).translation(0f,-.5f,0f);
 		initialScale = (new Matrix4f()).scaling(10f);
 		puffer.setLocalTranslation(initialTranslation);
 		puffer.setLocalScale(initialScale);
+		
+		puffer.translate(0f,10f,0f);
 		mappable.add(puffer);
 
 		//build lines
@@ -210,7 +243,7 @@ public class MyGame extends VariableFrameRateGame
 		
 		//Terrain
 		terr = new GameObject(GameObject.root(),terrS,grass);
-		initialTranslation = (new Matrix4f()).translation(0f,-0.25f,0f);
+		initialTranslation = (new Matrix4f()).translation(0f,-0.25f,0f); 
 		terr.setLocalTranslation(initialTranslation);
 		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
 		terr.setLocalScale(initialScale);
@@ -218,7 +251,7 @@ public class MyGame extends VariableFrameRateGame
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
-		terr.translate(0f,-10f,0f);
+		terr.translate(0f,-10f,0f); //Removed so I could use terrain again
 
 		raft = new GameObject(GameObject.root(),raftS);
 		initialTranslation=(new Matrix4f()).translate(0f,-.5f,0f);
@@ -344,7 +377,73 @@ public class MyGame extends VariableFrameRateGame
 		//engine.getSceneGraph().addNodeController(roll);
 		//roll.setPitchSpeed(.001f);
 		//roll.toggle();
+		
+		// ------------- Physics Section ------------------
+		// Initialization
+		physicsEngine = (engine.getSceneGraph()).getPhysicsEngine();
+		physicsEngine.setGravity(gravity);
+		
+		//Physics World
+		
+		
 
+		float tempMass = 1.0f;
+		float diverMass = 10.0f;
+		float tempUp[ ] = {0,1,0};
+		float raftSize[ ] = {1,1,1,1};
+		float pufferRadius = 1.5f;
+		float dolRadius = 1.0f;
+		float tempHeight = 2.0f;
+		float diverHeight = 5.0f;
+		boolean physicsDebug = false;
+		
+		double[ ] tempTransform;
+		Matrix4f physicsTranslation = new Matrix4f();
+		
+		//Doesn't take movement into account
+		//Add force in a direction to a physics object
+		//Every second add a random force to avatar
+		
+		//Puffer Fish
+		//Gravity
+		puffer.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		pufferP = (engine.getSceneGraph()).addPhysicsSphere(tempMass, tempTransform, pufferRadius);
+		pufferP.setSleepThresholds(5.0f,5.0f);
+		pufferP.setBounciness(0.8f);
+		puffer.setPhysicsObject(pufferP);
+
+		//Diver
+		//gravity
+		/*diver.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		diverP = (engine.getSceneGraph()).addPhysicsCapsule(diverMass, tempTransform, dolRadius, diverHeight);
+		diverP.setSleepThresholds(5.0f,5.0f);
+		diverP.setBounciness(0f);
+		diver.setPhysicsObject(diverP);*/
+		
+		
+		//Raft
+		raft.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		raftP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, tempUp, 0f);
+		raftP.setBounciness(0.0f);
+		raftP.setDynamic(false);
+		raft.setPhysicsObject(raftP);
+
+		//Terrain
+		terr.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		groundPlaneP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, tempUp, 0.5f); //Decided that 0.5f is the best of both worlds when it comes to height for the terrain
+		groundPlaneP.setBounciness(1.0f);
+		terr.setPhysicsObject(groundPlaneP);
+		
+		if (physicsDebug)
+		{
+			engine.enableGraphicsWorldRender();
+			engine.enablePhysicsWorldRender();
+		}
+		
 		// ------------- inputs section ------------------
 		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
 		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
@@ -408,6 +507,7 @@ public class MyGame extends VariableFrameRateGame
 		am.getEar().setOrientation(v, up);
 	}
 	
+//-------------Utility----------------
 	private int findViewportMiddleX(String name, String text)
 	{ 	
 		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualWidth() - engine.getRenderSystem().getViewport(name).getActualWidth()/2 - textMidpoint(text)); 
@@ -447,6 +547,8 @@ public class MyGame extends VariableFrameRateGame
 		canvas.setCursor(faceCursor);
 	}
 
+
+//-------------Terrain----------------
 	public void applyHeightMap(){
 		for(GameObject obj: mappable){ 
 //TODO: refactor so it just changes the height of the floor collider instead of obj location
@@ -473,6 +575,113 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+//		loc.set(cam.getLocation());
+//		height = getTerrainHeight(loc.x(), loc.z());
+//		cam.heightAdjust(height+0.5f);	//has to be done manually because it's not a GameObject
+/* 
+		//Objects can either be physics based or mappable, but not both
+		for(GameObject obj: mappable){
+			obj.getWorldLocation(loc);
+//			loc.set(obj.getWorldLocation());
+			height = getTerrainHeight(loc.x(), loc.z());
+			obj.heightAdjust(height);
+		}
+		
+	}*/
+	
+	
+	
+//-------------Physics----------------
+	private float[] toFloatArray(double[] arr)
+	{ 
+		if (arr == null) return null;
+		int n = arr.length;
+		float[] ret = new float[n];
+		for (int i = 0; i < n; i++)
+		{ 
+		  ret[i] = (float)arr[i];
+		}
+		return ret;
+	}
+	private double[] toDoubleArray(float[] arr)
+	{ 
+		if (arr == null) return null;
+		
+		int n = arr.length;
+		
+		double[] ret = new double[n];
+		
+		for (int i = 0; i < n; i++)
+		{ 
+		  ret[i] = (double)arr[i];
+		}
+		return ret;
+	}
+	
+	private void calculateAvatarCollision(GameObject obj)
+	{
+		float strength = 1.0f; //We can make this a parameter
+		float radiusOfEffect = 4.0f; //We can make this a parameter
+		Vector3f avatarLocalLocation = new Vector3f(0.9f,0.0f,0.0f);  //It mostly feels right with these numbers
+		Vector3f distance = distanceFromAvatar(obj);
+		
+		Vector3f force = distance;
+		
+		force.mul((-1 * strength)); 
+		
+		//System.out.println("Distance: " + distance + "Force: " + force);
+		
+		
+		if (distance.equals(avatarLocalLocation, radiusOfEffect))
+		{
+			obj.getPhysicsObject().applyForce(force.x(), force.y(), force.z(),0.0f,0.0f,0.0f); //TODO: fix still
+		}
+	}
+	
+	private Vector3f distanceFromAvatar (GameObject obj) 
+	{
+		Vector3f avatarLoc = new Vector3f();
+		Vector3f objLoc = new Vector3f();
+		Vector3f distanceBetween = new Vector3f();
+		
+		getPlayerPosition(avatarLoc);
+		getObjectPosition(obj, objLoc);
+
+		avatarLoc.sub(objLoc,distanceBetween);
+		
+		return distanceBetween;
+	}
+	
+	private void checkForCollisions()
+	{ 
+		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+		com.bulletphysics.dynamics.RigidBody object1, object2;
+		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
+		
+		dynamicsWorld =((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
+		dispatcher = dynamicsWorld.getDispatcher();
+		int manifoldCount = dispatcher.getNumManifolds();
+		
+		for (int i=0; i < manifoldCount; i++)
+		{ 
+			manifold = dispatcher.getManifoldByIndexInternal(i);
+			object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
+			object2 =(com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
+			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+			
+			for (int j = 0; j < manifold.getNumContacts(); j++)
+			{ 
+				contactPoint = manifold.getContactPoint(j);
+
+			} 
+		} 
+	}
+	
+	
+//-------------Misc. Input----------------
 	@Override
 	public void update()
 	{
@@ -480,7 +689,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
-
+		
 		//--------------Altitude--------------	
 		applyHeightMap();
 		
@@ -489,6 +698,37 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 
 		//--------------Animation--------------
 		diverS.updateAnimation();
+		
+		//--------------Physics--------------	
+			AxisAngle4f aa = new AxisAngle4f();
+			Matrix4f mat = new Matrix4f();
+			Matrix4f mat2 = new Matrix4f().identity();
+			Matrix4f mat3 = new Matrix4f().identity();
+			checkForCollisions();
+			physicsEngine.update((float)elapsTime);
+			for (GameObject go:engine.getSceneGraph().getGameObjects())
+			{ if (go.getPhysicsObject() != null)
+			  { // set translation
+				mat.set(toFloatArray(go.getPhysicsObject().getTransform())); 
+				mat2.set(3,0,mat.m30());
+				mat2.set(3,1,mat.m31());
+				mat2.set(3,2,mat.m32());
+				go.setLocalTranslation(mat2);
+				// set rotation
+				mat.getRotation(aa);
+				mat3.rotation(aa);
+				go.setLocalRotation(mat3);
+				} 
+			} 
+
+			try {
+			calculateAvatarCollision(puffer);
+			//calculateAvatarCollision(diver);
+			}
+			catch (Exception e){}
+		
+	
+		
 		//--------------HUD drawing----------------
 		cam.getLocation(v);
 		dispStr2 = "(" + v.x() + ", " + v.y() + ", " + v.z() + ")";
@@ -537,46 +777,18 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		robot.mouseMove((int)centerX, (int)centerY);
 	}
 	public void yaw(float mouseDeltaX){
-		if (mouseDeltaX < 0.0) tilt = -sensitivity;
-		else if (mouseDeltaX > 0.0) tilt = sensitivity;
+		if (mouseDeltaX < 0.0) tilt = -spot.mouseSensitivity * sensitivity;
+		else if (mouseDeltaX > 0.0) tilt = spot.mouseSensitivity * sensitivity;
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().yaw(tilt);
 		avatar.yaw(tilt);
 	}
 	public void pitch(float mouseDeltaY){
-		if (mouseDeltaY < 0.0) tilt = -sensitivity;
-		else if (mouseDeltaY > 0.0) tilt = sensitivity;
+		if (mouseDeltaY < 0.0) tilt = -spot.mouseSensitivity * sensitivity;
+		else if (mouseDeltaY > 0.0) tilt = spot.mouseSensitivity * sensitivity;
 		else tilt = 0.0f;
 		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
 	}
-/* 
-//TODO: physics from https://athena.ecs.csus.edu/~gordonvs/165/165techTips.html
-private void checkForCollisions()
-{	com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
-	com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
-	com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
-	com.bulletphysics.dynamics.RigidBody object1, object2;
-	com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
-
-	dynamicsWorld = ((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
-	dispatcher = dynamicsWorld.getDispatcher();
-	int manifoldCount = dispatcher.getNumManifolds();
-	for (int i=0; i < manifoldCount; i++)
-	{	manifold = dispatcher.getManifoldByIndexInternal(i);
-		object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
-		object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
-		JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
-		JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
-		for (int j = 0; j < manifold.getNumContacts(); j++)
-		{	contactPoint = manifold.getContactPoint(j);
-			if (contactPoint.getDistance() < 0.0f)
-			{	System.out.println("---- hit between " + obj1 + " and " + obj2);
-				break;
-			}
-		}
-	}
-	}
-*/
 
 // ---------- NETWORKING SECTION ----------------
 
@@ -614,6 +826,9 @@ private void checkForCollisions()
 
 	public void getPlayerPosition(Vector3f dest) { avatar.getWorldLocation(v); dest.set(v); }//return avatar.getWorldLocation(); }
 	public void getPlayerRotation(Matrix4f dest) { avatar.getWorldRotation(m); dest.set(m); }//return avatar.getWorldRotation(); }
+	
+	public void getObjectPosition(GameObject obj, Vector3f dest) { obj.getWorldLocation(v); dest.set(v); }
+	public void getObjectRotation(GameObject obj, Matrix4f dest) { obj.getWorldRotation(m); dest.set(m); }
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	
@@ -634,15 +849,15 @@ private void checkForCollisions()
 				shutdown();
 				System.exit(0);
 				break;
-			case KeyEvent.VK_UP:
-				sensitivity+=0.001f;
-				if(sensitivity > 1f)
-					sensitivity = 1f;
-				break;
+
 			case KeyEvent.VK_DOWN:
-				sensitivity-=0.001f;
-				if(sensitivity<0.05f)
-					sensitivity = 0.05f;
+				if (sensitivity > 0.1f)
+					sensitivity = sensitivity - 0.1f;
+				break;
+				
+			case KeyEvent.VK_UP:
+				if (sensitivity < 1.9f)
+					sensitivity = sensitivity + 0.1f;
 				break;
 		}
 	}

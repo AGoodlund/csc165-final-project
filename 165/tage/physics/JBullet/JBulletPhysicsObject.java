@@ -21,6 +21,7 @@ public abstract class JBulletPhysicsObject implements PhysicsObject {
 
     private int uid;
     private float mass;
+	private float buoyancy;
     protected Transform transform;
     private CollisionShape shape;
     private RigidBody body;
@@ -39,6 +40,7 @@ public abstract class JBulletPhysicsObject implements PhysicsObject {
         this.transform.setFromOpenGLMatrix(JBulletUtils.double_to_float_array(xform));
         this.isDynamic = (mass != 0f);
         this.shape = shape;
+		this.buoyancy = mass * 9.807f; //Fluid density of 1025 for a mass of 1 kg in salt water. Multiply by the mass to get the buoyancy
 
         localInertia = new Vector3f(0, 0, 0);
         if (isDynamic) {
@@ -194,5 +196,15 @@ public abstract class JBulletPhysicsObject implements PhysicsObject {
 	@Override
 	public void applyTorque(float fx, float fy, float fz){
 		body.applyTorque(new Vector3f(fx, fy, fz));
+	}
+	
+	public void applyBuoyancy ()
+	{
+		applyForce(0, buoyancy, 0, 0, 0, 0);
+	}
+	
+	public void setDynamic (boolean a)
+	{
+		isDynamic = a;
 	}
 }
