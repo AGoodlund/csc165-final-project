@@ -387,7 +387,7 @@ public class MyGame extends VariableFrameRateGame
 
 		float tempMass = 1.0f;
 		float diverMass = 10.0f;
-		float tempUp[ ] = {0,1,0};
+//		float tempUp[ ] = {0,1,0};
 		float raftSize[ ] = {1,1,1,1};
 		float pufferRadius = 1.5f;
 		float dolRadius = 1.0f;
@@ -424,21 +424,21 @@ public class MyGame extends VariableFrameRateGame
 		//Raft
 		raft.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		raftP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, tempUp, 0f);
-		raftP.setBounciness(0.0f);
+		raftP = (engine.getSceneGraph()).addPhysicsBox(0f, tempTransform, new float[] {6f, .5f, 10f}); //scale needs to be double what the GameObject's scaling is
+//		raftP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, tempUp, 0f);
+		raftP.setBounciness(0.5f);
 		raftP.setDynamic(false);
 		raft.setPhysicsObject(raftP);
 
 		//Terrain
 		terr.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		groundPlaneP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, tempUp, 0.5f); //Decided that 0.5f is the best of both worlds when it comes to height for the terrain
+		groundPlaneP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, spot.y, 0.5f);//tempUp, 0.5f); //Decided that 0.5f is the best of both worlds when it comes to height for the terrain
 		groundPlaneP.setBounciness(1.0f);
 		terr.setPhysicsObject(groundPlaneP);
 		
 		if (physicsDebug)
 		{
-			engine.enableGraphicsWorldRender();
 			engine.enablePhysicsWorldRender();
 		}
 		
