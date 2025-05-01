@@ -351,7 +351,7 @@ public class GameObject
 	/** returns a copy of this GameObject's local translation matrix */
 //	public Matrix4f getLocalTranslation() { return new Matrix4f(localTranslation); }
 	public void getLocalTranslation(Matrix4f dest){ dest.set(localTranslation); }
-
+	
 	/** returns a copy of this GameObject's local rotation matrix */
 //	public Matrix4f getLocalRotation() { return new Matrix4f(localRotation); }
 	public void getLocalRotation(Matrix4f dest){ dest.set(localRotation); }

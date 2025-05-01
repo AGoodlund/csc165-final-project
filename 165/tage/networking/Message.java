@@ -33,7 +33,10 @@ public class Message implements Serializable{
     DSFR,
     WSDS,
     TURN,
-    MOVE
+    MOVE,
+	CREATE_NPC,
+	MNPC,
+	IS_NEAR
     }
 
     private Message(){

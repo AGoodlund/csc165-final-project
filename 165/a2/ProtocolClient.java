@@ -22,7 +22,31 @@ public class ProtocolClient extends GameConnectionClient
 	private Vector3f ghostVector = new Vector3f();
 	private Message message = Message.getMessage();
 	private Message.MessageType t;
+	/*private GhostNPC ghostNPC;
 	
+	
+	// ------------- GHOST NPC SECTION --------------
+	private void createGhostNPC(Vector3f position) throws IOException
+	{ 
+		if (ghostNPC == null)
+			ghostNPC = new GhostNPC(0, game.getNPCshape(),game.getNPCtexture(), position);
+	}
+	private void updateGhostNPC(Vector3f position, double gsize)
+	{ 
+		boolean gs;
+		if (ghostNPC == null)
+		{ try{ createGhostNPC(position);}
+		  catch (IOException e) { System.out.println("error creating npc"); }
+	}
+	
+	ghostNPC.setPosition(position);
+	if (gsize == 1.0)
+		gs=false;
+	
+	else 
+		gs=true;
+	ghostNPC.setSize(gs);
+}*/
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
@@ -102,6 +126,24 @@ public class ProtocolClient extends GameConnectionClient
 				ghostID = message.getSenderID();
 				ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
 				break;
+				
+			/*case CREATE_NPC:
+				// create a new ghost NPC
+				// Parse out the position
+				Vector3f ghostPosition = new Vector3f(
+				Float.parseFloat(messageTokens[1]), //TODO: These need to be updated for the new system
+				Float.parseFloat(messageTokens[2]),
+				Float.parseFloat(messageTokens[3]));
+				try
+				{ createGhostNPC(ghostPosition);
+				} catch (IOException e) { System.out.println("Error creating ghost npc"); } // error creating ghost avatar
+				break;*/
+				
+			case MNPC:
+				break;
+			case IS_NEAR:
+				break;
+				
 			case DEFAULT:
 
 				break;
