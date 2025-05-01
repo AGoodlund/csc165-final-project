@@ -84,7 +84,7 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
 /** retrieve shape name the message */
     public String getShape(){ return shape; }
 /** add texture name string */
-    public void addTexture(String s){ texture = s; }
+    public void addTexture(String s){ texture = s; } //TODO: Change from strings to ints, or use string in the switch statement
 /** retrieve texture name */
     public String getTexture(){ return texture; }
 
@@ -126,7 +126,7 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         s += "\tMessageType = " + type;
         s += "\n\tSender ID = " + senderID;
         s += "\n\tDestination ID = " + receiverID;
-        s += "\n\tshape = " + shape;
+        s += "\n\tshape = " + shape; //These are just strings
         s += "\n\ttexture = " + texture;
         s += "\n\tv:\n" + v;
         s += "\n\tm:\n" + m;

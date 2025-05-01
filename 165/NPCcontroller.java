@@ -8,13 +8,13 @@ public class NPCcontroller
 	boolean nearFlag = false;
 	long thinkStartTime, tickStartTime;
 	long lastThinkUpdateTime, lastTickUpdateTime;
-	GameAIServerUDP server;
+	GameServerUDP server;
 	double criteria = 2.0;
 	
 	public void updateNPCs()
 	{ npc.updateLocation();}
 	
-	public void start(GameAIServerUDP s)
+	public void start(GameServerUDP s)
 	{ 
 		thinkStartTime = System.nanoTime();
 		tickStartTime = System.nanoTime();
@@ -66,6 +66,7 @@ public class NPCcontroller
 		
 		//TODO: removed this behavior for now to add new behavior. Reinstate to test the code (otherwise this doesn't work).
 		//TODO: Make new class files to dictate npc behavior
+		//SEE ghostNPC for npc behavior as well
 	} 
 	
 	public void setNearFlag (boolean flag)
@@ -77,4 +78,5 @@ public class NPCcontroller
 	{
 		return nearFlag;
 	}
+	
 }

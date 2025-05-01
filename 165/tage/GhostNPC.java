@@ -21,4 +21,9 @@ public class GhostNPC extends GameObject
 	{ 
 		this.translate(move.x(), move.y(), move.z()); 
 	}
+	
+	public Vector3f getPosition ()
+	{
+		return World
+	}
 }

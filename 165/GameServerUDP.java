@@ -10,15 +10,61 @@ import org.joml.*;
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
 	private Message message = Message.getMessage();
-	private UUID clientID, ghostID, remoteID;
+	private UUID clientID, ghostID, ID;
 	private Message.MessageType t;
+	private NPCcontroller npcCtrl;
 
 //	private Vector3f v = new Vector3f(); //helper objects for Message
 //	private Matrix4f m = new Matrix4f();
 
-	public GameServerUDP(int localPort) throws IOException 
+	public GameServerUDP(int localPort, NPCcontroller npc) throws IOException 
 	{	super(localPort, ProtocolType.UDP);
+		npcCtrl = npc; 
+		this.ID = UUID.randomUUID();
+		sendCreateAll();
 	}
+		
+	// --- additional protocol for NPCs ----
+	
+	public void handleNearTiming(UUID clientID)
+	{ npcCtrl.setNearFlag(true);}
+
+	// ------------ SENDING NPC MESSAGES -----------------
+	// Informs clients of the whereabouts of the NPCs.
+	public void sendCreateNPCmsg(UUID clientID, String[] position)
+	{ 
+		System.out.println("The server is telling clients about an NPC..."); //May need to delete this
+		
+		try 
+		{	message.addItem(Message.MessageType.CREATE_NPC);	
+			forwardPacketToAll(message, clientID);
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+	
+	public void sendCheckForAvatarNear() //throws IOException
+	{ //try
+		{ 
+			message.addItem((npcCtrl.getNPC()).getX());
+			message.addItem((npcCtrl.getNPC()).getY());
+			message.addItem((npcCtrl.getNPC()).getZ());
+			message.addItem((npcCtrl.getNPC()).getCriteria());
+			sendPacketToAll(message);
+		}
+		
+	  /*catch (IOException e)
+	  { System.out.println("couldnt send msg"); e.printStackTrace(); } */
+	}	
+	
+	public void sendNPCinfo()
+	{
+		message.addItem(npc);
+		sendPacketToAll(message);
+	}
+public void sendNPCstart(UUID clientID) 
+{
+	message.addItem(npc);
+	sendPacketToAll(message);
+}
 
 	@Override
 	public void processPacket(Object o, InetAddress senderIP, int senderPort)
@@ -55,9 +101,9 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				break;
 			case DSFR:
 
-				remoteID = message.getReceiverID();
+				ghostID = message.getReceiverID();
 //				String[] pos = {messageTokens[3], messageTokens[4], messageTokens[5]};
-				sendDetailsForMessage(remoteID);//v);
+				sendDetailsForMessage(ghostID);//v);
 				break;
 			case TURN:
 
@@ -74,6 +120,31 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 
 				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
 				break;
+				
+			case CREATE_NPC:
+				System.out.println("CREATE_NPC");
+				//ID = message.getSenderID();
+				sendCreateMessages(ID);
+				sendWantsDetailsMessages(ID);
+				//addClient(ci, clientID); We'll need to add this to whichever is first
+				break;
+		
+			case MNPC:
+				System.out.println("MNPC");
+				break;
+		
+			case IS_NEAR:
+				System.out.println("NEAR");
+				//UUID clientID = UUID.fromString(messageTokens[1])
+				//handleNearTiming(clientID);
+				break;
+			
+			case NPC_REQUEST:
+				System.out.println("AI server got a needNPC message");
+				//UUID clientID = UUID.fromString(messageTokens[1]); //TODO Change this
+				sendNPCstart(clientID);
+				break;
+				
 			case DEFAULT:
 
 				System.out.println("received blank message");
@@ -179,8 +250,21 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 		catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+	
+	public void sendCreateAll ()
+	{
+		message.addItem(Message.MessageType.CREATE_NPC);
+		message.addItem(ID);
+		//Work out how to send more specifics
+		
+		try{
+		sendPacketToAll(message);
+		}
+		catch (IOException p)
+		{	p.printStackTrace();
+	}	}
 
 public void trace(){
-	System.out.println("GAME_SERVER_UDP" +message.toString());
+	System.out.println("GAME_SERVER_UDP" + message.toString());
 }
 }

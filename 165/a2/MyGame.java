@@ -843,12 +843,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 	}
 	public TextureImage getGhostTexture(int ghostTexID) 
 	{
-				/*
-					private GameObject avatar, x, y, z, terr, puffer, enemy, diver;//, cube, sphere, torus, crystal;
-					private AnimatedShape diverS;
-					private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;//, sphereS, torusS,  crystalS, cubeS;
-					private TextureImage doltx, hills, grass, pufferX, pufferAltX;
-			*/
 		TextureImage ghostTex;
 		switch(ghostTexID)
 		{
