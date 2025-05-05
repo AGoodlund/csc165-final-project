@@ -3,6 +3,7 @@ import tage.GameObject;
 import tage.Camera;
 
 import tage.input.action.AbstractInputAction;
+import tage.rml.Vector3f;
 import net.java.games.input.Event;
 import org.joml.*;
 
@@ -16,6 +17,8 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
     private ProtocolClient protClient;
 
     private Vector3f strafeDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, strafeDir;
+
+    private float[] f = new float[3];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public LorRStrafeAction(MyGame g, Camera c){ game = g; cam = c; obj = g.getAvatar(); keyboard = false; }
@@ -51,11 +54,16 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
             v.add(strafeDir);
             obj.setLocalLocation(v);
 //            obj.setLocalLocation(obj.getWorldLocation().add(strafeDir.x(),strafeDir.y(),strafeDir.z()));
+            
+//physics object moving alingside object
+            cam.getU(v);
+            f[0]=v.x*keyValue*time; f[1]=0f; f[2]=v.z*keyValue*time;
+            obj.getPhysicsObject().setLinearVelocity(f);
         }
 
         if(cam != null){
-            cam.setLocation(v);
-            cam.heightAdjust(spot.cameraOffset);
+//            cam.setLocation(v);
+//            cam.heightAdjust(spot.cameraOffset);
         }
 
         if(protClient != null){

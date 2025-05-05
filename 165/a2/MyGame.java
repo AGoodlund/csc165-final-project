@@ -48,6 +48,8 @@ public class MyGame extends VariableFrameRateGame
 	
 	private double lastFrameTime, currFrameTime, elapsTime;
 
+	private int health = 10;
+
 //-------------HUD elements--------------
 	private float[] hud1Color = spot.red;
 	private float[] hud2Color = spot.yellow;
@@ -101,9 +103,7 @@ public class MyGame extends VariableFrameRateGame
 //-------------Height Map----------------
 	private float height;
 	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
-
 	private ArrayList<PhysicsObject> mappableP = new ArrayList<PhysicsObject>(); //Physics objects that follow height map
-	private Vector3f loc = new Vector3f();
 
 //-------------Helpers----------------
 	private Vector3f v = new Vector3f();
@@ -111,7 +111,7 @@ public class MyGame extends VariableFrameRateGame
 	
 //-------------Physics----------------
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP;
+	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP, avatarP;
 	public float[] gravity = {0f, -9.8f, 0f}; //Making this public in case we want to change it anywhere
 	private float vals[] = new float[16]; 
 	//mappableP.add(pufferP);
@@ -186,13 +186,15 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin in the center of the window
 		avatar = new GameObject(GameObject.root(), new Cube());//dolS, doltx);
-		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		initialTranslation = (new Matrix4f()).translation(0f,1.5f,0f);
 //		initialScale = (new Matrix4f()).scaling(0.75f);
 		avatar.setLocalTranslation(initialTranslation);
 //		avatar.setLocalScale(initialScale);
 		mappable.add(avatar);
+//		avatar.getRenderStates().disableRendering();
 		avatar.getRenderStates().setColor(new Vector3f(spot.black));
 		avatar.getRenderStates().setHasSolidColor(true);
+
 
 
 		// build Enemy Pufferfish
@@ -254,7 +256,7 @@ public class MyGame extends VariableFrameRateGame
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
-		//terr.translate(0f,-10f,0f); //Removed so I could use terrain again
+		terr.translate(0f,-10f,0f);
 
 		raft = new GameObject(GameObject.root(),raftS);
 		initialTranslation=(new Matrix4f()).translate(0f,-.5f,0f);
@@ -306,20 +308,6 @@ public class MyGame extends VariableFrameRateGame
 		Camera mainCam = main.getCamera();
 		avatar.getLocalLocation(v);
 		mainCam.setLocation(v.add(0f, spot.cameraOffset, 0f));//(new Vector3f(-2,2,2)));
-//		mainCam.setU(new Vector3f(spot.x)); UVN already default to these values
-//		mainCam.setV(new Vector3f(spot.y));
-//		mainCam.setN(new Vector3f(spot.z));
-
-/* 		Viewport map = engine.getRenderSystem().getViewport("MAP");
-		Camera mapCam = map.getCamera();
-		map.setHasBorder(true);
-		map.setBorderWidth(4);
-		map.setBorderColor(red.x(), red.y(), red.z());
-		mapCam.setLocation(new Vector3f(0,2,0));
-		mapCam.setU(new Vector3f(spot.x));
-		mapCam.setV(new Vector3f(spot.z));
-		mapCam.setN(new Vector3f(0,-1,0));
-*/	
 	}
 
 	@Override
@@ -414,13 +402,29 @@ public class MyGame extends VariableFrameRateGame
 		pufferP.setBounciness(0.8f);
 		puffer.setPhysicsObject(pufferP);
 		
-		
+		raft.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		groundPlaneP = (engine.getSceneGraph()).addPhysicsBox(0f, tempTransform, new float[]{6f,1f,10f});
+		groundPlaneP.setBounciness(0.0f);
+		raft.setPhysicsObject(groundPlaneP);
+
 		//Terrain
 		terr.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		groundPlaneP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, tempUp, 0.5f); //Decided that 0.5f is the best of both worlds when it comes to height for the terrain
-		groundPlaneP.setBounciness(1.0f);
+		groundPlaneP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, spot.y, 0.5f); //Decided that 0.5f is the best of both worlds when it comes to height for the terrain
+		groundPlaneP.setBounciness(0.2f);
 		terr.setPhysicsObject(groundPlaneP);
+
+		//avatar
+		avatar.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		avatarP = engine.getSceneGraph().addPhysicsBox(10f, tempTransform, new float[]{2f,2f,2f});
+//		avatarP = engine.getSceneGraph().addPhysicsSphere(10f, tempTransform, 1f);
+		avatarP.setSleepThresholds(5.0f,5.0f);
+		avatarP.setBounciness(0f);
+		avatarP.setFriction(1f);
+		avatar.setPhysicsObject(avatarP);
+
 		
 		if (physicsDebug)
 		{
@@ -541,7 +545,9 @@ public class MyGame extends VariableFrameRateGame
 			if(obj.getHeight() < height)
 				obj.heightAdjust(height);
 		}
-//		cam.heightAdjust(spot.cameraOffset);
+		avatar.getWorldLocation(v);
+		cam.setLocation(v);
+		cam.heightAdjust(spot.cameraOffset);
 	}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -557,23 +563,7 @@ public void changeAvatar(GameObject obj, TextureImage img){
 public void changeAvatar(GameObject obj, ObjShape shape){
 	obj.setShape(shape);
 }
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//		loc.set(cam.getLocation());
-//		height = getTerrainHeight(loc.x(), loc.z());
-//		cam.heightAdjust(height+0.5f);	//has to be done manually because it's not a GameObject
-
-		//Objects can either be physics based or mappable, but not both
-		for(GameObject obj: mappable){
-			obj.getWorldLocation(loc);
-//			loc.set(obj.getWorldLocation());
-			height = getTerrainHeight(loc.x(), loc.z());
-			obj.heightAdjust(height);
-		}
-		
-	}
-	
-	
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 	
 //-------------Physics----------------
 	private float[] toFloatArray(double[] arr)
@@ -590,11 +580,8 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 	private double[] toDoubleArray(float[] arr)
 	{ 
 		if (arr == null) return null;
-		
 		int n = arr.length;
-		
 		double[] ret = new double[n];
-		
 		for (int i = 0; i < n; i++)
 		{ 
 		  ret[i] = (double)arr[i];
@@ -705,7 +692,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			} 
 
 			calculateAvatarCollision(puffer);
-		
 	
 		
 		//--------------HUD drawing----------------
@@ -760,14 +746,14 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		if (mouseDeltaX < 0.0) tilt = -sensitivity;
 		else if (mouseDeltaX > 0.0) tilt = sensitivity;
 		else tilt = 0.0f;
-		engine.getRenderSystem().getViewport("MAIN").getCamera().yaw(tilt);
+		cam.yaw(tilt);
 		avatar.yaw(tilt);
 	}
 	public void pitch(float mouseDeltaY){
 		if (mouseDeltaY < 0.0) tilt = -sensitivity;
 		else if (mouseDeltaY > 0.0) tilt = sensitivity;
 		else tilt = 0.0f;
-		engine.getRenderSystem().getViewport("MAIN").getCamera().limitedPitch(tilt);//pitch(tilt);
+		cam.limitedPitch(tilt);//pitch(tilt);
 	}
 
 // ---------- NETWORKING SECTION ----------------

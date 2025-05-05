@@ -2,7 +2,7 @@ package a2;
 
 public class spot {
 //---------------------------   Movement    ---------------------------
-    public static float turnSpeed = 0.002f, runSpeed = 0.01f, deadzoneBounds = 0.02f, mountingDistance = 5.0f, maxDistanceFromMount = 10f,
+    public static float turnSpeed = 0.002f, runSpeed = .75f, deadzoneBounds = 0.02f, mountingDistance = 5.0f, maxDistanceFromMount = 10f,
         closeFactor = 1.8f, tooCloseFactor = .7f, sphereClose = 8f, torusClose = 12.4f, cubeClose = 10.2f;
     public static float close = 10f, tooClose = 6f;
 
@@ -41,15 +41,20 @@ public class spot {
 //      if nothing else try to run it after changing the folder to see what breaks
 
 /* NOTES: circa milestone 1
+ * TODO:
  * character selection upon joining
  *      model or texture choosing
  *      doesn't *have* to be both
- * 
- * TODO:
  * character selection effects the texture and/or shape of ghosts
- * animated model added to game
+ * Add 3 lights to the scene
+ * HUD elements 
+ *      Health
+ * Hierarchical SceneGraph between at least 2 objects
+ * stop physics based movement from being so jittery
+ * 
 
 COMPLETED
  * 
  * skybox not from tage or 155
+ * animated model added to game
  */
