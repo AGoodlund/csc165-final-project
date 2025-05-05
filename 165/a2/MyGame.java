@@ -72,6 +72,10 @@ public class MyGame extends VariableFrameRateGame
 	private GameObject water;
 	private ObjShape waterS;
 
+	private GameObject jellyR, jellyG, jellyY;
+	private ObjShape jellyfish;
+	private Light red, green, yellow;
+
 //-------------Sounds--------------
 	private Sound bubbles;
 	private Vector3f up = new Vector3f(spot.y);
@@ -163,6 +167,7 @@ public class MyGame extends VariableFrameRateGame
 // 		sphereS = new Sphere();
 //		torusS = new Torus(0.5f, 0.2f, 48);
 //		crystalS = new ManualCrystal();
+		jellyfish = new ImportedModel("Jellyfish.obj");
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
 		yAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
@@ -195,7 +200,15 @@ public class MyGame extends VariableFrameRateGame
 		avatar.getRenderStates().setColor(new Vector3f(spot.black));
 		avatar.getRenderStates().setHasSolidColor(true);
 
-
+		jellyR = new GameObject(GameObject.root(), jellyfish);	//magenta?
+			jellyR.getRenderStates().setColor(new Vector3f(spot.red));
+			jellyR.getRenderStates().setHasSolidColor(true);
+		jellyG = new GameObject(GameObject.root(), jellyfish);	//cyan?
+			jellyG.getRenderStates().setColor(new Vector3f(spot.green));
+			jellyG.getRenderStates().setHasSolidColor(true);
+		jellyY = new GameObject(GameObject.root(), jellyfish);
+			jellyY.getRenderStates().setColor(new Vector3f(spot.yellow));
+			jellyY.getRenderStates().setHasSolidColor(true);
 
 		// build Enemy Pufferfish
 		enemy = new GameObject(GameObject.root(), pufferS, pufferAltX);
@@ -295,6 +308,12 @@ public class MyGame extends VariableFrameRateGame
 		light1 = new Light();
 		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(light1);
+
+		red = new Light();
+//		red.setType() defaults to positional
+//		red.setLocation(jellyR);
+		red.enable();
+
 
 //TODO:add 3 more nonambient lights to fit requirements
 		//"glowing" jellyfish/coral models?
