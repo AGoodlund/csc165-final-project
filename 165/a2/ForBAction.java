@@ -39,31 +39,40 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
 
 @Override
     public void performAction(float time, Event e){
-
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
+        keyValue *= direction;
 
+        //TODO:change to basic movement along xyz axes with the camera having it's xz updated to be the same as the obj
         if(obj != null){
-//            fwdDir = obj.getLocalForwardVector();
-            obj.getLocalForwardVector(fwdDir);
+            obj.getLocalLocation(v);
+            fwdDir.set(0f,0f,keyValue);
+            fwdDir.mul(time*spot.runSpeed);//*keyValue);
+            v.add(fwdDir);
+            obj.setLocalLocation(v);
+//            obj.getLocalForwardVector(fwdDir);
 
 //            if(keyboard) //TODO:if controller has wacky movement this is why
-                keyValue *= direction;
-            fwdDir.mul(time*spot.runSpeed*keyValue);
-            obj.getWorldLocation(v);
-            v.add(fwdDir);
-            obj.setLocalLocation(v); 
+//                keyValue *= direction;
+//            fwdDir.mul(time*spot.runSpeed*keyValue);
+//            obj.getWorldLocation(v);
+//            v.add(fwdDir);
+//            obj.setLocalLocation(v); 
 
 //physics object moving alongside object
             obj.getWorldTranslation(loc);
             obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
+//            obj.getPhysicsObject().applyForce(0f,0f,spot.runSpeed*keyValue, 0f, 0f, 0f);
             
 //this should just move to where the object is, but doesn't. ASK GORDON
                 //goes specifically along the Z axis, irrelevant of facing         
         }
 
         if(cam != null){    //specifically for moving along floor with avatar. update moved to MyGame to keep up with the avatar physics object
-//            obj.getWorldLocation(v);
+//            cam.translate(0f, 0f, keyValue);
+            cam.setLocation(v);
+            cam.heightAdjust(spot.cameraOffset);
+            //            obj.getWorldLocation(v);
 //            cam.setLocation(v);
 //            cam.heightAdjust(spot.cameraOffset);
 //            cam.translate(spot.cameraOffset);
