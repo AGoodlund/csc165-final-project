@@ -3,7 +3,6 @@ import org.joml.*;
 import java.util.*;
 import tage.shapes.*;
 import tage.physics.PhysicsObject;
-
 import tage.GameObject;
 import a2.spot;
 
@@ -178,23 +177,15 @@ public class GameObject
 	public void localYaw(float rad){ yaw(rad, false); }
 /** pitches avatar around its U vector */
 	public void pitch(float rad){
-//		Vector3f worldRight = getWorldRightVector();
-//		Matrix4f worldRot = getWorldRotation(), addedRotation = (new Matrix4f()).rotation(rad, worldRight);
-//		setLocalRotation(addedRotation.mul(worldRot));	
 		getWorldRightVector(v);
 		localRotation.rotate(rad,v);//getWorldRightVector());
 		update();
 	}
-//	public void roll() {
-//		rotate around the n axis aka the forward vector
-//	}
 	public void translate(float x, float y, float z){
 		localTranslation.translate(x,y,z);
 		update();
 	}
 	public void heightAdjust(float y){
-//		y -= localTranslation.m31(); localTranslation.translate(0,y,0);
-	//not tested, just a potential way to avoid the if
 	//if they're the same no movement happens, if y is bigger it will go up by the difference, if smaller down by difference
 		localTranslation.m31(y);
 		update();
@@ -254,11 +245,6 @@ public class GameObject
 	protected void addChild(GameObject g) { children.add(g); }
 	protected void removeChild(GameObject g) { children.remove(g); }
 	protected Iterator getChildrenIterator() { return children.iterator(); }
-
-//	public GameObject getFirstChild(){ //this was only used by disarmAction
-//			Iterator i = getChildrenIterator();
-//			return (GameObject)i.next();
-//	}
 
 	// ------------------ Look At methods ------------------------------
 
@@ -452,29 +438,26 @@ public class GameObject
 
 	// -------------- accessor for height of terrain map at specified position ------------
 
-	/** gets the height at (x,z) if this is a terrain plane -- returns 0 if not terrain, only works if flat on y=0 plane. 
-	 *  altered to send height at (x,z) from the plane's y position
-	*/
+	/** gets the height at (x,z) if this is a terrain plane -- returns 0 if not terrain, only works if flat on y=0 plane. */
 	public float getHeight(float x, float z)
 	{	getLocalLocation(v);
 		x = x - v.x;//getLocalLocation().x;
 		z = z - v.z;//getLocalLocation().z;
 
-//		Matrix4f rot = getLocalRotation().transpose();
 		getLocalRotation(m);
 		m.transpose();
 		Vector4f vec = new Vector4f(x,0,z,1f);
-		vec.mul(m);//rot);
+		vec.mul(m);
 		x = vec.x; z = vec.z;
 
 		x = (x / localScale.m00() + 1.0f) / 2.0f;
 		z = 1.0f - (z / localScale.m00() + 1.0f) / 2.0f;
 		
-		return localScale.m11() * Engine.getEngine().getRenderSystem().getHeightAt(heightMap.getTexture(), x, z)+localTranslation.m31();
+		return (localScale.m11() * Engine.getEngine().getRenderSystem().getHeightAt(heightMap.getTexture(), x, z));
 	}
 /** gets the y value of the GameObject */
 	public float getHeight(){
-		return localTranslation.m31();
+		return worldTranslation.m31();
 	}
 
 	// --------------- private class for default height map ----------------
@@ -487,4 +470,28 @@ public class GameObject
 			Engine.getEngine().getRenderSystem().addTexture((TextureImage)this);
 		}
 	}
+
+	public float[] toFloatArray(double[] arr)
+	{ 
+		if (arr == null) return null;
+		int n = arr.length;
+		float[] ret = new float[n];
+		for (int i = 0; i < n; i++)
+		{ 
+		  ret[i] = (float)arr[i];
+		}
+		return ret;
+	}
+	public double[] toDoubleArray(float[] arr)
+	{ 
+		if (arr == null) return null;
+		int n = arr.length;
+		double[] ret = new double[n];
+		for (int i = 0; i < n; i++)
+		{ 
+		  ret[i] = (double)arr[i];
+		}
+		return ret;
+	}
+	
 }

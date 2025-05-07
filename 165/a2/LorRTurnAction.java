@@ -15,6 +15,7 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
     private ProtocolClient protClient = null;
 
     private Matrix4f m = new Matrix4f();
+//    private float[] vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public LorRTurnAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
@@ -44,8 +45,11 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
             cam.yaw(time * spot.turnSpeed * keyValue);
         if(obj != null)
             obj.yaw(time * spot.turnSpeed * keyValue);
+//            obj.getWorldRotation(m);
+//            obj.getPhysicsObject().setTransform(obj.toDoubleArray(m.get(vals)));
         if(protClient != null){
-            obj.getLocalRotation(m); ;protClient.sendTurnMessage(m);//obj.getLocalRotation());
+            obj.getLocalRotation(m);
+            protClient.sendTurnMessage(m);
         }
     }    
 }

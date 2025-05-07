@@ -16,6 +16,8 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
     private ProtocolClient protClient;
 
     private Vector3f strafeDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, strafeDir;
+    private Matrix4f loc = new Matrix4f();
+    private float[] vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public LorRStrafeAction(MyGame g, Camera c){ game = g; cam = c; obj = g.getAvatar(); keyboard = false; }
@@ -39,19 +41,31 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
 
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
-
+        keyValue *= direction;
+//TODO: perhaps limit camera to being at 0 and only moves far enough so that the ground is always in view. Hallway method
         if(obj != null){
 //            strafeDir = obj.getLocalRightVector();
-            obj.getLocalRightVector(strafeDir);
-
+//            obj.getLocalRightVector(strafeDir);
 //            if(keyboard)
-                keyValue *= direction;
-            strafeDir.mul(time*spot.runSpeed*keyValue);
-            obj.getWorldLocation(v);
+//                keyValue *= direction;
+//            strafeDir.mul(time*spot.runSpeed*keyValue);
+//            obj.getWorldLocation(v);
+//            v.add(strafeDir);
+//            obj.setLocalLocation(v);
+//            obj.setLocalLocation(obj.getWorldLocation().add(strafeDir.x(),strafeDir.y(),strafeDir.z()));
+            obj.getLocalLocation(v);
+            strafeDir.set(keyValue,0f,0f);
+            strafeDir.mul(time*spot.runSpeed);//*keyValue);
             v.add(strafeDir);
             obj.setLocalLocation(v);
-//            obj.setLocalLocation(obj.getWorldLocation().add(strafeDir.x(),strafeDir.y(),strafeDir.z()));
-        }
+//physics object moving alingside object
+//            obj.getPhysicsObject().applyForce(spot.runSpeed*keyValue, 0f,0f,0f, 0f, 0f);
+            obj.getWorldTranslation(loc);
+            obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
+/*             cam.getU(v);
+            f[0]=v.x*keyValue*time; f[1]=0f; f[2]=v.z*keyValue*time;
+            obj.getPhysicsObject().setLinearVelocity(f);
+*/        }
 
         if(cam != null){
             cam.setLocation(v);
