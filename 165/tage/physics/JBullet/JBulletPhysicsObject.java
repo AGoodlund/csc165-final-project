@@ -202,4 +202,9 @@ public abstract class JBulletPhysicsObject implements PhysicsObject {
 	{
 		applyForce(0, buoyancy, 0, 0, 0, 0);
 	}
+	
+	public void setDynamic (boolean a)
+	{
+		isDynamic = a;
+	}
 }
