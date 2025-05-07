@@ -1,6 +1,7 @@
 package a2;
 
 import tage.*;
+import tage.Light.LightType;
 import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
@@ -115,8 +116,8 @@ public class MyGame extends VariableFrameRateGame
 	
 //-------------Physics----------------
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP, avatarP;
-	public float[] gravity = {0f, -9.8f, 0f}; //Making this public in case we want to change it anywhere
+	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP, avatarP, groundingP;
+	private float[] gravity = {0f, -6f, 0f};
 	private float vals[] = new float[16]; 
 	//mappableP.add(pufferP);
 	
@@ -136,9 +137,8 @@ public class MyGame extends VariableFrameRateGame
 		else
 			this.serverProtocol = ProtocolType.UDP;
 	}
-
 	
-		public static void main(String[] args){	
+	public static void main(String[] args){	
 		MyGame game;
 		if(args.length == 0)
 			game = new MyGame();
@@ -148,7 +148,6 @@ public class MyGame extends VariableFrameRateGame
 		game.initializeSystem();
 		game.game_loop();
 	}
-	
 	
 	public GameObject getAvatar(){ return avatar; }
 
@@ -163,10 +162,6 @@ public class MyGame extends VariableFrameRateGame
 		waterS = new Plane();
 		diverS = new AnimatedShape("Diver.rkm", "Diver.rks");
 			diverS.loadAnimation("WALK", "Diver_walk.rka");
-//    	cubeS = new Cube();
-// 		sphereS = new Sphere();
-//		torusS = new Torus(0.5f, 0.2f, 48);
-//		crystalS = new ManualCrystal();
 		jellyfish = new ImportedModel("Jellyfish.obj");
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
@@ -176,13 +171,15 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadTextures(){	
-		//doltx = new TextureImage("ULPDuv.png");
+		doltx = new TextureImage("ULPDuv.png");
 		ghostT = new TextureImage("oiter.png");
 		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
 		pufferAltX = new TextureImage("Pufferfish_Angry_SpineyAlt.png");
 
-		hills = new TextureImage("hills.jpg");
-		grass = new TextureImage("grass.jpg");
+		hills = new TextureImage("heightmap map.png");
+		grass = new TextureImage("sand.png");
+//		hills = new TextureImage("hills.jpg");
+//		grass = new TextureImage("grass.jpg");
 	}
 
 	@Override
@@ -190,29 +187,46 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), new Cube());//dolS, doltx);
-		initialTranslation = (new Matrix4f()).translation(0f,1.5f,0f);
-//		initialScale = (new Matrix4f()).scaling(0.75f);
+		avatar = new GameObject(GameObject.root(), new Cube());
+		initialTranslation = (new Matrix4f()).translation(0f,1.5f+20f,0f);
 		avatar.setLocalTranslation(initialTranslation);
-//		avatar.setLocalScale(initialScale);
 		mappable.add(avatar);
-//		avatar.getRenderStates().disableRendering();
+		avatar.getRenderStates().disableRendering();
 		avatar.getRenderStates().setColor(new Vector3f(spot.black));
 		avatar.getRenderStates().setHasSolidColor(true);
 
-		jellyR = new GameObject(GameObject.root(), jellyfish);	//magenta?
-			jellyR.getRenderStates().setColor(new Vector3f(spot.red));
-			jellyR.getRenderStates().setHasSolidColor(true);
-		jellyG = new GameObject(GameObject.root(), jellyfish);	//cyan?
-			jellyG.getRenderStates().setColor(new Vector3f(spot.green));
-			jellyG.getRenderStates().setHasSolidColor(true);
+		jellyR = new GameObject(GameObject.root(), jellyfish);
+			initialTranslation = (new Matrix4f()).translation(0f,-5f+20f,50f);
+			initialScale = new Matrix4f().scaling(0.5f);
+			jellyR.setLocalTranslation(initialTranslation);
+			jellyR.setLocalScale(initialScale);
+
+		jellyG = new GameObject(GameObject.root(), jellyfish);
+			initialTranslation = (new Matrix4f()).translation(0f,-5f+20f,0f);
+			initialScale = new Matrix4f().scaling(0.5f);
+			jellyG.setLocalTranslation(initialTranslation);
+			jellyG.setLocalScale(initialScale);
+
 		jellyY = new GameObject(GameObject.root(), jellyfish);
-			jellyY.getRenderStates().setColor(new Vector3f(spot.yellow));
-			jellyY.getRenderStates().setHasSolidColor(true);
+			initialTranslation = (new Matrix4f()).translation(0f,-5f+20f,-50f);
+			initialScale = new Matrix4f().scaling(0.5f);
+			jellyY.setLocalTranslation(initialTranslation);
+			jellyY.setLocalScale(initialScale);
+
+		jellyR.getRenderStates().setColor(new Vector3f(spot.red));
+		jellyG.getRenderStates().setColor(new Vector3f(spot.green));
+		jellyY.getRenderStates().setColor(new Vector3f(spot.yellow));
+		jellyR.getRenderStates().setHasSolidColor(true);
+		jellyG.getRenderStates().setHasSolidColor(true);
+		jellyY.getRenderStates().setHasSolidColor(true);//or set them to hasPositionalColor(true);
+		jellyR.getRenderStates().setRenderHiddenFaces(true);
+		jellyG.getRenderStates().setRenderHiddenFaces(true);
+		jellyY.getRenderStates().setRenderHiddenFaces(true);
+
 
 		// build Enemy Pufferfish
 		enemy = new GameObject(GameObject.root(), pufferS, pufferAltX);
-		initialTranslation = (new Matrix4f()).translation(8f,0f,-3f);
+		initialTranslation = (new Matrix4f()).translation(8f,0f+20f,-3f);
 		initialScale = (new Matrix4f()).scaling(5f);
 		enemy.setLocalTranslation(initialTranslation);
 		enemy.setLocalScale(initialScale);
@@ -239,7 +253,7 @@ public class MyGame extends VariableFrameRateGame
 		//build Pufferfish
 		
 		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
-		initialTranslation = (new Matrix4f()).translation(5f,2f,-1f);
+		initialTranslation = (new Matrix4f()).translation(5f,2f+20f,-1f);
 		initialScale = (new Matrix4f()).scaling(10f);
 		puffer.setLocalTranslation(initialTranslation);
 		puffer.setLocalScale(initialScale);
@@ -261,33 +275,33 @@ public class MyGame extends VariableFrameRateGame
 		
 		//Terrain
 		terr = new GameObject(GameObject.root(),terrS,grass);
-		initialTranslation = (new Matrix4f()).translation(0f,-0.25f,0f); 
+		initialTranslation = (new Matrix4f()).translation(0f,-20f+20f,0f); 
 		terr.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
+		initialScale = new Matrix4f().scaling(30f,20f,120f);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
-		terr.translate(0f,-10f,0f);
 
 		raft = new GameObject(GameObject.root(),raftS);
-		initialTranslation=(new Matrix4f()).translate(0f,-.5f,0f);
+		initialTranslation=(new Matrix4f()).translate(0f,-.5f+20f,0f);
 		raft.setLocalTranslation(initialTranslation);
 		initialScale = (new Matrix4f()).scaling(3f,.5f,5f);
 		raft.setLocalScale(initialScale);
-		raft.getRenderStates().setPositionalColor(true);
+		raft.getRenderStates().setHasSolidColor(true); //TODO:make a texture for this to be square logs
+		raft.getRenderStates().setColor(new Vector3f(0.725f, 0.478f, 0.341f));
 
 		water = new GameObject(GameObject.root(), waterS);
 		water.getRenderStates().setColor(new Vector3f(spot.blue));
 		water.getRenderStates().setHasSolidColor(true);
-		initialTranslation = new Matrix4f().translation(0f,-.25f,0f);
+		initialTranslation = new Matrix4f().translation(0f,-.25f+20f,0f);
 		water.setLocalTranslation(initialTranslation);
-		initialScale = new Matrix4f().scaling(20.0f, 1.0f, 20.0f);
+		initialScale = new Matrix4f().scaling(200.0f, 1.0f, 200.0f);
 		water.setLocalScale(initialScale);
 
 		diver = new GameObject(GameObject.root(), diverS);
-		initialTranslation = new Matrix4f().translation(0f,1.5f,-1f);
+		initialTranslation = new Matrix4f().translation(0f,1.5f+20f,-1f);
 		initialScale = new Matrix4f().scaling(.5f);
 		diver.setLocalTranslation(initialTranslation);
 		diver.setLocalScale(initialScale);
@@ -304,53 +318,65 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void initializeLights()
-	{	Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
+	{	Light.setGlobalAmbient(.3f,.3f,.3f);//0.5f, 0.5f, 0.5f);
 		light1 = new Light();
 		light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
 		(engine.getSceneGraph()).addLight(light1);
 
 		red = new Light();
-//		red.setType() defaults to positional
-//		red.setLocation(jellyR);
-		red.enable();
+		red.setType(LightType.SPOTLIGHT);
+		red.setDirection(new Vector3f(0f,-1f,0f));
+		red.setColor(spot.dimRed);
+		jellyR.getWorldLocation(v);
+		red.setLocation(v);
+//		setType() defaults to positional
 
+		green = new Light();
+		green.setType(LightType.SPOTLIGHT);
+		green.setDirection(new Vector3f(0f,-1f,0f));
+		green.setColor(spot.dimGreen);
+		jellyG.getWorldLocation(v);
+		green.setLocation(v);
 
-//TODO:add 3 more nonambient lights to fit requirements
-		//"glowing" jellyfish/coral models?
+		yellow = new Light();
+		yellow.setType(LightType.SPOTLIGHT);
+		yellow.setDirection(new Vector3f(0f,-1f,0f));
+		yellow.setColor(spot.dimYellow);
+		jellyY.getWorldLocation(v);
+		yellow.setLocation(v);
+
+		engine.getSceneGraph().addLight(red);
+		engine.getSceneGraph().addLight(green);
+		engine.getSceneGraph().addLight(yellow);
 	}
 
 	@Override
-	public void createViewports(){	//code directly from https://csus.instructure.com/courses/130924/files/22876803?module_item_id=6834558 
+	public void createViewports(){
 		engine.getRenderSystem().addViewport("MAIN",0f,0f,1f,1f);
 
 		Viewport main = engine.getRenderSystem().getViewport("MAIN");
 		Camera mainCam = main.getCamera();
 		avatar.getLocalLocation(v);
-		mainCam.setLocation(v.add(0f, spot.cameraOffset, 0f));//(new Vector3f(-2,2,2)));
+		mainCam.setLocation(v.add(0f, spot.cameraOffset, 0f));
 	}
 
 	@Override
 	public void loadSkyBoxes(){
 		skybox = engine.getSceneGraph().loadCubeMap("lakeIslands");
 		seabox = engine.getSceneGraph().loadCubeMap("unda da sea");
-//		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
-		engine.getSceneGraph().setActiveSkyBoxTexture(seabox);
+		engine.getSceneGraph().setActiveSkyBoxTexture(skybox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
-
-//TODO:underwater skybox that activates when the camera goes below the water line
-	//wants to see a skybox that isn't from the base code
 	}
 
 	@Override
 	public void loadSounds(){
 		AudioResource bubbling;
 		am = engine.getAudioManager();
-//		bubbling = am.createAudioResource("567455__sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);	//sound_ahead is the name of the sound's creator
-		bubbling = am.createAudioResource("sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);
+		bubbling = am.createAudioResource("sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);//sound_ahead is the name of the sound's creator
 		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
 		bubbles.initialize(am);
-		bubbles.setMaxDistance(100f); //This is the distance at which you hear the quiet version of the sound. Anything past this is imperceptable.
-		bubbles.setMinDistance(10f); //This is the distance at which you hear the loud version of the sound.
+		bubbles.setMaxDistance(20f); //This is the distance at which you hear the quiet version of the sound. Anything past this is imperceptable.
+		bubbles.setMinDistance(2f); //This is the distance at which you hear the loud version of the sound.
 		bubbles.setRollOff(5f);
 	}
 
@@ -368,9 +394,8 @@ public class MyGame extends VariableFrameRateGame
 
 		// ------------- positioning the camera -------------
 		cam = engine.getRenderSystem().getViewport("MAIN").getCamera();
-		avatar.getWorldLocation(v); cam.setLocation(v);//avatar.getWorldLocation());
+		avatar.getWorldLocation(v); cam.setLocation(v);
 		cam.translate(0f,.5f, 0f);
-//		orb = new CameraOrbit3D(engine, cam, avatar, gamepad);
 
 		//------------- Networking Section -------------
 		if(serverPort != -1) setupNetworking();
@@ -394,15 +419,12 @@ public class MyGame extends VariableFrameRateGame
 		physicsEngine.setGravity(gravity);
 		
 		//Physics World
-		
-		
-
 		float tempMass = 1.0f;
 		float tempUp[ ] = {0,1,0};
 		float pufferRadius = 1.5f;
 		float dolRadius = 1.0f;
 		float tempHeight = 2.0f;
-		boolean physicsDebug = false;
+		boolean physicsDebug = true;
 		
 		double[ ] tempTransform;
 		Matrix4f physicsTranslation = new Matrix4f();
@@ -410,7 +432,8 @@ public class MyGame extends VariableFrameRateGame
 		//Doesn't take movement into account
 		//Add force in a direction to a physics object
 		//Every second add a random force to avatar
-		
+
+/* 		only the player and harpoons will need physics because everything else will be controlled by the Server
 		//Puffer Fish
 		//Gravity
 		puffer.getLocalTranslation(physicsTranslation);
@@ -420,35 +443,39 @@ public class MyGame extends VariableFrameRateGame
 		pufferP.setSleepThresholds(5.0f,5.0f);
 		pufferP.setBounciness(0.8f);
 		puffer.setPhysicsObject(pufferP);
-		
+*/		
 		raft.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
 		groundPlaneP = (engine.getSceneGraph()).addPhysicsBox(0f, tempTransform, new float[]{6f,1f,10f});
 		groundPlaneP.setBounciness(0.0f);
 		raft.setPhysicsObject(groundPlaneP);
 
-		//Terrain
+/* 		//Terrain
 		terr.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
 		groundPlaneP = (engine.getSceneGraph()).addPhysicsStaticPlane(tempTransform, spot.y, 0.5f); //Decided that 0.5f is the best of both worlds when it comes to height for the terrain
-		groundPlaneP.setBounciness(0.2f);
+		groundPlaneP.setBounciness(0.02f);
 		terr.setPhysicsObject(groundPlaneP);
+*/
+		groundingP = engine.getSceneGraph().addPhysicsBox(0f, tempTransform, new float[]{4f,2f,4f});
+		groundingP.setBounciness(0.02f);
 
 		//avatar
 		avatar.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		avatarP = engine.getSceneGraph().addPhysicsBox(10f, tempTransform, new float[]{2f,2f,2f});
-//		avatarP = engine.getSceneGraph().addPhysicsSphere(10f, tempTransform, 1f);
+//		avatarP = engine.getSceneGraph().addPhysicsBox(3f, tempTransform, new float[]{2f,2f,2f});
+		avatarP = engine.getSceneGraph().addPhysicsSphere(300f, tempTransform, 1f);
 		avatarP.setSleepThresholds(5.0f,5.0f);
 		avatarP.setBounciness(0f);
 		avatarP.setFriction(1f);
 		avatar.setPhysicsObject(avatarP);
+//TODO: Decide if this should be turned off unless the player is falling and just do the normal terrain following
 
 		
 		if (physicsDebug)
 		{
-			engine.enableGraphicsWorldRender();
 			engine.enablePhysicsWorldRender();
+//			engine.disableGraphicsWorldRender();
 		}
 		
 		// ------------- inputs section ------------------
@@ -584,7 +611,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 	
-//-------------Physics----------------
+//-------------Physics----------------TODO:so much needs fixing
 	private float[] toFloatArray(double[] arr)
 	{ 
 		if (arr == null) return null;
@@ -616,6 +643,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		Vector3f distance = distanceFromAvatar(obj);
 		
 		Vector3f force = distance;
+//TODO:don't initialize in a function run in update()
 		
 		force.mul((-1 * strength)); 
 		
@@ -633,6 +661,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		Vector3f avatarLoc = new Vector3f();
 		Vector3f objLoc = new Vector3f();
 		Vector3f distanceBetween = new Vector3f();
+//TODO:don't initialize in a function run in update()
 		
 		getPlayerPosition(avatarLoc);
 		getObjectPosition(obj, objLoc);
@@ -670,7 +699,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		} 
 	}
 	
-	
+	private boolean swap = true;
 //-------------Misc. Input----------------
 	@Override
 	public void update()
@@ -682,36 +711,48 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		
 		//--------------Altitude--------------	
 		applyHeightMap();
-		
+		cam.getLocation(v);
+		if(swap && v.y() < 0f){
+			light1.disable();
+			engine.getSceneGraph().setActiveSkyBoxTexture(seabox);
+			swap = false;
+		}
 		//--------------Sound--------------
 		updateEar();
 
 		//--------------Animation--------------
 		diverS.updateAnimation();
 		//--------------Physics--------------	
-			AxisAngle4f aa = new AxisAngle4f();
-			Matrix4f mat = new Matrix4f();
-			Matrix4f mat2 = new Matrix4f().identity();
-			Matrix4f mat3 = new Matrix4f().identity();
-			checkForCollisions();
-			physicsEngine.update((float)elapsTime);
-			for (GameObject go:engine.getSceneGraph().getGameObjects())
-			{ if (go.getPhysicsObject() != null)
-			  { // set translation
-				mat.set(toFloatArray(go.getPhysicsObject().getTransform())); 
-				mat2.set(3,0,mat.m30());
-				mat2.set(3,1,mat.m31());
-				mat2.set(3,2,mat.m32());
-				go.setLocalTranslation(mat2);
-				// set rotation
-				mat.getRotation(aa);
-				mat3.rotation(aa);
-				go.setLocalRotation(mat3);
-				} 
-			} 
+		AxisAngle4f aa = new AxisAngle4f();
+		Matrix4f mat = new Matrix4f();
+		Matrix4f mat2 = new Matrix4f().identity();
+		Matrix4f mat3 = new Matrix4f().identity();
+			//TODO:don't initialize in update()
 
-			calculateAvatarCollision(puffer);
-	
+		checkForCollisions();
+
+		physicsEngine.update((float)elapsTime);
+		for (GameObject go:engine.getSceneGraph().getGameObjects())
+		{ if (go.getPhysicsObject() != null)
+			{ // set translation
+			mat.set(toFloatArray(go.getPhysicsObject().getTransform())); 
+			mat2.set(3,0,mat.m30());
+			mat2.set(3,1,mat.m31());
+			mat2.set(3,2,mat.m32());
+			go.setLocalTranslation(mat2);
+			// set rotation
+			mat.getRotation(aa);
+			mat3.rotation(aa);
+			go.setLocalRotation(mat3);
+			} 
+		} 
+
+		calculateAvatarCollision(puffer);//TODO:do not hardcode specific enemies. just find special interactions in the loop
+
+		//make avatar's grounding box follow the avatar at the groundplane's height
+		cam.getLocation(v);
+		m.identity().setTranslation(v.x(), getTerrainHeight(v.x(), v.z()), v.z()); //TODO:this doesn't quite follow the terrain map
+		groundingP.setTransform(toDoubleArray(m.get(vals)));
 		
 		//--------------HUD drawing----------------
 		cam.getLocation(v);
@@ -721,8 +762,10 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
 		
 		//--------------Game Loop----------------
-//		orb.updateCameraPosition();
-		im.update((float)elapsTime);	
+		im.update((float)elapsTime);
+
+
+		//--------------Networking Update----------------
 		processNetworking((float)elapsTime);
 	}
 	

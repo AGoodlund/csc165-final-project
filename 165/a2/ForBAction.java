@@ -16,8 +16,9 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     private ProtocolClient protClient;
 
     private Vector3f fwdDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, fwdDir;
+    private Matrix4f loc = new Matrix4f();
 
-    private float[] f = new float[3];
+    private float[] f = new float[3], vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
@@ -53,11 +54,11 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             v.add(fwdDir);
             obj.setLocalLocation(v); 
 
-//physics object moving alingside object
-            cam.getN(v);
-
-            f[0]=v.x*keyValue*time; f[1]=0f; f[2]=v.z*keyValue*time;//TODO:figure out why this is so wobbly and doesn't move if v.x and v.z aren't multiplied by anything
-            obj.getPhysicsObject().setLinearVelocity(f);
+//physics object moving alongside object
+            obj.getWorldTranslation(loc);
+            obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
+//this should just move to where the object is, but doesn't. ASK GORDON
+                //goes specifically along the Z axis, irrelevant of facing         
         }
 
         if(cam != null){    //specifically for moving along floor with avatar. update moved to MyGame to keep up with the avatar physics object

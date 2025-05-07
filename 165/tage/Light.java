@@ -113,6 +113,7 @@ public class Light
 		LightManager lm = engine.getLightManager();
 		lm.setHasChanged();
 	}
+	public void setAmbient(float[] f){ setAmbient(f[0],f[1],f[2]); }
 
 	/** sets the diffuse RGB characteristic for this light */
 	public void setDiffuse(float r, float g, float b)
@@ -123,6 +124,7 @@ public class Light
 		LightManager lm = engine.getLightManager();
 		lm.setHasChanged();
 	}
+	public void setDiffuse(float[] f){ setDiffuse(f[0],f[1],f[2]); }
 
 	/** sets the specular RGB characteristic for this light */
 	public void setSpecular(float r, float g, float b)
@@ -132,6 +134,19 @@ public class Light
 		specular[3] = 1.0f;
 		LightManager lm = engine.getLightManager();
 		lm.setHasChanged();
+	}
+	public void setSpecular(float[] f){ setSpecular(f[0],f[1],f[2]); }
+	
+/** sets ADS to the same value */
+	public void setColor(float r, float g, float b){
+		setAmbient(r,g,b);
+		setDiffuse(r, g, b);
+		setSpecular(r, g, b);
+	}
+	public void setColor(float[] f){
+		setAmbient(f);
+		setDiffuse(f);
+		setSpecular(f);
 	}
 
 	/** sets a constant attenuation factor for this light */
