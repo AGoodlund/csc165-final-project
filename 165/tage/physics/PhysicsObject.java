@@ -186,5 +186,7 @@ public interface PhysicsObject {
 	public void applyTorque(float fx, float fy, float fz);
 	
 	public void applyBuoyancy();
+	
+	public void setDynamic(boolean a);
 
 }

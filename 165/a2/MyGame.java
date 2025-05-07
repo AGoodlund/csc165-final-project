@@ -59,6 +59,7 @@ public class MyGame extends VariableFrameRateGame
 
 //-------------Visuals--------------
 	private GameObject avatar, x, y, z, terr, puffer, diver, enemy;//, cube, sphere, torus, crystal;
+
 	private AnimatedShape diverS;
 	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;//, sphereS, torusS,  crystalS, cubeS;
 	private TextureImage doltx, hills, grass, pufferX, pufferAltX;
@@ -105,10 +106,14 @@ public class MyGame extends VariableFrameRateGame
 	private float sensitivity;
 */
 
+
 //-------------Height Map----------------
 	private float height;
 	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
 	private ArrayList<PhysicsObject> mappableP = new ArrayList<PhysicsObject>(); //Physics objects that follow height map
+
+	//private ArrayList<PhysicsObject> mappableP = new ArrayList<PhysicsObject>(); //Physics objects that follow height map
+
 
 //-------------Helpers----------------
 	private Vector3f v = new Vector3f();
@@ -157,7 +162,9 @@ public class MyGame extends VariableFrameRateGame
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
 		pufferS = new ImportedModel("PufferFish_Angry.obj");
 		pufferCalmS = new ImportedModel("PufferFish_Calm.obj");
+
 		terrS = new Plane();//TerrainPlane(1000); //pixels per axis is 1000 X 1000
+
 		raftS = new Cube();
 //		waterS = new Plane();
 		diverS = new AnimatedShape("Diver.rkm", "Diver.rks");
@@ -188,8 +195,9 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), diverS);//new Cube());
+		avatar = new GameObject(GameObject.root(), diverS);//new Cube());//dolS, doltx);
 		initialTranslation = (new Matrix4f()).translation(0f,2f,0f);
+
 		avatar.setLocalTranslation(initialTranslation);
 //		initialScale = new Matrix4f().scale(1f,2f,1f);
 		mappable.add(avatar);
@@ -235,6 +243,7 @@ public class MyGame extends VariableFrameRateGame
 		// build Enemy Pufferfish
 		enemy = new GameObject(GameObject.root(), pufferS, pufferAltX);
 		initialTranslation = (new Matrix4f()).translation(8f,0f,-3f);
+
 		initialScale = (new Matrix4f()).scaling(5f);
 		enemy.setLocalTranslation(initialTranslation);
 		enemy.setLocalScale(initialScale);
@@ -261,7 +270,7 @@ public class MyGame extends VariableFrameRateGame
 		//build Pufferfish
 		
 		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
-		initialTranslation = (new Matrix4f()).translation(5f,2f,-1f);
+		initialTranslation = (new Matrix4f()).translation(0f,-.5f,0f);
 		initialScale = (new Matrix4f()).scaling(10f);
 		puffer.setLocalTranslation(initialTranslation);
 		puffer.setLocalScale(initialScale);
@@ -284,6 +293,7 @@ public class MyGame extends VariableFrameRateGame
 		//Terrain
 		terr = new GameObject(GameObject.root(),terrS,grass);
 		initialTranslation = (new Matrix4f()).translation(0f,0f,0f); 
+
 		terr.setLocalTranslation(initialTranslation);
 		initialScale = new Matrix4f().scaling(120f,1f,30f);
 		terr.setLocalScale(initialScale);
@@ -291,7 +301,10 @@ public class MyGame extends VariableFrameRateGame
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
+
 /* 
+		terr.translate(0f,-10f,0f); //Removed so I could use terrain again
+
 		raft = new GameObject(GameObject.root(),raftS);
 		initialTranslation=(new Matrix4f()).translate(0f,-.5f+20f,0f);
 		raft.setLocalTranslation(initialTranslation);
@@ -435,6 +448,7 @@ public class MyGame extends VariableFrameRateGame
 		float dolRadius = 1.0f;
 		float tempHeight = 2.0f;
 		boolean physicsDebug = true;
+
 		
 		double[ ] tempTransform;
 		Matrix4f physicsTranslation = new Matrix4f();
@@ -442,13 +456,14 @@ public class MyGame extends VariableFrameRateGame
 		//Doesn't take movement into account
 		//Add force in a direction to a physics object
 		//Every second add a random force to avatar
-
 /* 		only the player and harpoons will need physics because everything else will be controlled by the Server
+
 		//Puffer Fish
 		//Gravity
 		puffer.getLocalTranslation(physicsTranslation);
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
 		pufferP = (engine.getSceneGraph()).addPhysicsSphere(tempMass, tempTransform, pufferRadius);
+
 		//pufferP.isDynamic() = true;
 		pufferP.setSleepThresholds(5.0f,5.0f);
 		pufferP.setBounciness(0.8f);
@@ -679,7 +694,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		
 		getPlayerPosition(avatarLoc);
 		getObjectPosition(obj, objLoc);
-
 		avatarLoc.sub(objLoc,distanceBetween);
 		
 		return distanceBetween;
@@ -713,7 +727,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		} 
 	}
 	
-//	private boolean swap = true;
 //-------------Misc. Input----------------
 	@Override
 	public void update()
@@ -722,6 +735,8 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		lastFrameTime = currFrameTime;
 		currFrameTime = System.currentTimeMillis();
 		elapsTime = (currFrameTime - lastFrameTime);// / 1000.0; //the /1000 turns it into seconds. used more like a FrameTime variable than an Elapsed time variable. That would be "+= curr-last"
+		//--------------Altitude--------------	
+//		applyHeightMap();
 		
 		//--------------Altitude--------------	
 /* 		applyHeightMap();
@@ -770,6 +785,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 //TODO: Decide if heightmapping is worth it or if it should be a top down twin-stick shooter. Current movement would work for that and just need to be able to turn and shoot
 		//physics would be specifically for if something has been hit. If projectile hits an enemy it deals damage. If enemy hits a player they take damage
 		//movement would go back to the old move camera and avatar in a direction by an amount, but with the camera y above the avatar and looking straight down
+
 		
 		//--------------HUD drawing----------------
 		cam.getLocation(v);
@@ -822,19 +838,20 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		robot.mouseMove((int)centerX, (int)centerY);
 	}
 	public void yaw(float mouseDeltaX){
-		if (mouseDeltaX < 0.0) tilt = -sensitivity;
-		else if (mouseDeltaX > 0.0) tilt = sensitivity;
+		if (mouseDeltaX < 0.0) tilt = -spot.mouseSensitivity * sensitivity;
+		else if (mouseDeltaX > 0.0) tilt = spot.mouseSensitivity * sensitivity;
 		else tilt = 0.0f;
 		cam.yaw(tilt);
 		avatar.yaw(tilt);
 	}
 	public void pitch(float mouseDeltaY){
-		if (mouseDeltaY < 0.0) tilt = -sensitivity;
-		else if (mouseDeltaY > 0.0) tilt = sensitivity;
+		if (mouseDeltaY < 0.0) tilt = -spot.mouseSensitivity * sensitivity;
+		else if (mouseDeltaY > 0.0) tilt = spot.mouseSensitivity * sensitivity;
 		else tilt = 0.0f;
 		cam.limitedPitch(tilt);//pitch(tilt);
 	}
 */
+
 // ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }
@@ -900,9 +917,13 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 					sensitivity = 1f;
 				break;
 			case KeyEvent.VK_DOWN:
-				sensitivity-=0.001f;
-				if(sensitivity<0.05f)
-					sensitivity = 0.05f;
+				if (sensitivity > 0.1f)
+					sensitivity = sensitivity - 0.1f;
+				break;
+				
+			case KeyEvent.VK_UP:
+				if (sensitivity < 1.9f)
+					sensitivity = sensitivity + 0.1f;
 				break;
 */		}
 	}
