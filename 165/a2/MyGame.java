@@ -117,7 +117,7 @@ public class MyGame extends VariableFrameRateGame
 //-------------Physics----------------
 	private PhysicsEngine physicsEngine;
 	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP, avatarP, groundingP;
-	private float[] gravity = {0f, -6f, 0f};
+	private float[] gravity = {0f, -20f, 0f};//-6f, 0f};
 	private float vals[] = new float[16]; 
 	//mappableP.add(pufferP);
 	
@@ -751,8 +751,11 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 
 		//make avatar's grounding box follow the avatar at the groundplane's height
 		cam.getLocation(v);
-		m.identity().setTranslation(v.x(), getTerrainHeight(v.x(), v.z()), v.z()); //TODO:this doesn't quite follow the terrain map
+		m.identity().setTranslation(v.x(), getTerrainHeight(v.x(), v.z()), v.z()); //TODO:this only lines up with the terrain at the edges and center. Only the highest and lowest spots
 		groundingP.setTransform(toDoubleArray(m.get(vals)));
+//TODO: Decide if heightmapping is worth it or if it should be a top down twin-stick shooter. Current movement would work for that and just need to be able to turn and shoot
+		//physics would be specifically for if something has been hit. If projectile hits an enemy it deals damage. If enemy hits a player they take damage
+		//movement would go back to the old move camera and avatar in a direction by an amount, but with the camera y above the avatar and looking straight down
 		
 		//--------------HUD drawing----------------
 		cam.getLocation(v);

@@ -57,6 +57,7 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
 //physics object moving alongside object
             obj.getWorldTranslation(loc);
             obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
+            
 //this should just move to where the object is, but doesn't. ASK GORDON
                 //goes specifically along the Z axis, irrelevant of facing         
         }
