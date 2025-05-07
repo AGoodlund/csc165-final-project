@@ -2,7 +2,7 @@ package a2;
 
 public class spot {
 //---------------------------   Movement    ---------------------------
-    public static float turnSpeed = 0.002f, runSpeed = .03f, deadzoneBounds = 0.02f, mountingDistance = 5.0f, maxDistanceFromMount = 10f,
+    public static float turnSpeed = 0.007f, runSpeed = .03f, deadzoneBounds = 0.02f, mountingDistance = 5.0f, maxDistanceFromMount = 10f,
         closeFactor = 1.8f, tooCloseFactor = .7f, sphereClose = 8f, torusClose = 12.4f, cubeClose = 10.2f;
     public static float close = 10f, tooClose = 6f;
 

@@ -198,7 +198,7 @@ public class MyGame extends VariableFrameRateGame
 		avatar.getRenderStates().setHasSolidColor(true);
 
 		jellyR = new GameObject(GameObject.root(), jellyfish);
-			initialTranslation = (new Matrix4f()).translation(0f,15f,50f);
+			initialTranslation = (new Matrix4f()).translation(50f,15f,0f);
 			initialScale = new Matrix4f().scaling(0.5f);
 			jellyR.setLocalTranslation(initialTranslation);
 			jellyR.setLocalScale(initialScale);
@@ -210,7 +210,7 @@ public class MyGame extends VariableFrameRateGame
 			jellyG.setLocalScale(initialScale);
 
 		jellyY = new GameObject(GameObject.root(), jellyfish);
-			initialTranslation = (new Matrix4f()).translation(0f,15f,-50f);
+			initialTranslation = (new Matrix4f()).translation(-50f,15f,0f);
 			initialScale = new Matrix4f().scaling(0.5f);
 			jellyY.setLocalTranslation(initialTranslation);
 			jellyY.setLocalScale(initialScale);
