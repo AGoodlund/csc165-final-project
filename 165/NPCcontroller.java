@@ -80,7 +80,7 @@ public class NPCcontroller
 		return nearFlag;
 	}
 	
-	public NPC getNPC ()
+	public GhostNPC getNPC ()
 	{
 		return npc;
 	}
