@@ -1,6 +1,7 @@
 package tage;
 import org.joml.*;
 
+
 public class GhostNPC extends GameObject
 { 
 	private int id;
@@ -9,6 +10,11 @@ public class GhostNPC extends GameObject
 		super(GameObject.root(), s, t);
 		this.id = id;
 		setPosition(p);
+	}
+	
+	public GhostNPC()
+	{ 
+		npc = new NPC;
 	}
 	//TODO: Add ghost specific behavior functions to this
 	public void setSize(boolean big) 
