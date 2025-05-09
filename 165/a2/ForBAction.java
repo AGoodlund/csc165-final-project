@@ -1,6 +1,7 @@
 package a2;
 import tage.GameObject;
 import tage.Camera;
+import tage.Light;
 
 import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
@@ -10,6 +11,7 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     private GameObject obj;
     private MyGame game;
     private Camera cam;
+    private Light light;
     private int direction = 1;
     private boolean keyboard = false;
     private float keyValue;
@@ -20,23 +22,11 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
 
     private float[] vals = new float[16];
     
-/** Constructor for camera and avatar movign in sync without keyboard */
-    public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
-/** Constructor for avatar moving independently without keyboard */
-    public ForBAction(MyGame g){ obj = g.getAvatar(); }
-/** Constructor for Camera moving independently without keyboard */
-    public ForBAction(Camera c){ cam = c; } 
-
-/** Constructor for camera and avatar movign in sync with keyboard */
-    public ForBAction(MyGame g, Camera c, int dir){ cam = c; obj = g.getAvatar(); direction = dir; keyboard = true; }
-/** Constructor for avatar moving independently with keyboard */
-    public ForBAction(MyGame g, int dir){ obj = g.getAvatar(); direction = dir; keyboard = true; }
-/** Constructor for Camera moving independently with keyboard */
-    public ForBAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; }
-    
-    public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
+/** Constructor for camera and avatar with controller */
+    public ForBAction(MyGame g, Camera c, ProtocolClient p){ cam = c; obj = g.getAvatar(); protClient = p; }
+/** Constructor for camera and avatar with keyboard */
     public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }// objS = anim; }
-
+    public void addLight(Light l){ light = l; }
 @Override
     public void performAction(float time, Event e){
         keyValue = e.getValue();
@@ -59,6 +49,11 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
             fwdDir.mul(time*spot.runSpeed);//*keyValue);
             v.add(fwdDir);
             obj.setLocalLocation(v);
+
+            if(light != null){
+                v.add(0,2f,0);
+                light.setLocation(v);
+            }
 
 //physics object moving alongside object
             obj.getWorldTranslation(loc);

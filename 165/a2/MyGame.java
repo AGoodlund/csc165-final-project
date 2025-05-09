@@ -70,9 +70,9 @@ public class MyGame extends VariableFrameRateGame
 
 //weapon objects
 	private GameObject 	laser, gun, 
-						crystal, 
-						orb,
-						harpoon, harpoon2, harpoon3, harpoon4, harpoon5; //These are the potential projectile shapes
+						crystal1, crystal2, crystal3, crystal4, crystal5,
+						orb1,
+						harpoon1, harpoon2, harpoon3, harpoon4, harpoon5; //These are the potential projectile shapes
 							//Might need a list of each of these for AttackAction that spawns one (with physics object) and gives it a hard shove along the WorldForwardVector
 
 	private PhysicsObject bullet1, bullet2, bullet3, bullet4, bullet5;
@@ -226,20 +226,20 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		gun.setParent(avatar);
 		gun.propagateRotation(true);
 		gun.propagateTranslation(true);
- 		
-		harpoon = new GameObject(GameObject.root(), harpoonS);
+  		
+		harpoon1 = new GameObject(GameObject.root(), harpoonS);
 		harpoon2 = new GameObject(GameObject.root(), harpoonS);
 		harpoon3 = new GameObject(GameObject.root(), harpoonS);
 		harpoon4 = new GameObject(GameObject.root(), harpoonS);
 		harpoon5 = new GameObject(GameObject.root(), harpoonS);
 		float bulletScale = 1f;
 		float[] color = spot.yellow;
-		createBullet(harpoon, harpoons, bulletScale, color);
+		createBullet(harpoon1, harpoons, bulletScale, color);
 		createBullet(harpoon2, harpoons, bulletScale, color);
 		createBullet(harpoon3, harpoons, bulletScale, color);
 		createBullet(harpoon4, harpoons, bulletScale, color);
 		createBullet(harpoon5, harpoons, bulletScale, color);
-
+/* 
 		orb = new GameObject(GameObject.root(), orbS);
 		initialScale = new Matrix4f().scaling(.5f);
 		orb.setLocalScale(initialScale);
@@ -255,7 +255,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		crystal.getRenderStates().setPositionalColor(true);
 		crystal.getRenderStates().disableRendering();
 //W&E section end
-
+*/
 		//build illuminated jellyfish
 		jellyR = new GameObject(GameObject.root(), jellyfish);
 			initialTranslation = (new Matrix4f()).translation(50f,10f,-20f);
@@ -417,6 +417,14 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		avatar.getWorldLocation(v);
 		diverVision.setLocation(v);
 		diverVision.setDiffuse(.55f,.8f,.4f);
+
+		avatar.getWorldLocation(v);
+		v.add(0f,2f,0f);
+		diverVision.setLocation(v);
+		avatar.getWorldForwardVector(v);
+		v.add(0f,.5f,0f);
+		diverVision.setDirection(v);
+
 		
 		engine.getSceneGraph().addLight(diverVision);
 	}
@@ -560,7 +568,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		avatarP.setFriction(1f);
 		avatar.setPhysicsObject(avatarP);
 
-		setAmmoPhysics(harpoon, bullet1);
+		setAmmoPhysics(harpoon1, bullet1);
 		setAmmoPhysics(harpoon2, bullet2);
 		setAmmoPhysics(harpoon3, bullet3);
 		setAmmoPhysics(harpoon4, bullet4);
@@ -584,6 +592,12 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		LorRStrafeAction left = new LorRStrafeAction(this, cam, -1, protClient);
 		LorRTurnAction Tleft = new LorRTurnAction(this, 1, protClient); 			//yaw left and right
 		LorRTurnAction Tright = new LorRTurnAction(this, -1, protClient);
+		forward.addLight(diverVision);
+		back.addLight(diverVision);
+		right.addLight(diverVision);
+		left.addLight(diverVision);
+		Tleft.addLight(diverVision);
+		Tright.addLight(diverVision);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, back, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -598,6 +612,9 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.D, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
 */
+		ToggleFlashLightAction toggleLight = new ToggleFlashLightAction(diverVision);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.F, toggleLight, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			//TODO: does not work
 		PanCameraAction pan = new PanCameraAction(cam, this);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.V, pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		ShootAction shoot = new ShootAction(harpoons, avatar, protClient);
@@ -607,8 +624,10 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 			//controller
 		if(gamepad != null){	//if a gamepad is plugged in
 //TODO: update controls to work with controller to fit requirements
-			LorRTurnAction rc = new LorRTurnAction(this, -1);
-			ForBAction fc = new ForBAction(this, -1);
+			LorRTurnAction rc = new LorRTurnAction(this, protClient);
+			ForBAction fc = new ForBAction(this, cam, -1, protClient);
+			rc.addLight(diverVision);
+			fc.addLight(diverVision);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Y, fc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			//REMEMBER: buttons start at 0, but are shown starting at 1
@@ -791,14 +810,12 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		}
 			diverS.updateAnimation();
 //------------------Lights-----------------
-		avatar.getWorldLocation(v);
-		v.add(0f,2f,0f);
-		diverVision.setLocation(v);
-//TODO:move into move actions
-		avatar.getWorldForwardVector(v);
-		v.add(0f,.5f,0f);
-		diverVision.setDirection(v);
-//TODO:move into turnAction
+//		avatar.getWorldLocation(v);
+//		v.add(0f,2f,0f);
+//		diverVision.setLocation(v);
+//		avatar.getWorldForwardVector(v);
+//		v.add(0f,.5f,0f);
+//		diverVision.setDirection(v);
 
 		//--------------Physics--------------	
 		AxisAngle4f aa = new AxisAngle4f();
@@ -898,6 +915,85 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		{	if(protClient != null && isClientConnected == true)
 			{	protClient.sendByeMessage();
 			}
+		}
+	}
+
+	private class Player{
+		private ShootAction shoot;
+		public enum playerType{
+			BOW,
+			ORB,
+			CRYSTAL
+		}
+
+		public Player(playerType p, GameObject character){
+			if(p == playerType.BOW){
+				GameObject harpoon1, harpoon2, harpoon3, harpoon4, harpoon5;
+
+				harpoon1 = new GameObject(GameObject.root(), harpoonS);
+				harpoon2 = new GameObject(GameObject.root(), harpoonS);
+				harpoon3 = new GameObject(GameObject.root(), harpoonS);
+				harpoon4 = new GameObject(GameObject.root(), harpoonS);
+				harpoon5 = new GameObject(GameObject.root(), harpoonS);
+				float bulletScale = 1f;
+				float[] color = spot.white;
+				createBullet(harpoon1, harpoons, bulletScale, color);
+				createBullet(harpoon2, harpoons, bulletScale, color);
+				createBullet(harpoon3, harpoons, bulletScale, color);
+				createBullet(harpoon4, harpoons, bulletScale, color);
+				createBullet(harpoon5, harpoons, bulletScale, color);
+
+				setAmmoPhysics(harpoon1, bullet1);
+				setAmmoPhysics(harpoon2, bullet2);
+				setAmmoPhysics(harpoon3, bullet3);
+				setAmmoPhysics(harpoon4, bullet4);
+				setAmmoPhysics(harpoon5, bullet5);
+
+				shoot = new ShootAction(harpoons, character, protClient);
+			}
+			else if(p == playerType.ORB){
+				GameObject orb1, orb2, orb3, orb4, orb5;
+
+				orb1 = new GameObject(GameObject.root(), orbS);
+				orb2 = new GameObject(GameObject.root(), orbS);
+				orb3 = new GameObject(GameObject.root(), orbS);
+				orb4 = new GameObject(GameObject.root(), orbS);
+				orb5 = new GameObject(GameObject.root(), orbS);
+				float bulletScale = 1f;
+				float[] color = spot.yellow;
+				createBullet(orb1, orbs, bulletScale, color);
+				createBullet(orb2, orbs, bulletScale, color);
+				createBullet(orb3, orbs, bulletScale, color);
+				createBullet(orb4, orbs, bulletScale, color);
+				createBullet(orb5, orbs, bulletScale, color);
+
+				shoot = new ShootAction(orbs, character, protClient);
+			}
+			else if(p == playerType.CRYSTAL){
+				GameObject crystal1, crystal2, crystal3, crystal4, crystal5;
+
+				crystal1 = new GameObject(GameObject.root(), crystalS);
+				crystal2 = new GameObject(GameObject.root(), crystalS);
+				crystal3 = new GameObject(GameObject.root(), crystalS);
+				crystal4 = new GameObject(GameObject.root(), crystalS);
+				crystal5 = new GameObject(GameObject.root(), crystalS);
+				float bulletScale = 1f;
+				float[] color = spot.yellow;
+				createBullet(crystal1, crystals, bulletScale, color);
+				createBullet(crystal2, crystals, bulletScale, color);
+				createBullet(crystal3, crystals, bulletScale, color);
+				createBullet(crystal4, crystals, bulletScale, color);
+				createBullet(crystal5, crystals, bulletScale, color);
+				Matrix4f rotation = new Matrix4f().identity().rotationX((float)Math.toRadians(-90f));
+				crystal1.getRenderStates().setPositionalColor(true);
+				crystal2.getRenderStates().setPositionalColor(true);
+				crystal3.getRenderStates().setPositionalColor(true);
+				crystal4.getRenderStates().setPositionalColor(true);
+				crystal5.getRenderStates().setPositionalColor(true);
+
+				shoot = new ShootAction(crystals, character, protClient);
+			}
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		}
 	}
 

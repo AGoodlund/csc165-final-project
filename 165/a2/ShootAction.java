@@ -41,7 +41,6 @@ public class ShootAction extends AbstractInputAction{
     public void performAction(float time, Event e){
         currTime = System.currentTimeMillis();
         if(currTime - prevShot < shootSpeed) return; //only shoot once per <shootSpeed> milliseconds
-
         prevShot = currTime;
 
         obj = ammo.get(head);
