@@ -35,13 +35,21 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     public ForBAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; }
     
     public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
-    public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
+    public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }// objS = anim; }
 
 @Override
     public void performAction(float time, Event e){
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
-//TODO:start animation and add StopAnimatingAction action to the key's 'on release' setting
+
+        if(!game.isAnimating && !game.hasLooped){
+            game.startAnimation();
+        }
+        game.isAnimating = true;
+        game.hasLooped = true;
+
+//System.out.println("isAnimating in moveAction = " + game.isAnimating);
+
 //        if(keyboard)  if controller has wacky movement this being commented out is why
             keyValue *= direction;
 
@@ -58,8 +66,11 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
         }
 
         if(cam != null){
+            cam.getLocation(v);
+            v.add(fwdDir);
             cam.setLocation(v);
-            cam.heightAdjust(spot.cameraOffset);
+//            cam.setLocation(v);
+//            cam.heightAdjust(spot.cameraOffset);
         }
         if(protClient != null)
 		{   obj.getWorldLocation(v);

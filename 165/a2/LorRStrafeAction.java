@@ -6,7 +6,7 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 import org.joml.*;
 
-public class LorRStrafeAction extends AbstractInputAction {    //move camera+avatar forward
+public class LorRStrafeAction extends AbstractInputAction {
     private MyGame game;
     private GameObject obj;
     private Camera cam;
@@ -34,13 +34,19 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
     public LorRStrafeAction(Camera c, int dir){ cam = c; game = null; obj = null; direction = dir; keyboard = true; } 
 
     public LorRStrafeAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
-    public LorRStrafeAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
+    public LorRStrafeAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }//objS = anim; }
 
 @Override
     public void performAction(float time, Event e){
 
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
+
+        if(!game.isAnimating && !game.hasLooped){
+            game.startAnimation();
+        }
+        game.isAnimating = true;
+        game.hasLooped = true;
 
         keyValue *= direction;
 //TODO: perhaps limit camera to being at 0 and only moves far enough so that the ground is always in view. Hallway method
@@ -56,11 +62,16 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
         }
 
         if(cam != null){
+            cam.getLocation(v);
+            v.add(strafeDir);
             cam.setLocation(v);
-            cam.heightAdjust(spot.cameraOffset);
+//            cam.setLocation(v);
+//            cam.heightAdjust(spot.cameraOffset);
         }
 
         if(protClient != null){
-			obj.getWorldLocation(v); protClient.sendMoveMessage(v);}//obj.getWorldLocation());
-    }    
+			obj.getWorldLocation(v); protClient.sendMoveMessage(v);
+        }//obj.getWorldLocation());
+
+    }
 }

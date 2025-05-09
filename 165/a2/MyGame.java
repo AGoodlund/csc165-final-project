@@ -57,9 +57,11 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z, terr, puffer, diver, enemy;
+	private GameObject avatar, x, y, z, terr, diver, enemy;//, puffer;
 
 	private AnimatedShape diverS;
+	public boolean isAnimating = false, hasLooped = false;
+
 	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;
 	private TextureImage doltx, hills, grass, pufferX, pufferAltX;
 
@@ -110,14 +112,14 @@ public class MyGame extends VariableFrameRateGame
 	
 //-------------Physics----------------
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject dolP, ghostP, raftP, pufferP, groundPlaneP, avatarP, groundingP;
+	private PhysicsObject dolP, ghostP, raftP, groundPlaneP, avatarP, groundingP;//, pufferP;
 	private float[] gravity = {0f, 0f,0f};//-20f, 0f};//-6f, 0f};
 	private float vals[] = new float[16]; 
 	//mappableP.add(pufferP);
 	
 //Networking
-	public ObjShape getEnemyShape() { return pufferS; }
-	public TextureImage getEnemyTexture() { return pufferAltX; }
+//	public ObjShape getEnemyShape() { return pufferS; }
+//	public TextureImage getEnemyTexture() { return pufferAltX; }
 	
 //-------------My Game----------------
 	public MyGame() { super(); }
@@ -307,7 +309,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 //		crystal.propagateTranslation(true);
 */
 
- 		//build Pufferfish
+/*  		//build Pufferfish
 		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
 		initialTranslation = (new Matrix4f()).translation(0f,-.5f,0f);
 		initialScale = (new Matrix4f()).scaling(10f);
@@ -316,7 +318,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		
 		puffer.translate(0f,10f,0f);
 //		mappable.add(puffer);
-
+*/
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
 		y = new GameObject(GameObject.root(), yAxis);
@@ -356,7 +358,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		raft.setLocalTranslation(initialTranslation);
 		initialScale = (new Matrix4f()).scaling(3f,.5f,5f);
 		raft.setLocalScale(initialScale);
-		raft.getRenderStates().setHasSolidColor(true); //TODO:make a texture for this to be square logs
+		raft.getRenderStates().setHasSolidColor(true);
 		raft.getRenderStates().setColor(new Vector3f(0.725f, 0.478f, 0.341f));
 */
 /* 		water = new GameObject(GameObject.root(), waterS);
@@ -378,14 +380,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		diver.getRenderStates().setPositionalColor(true);
 *///		mappable.add(diver);
 	}
-/* 
-//TODO:remove. not using heightmapping for top-down
-	public float getTerrainHeight(float x, float z)
-	{
-		float height = terr.getHeight(x,z);
-		return height;
-	}
-*/
+
 	@Override
 	public void initializeLights()
 	{	Light.setGlobalAmbient(.3f,.3f,.3f);//0.5f, 0.5f, 0.5f);
@@ -421,7 +416,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		diverVision.setDirection(v);
 		avatar.getWorldLocation(v);
 		diverVision.setLocation(v);
-		diverVision.setDiffuse(.55f,.6f,.4f);
+		diverVision.setDiffuse(.55f,.8f,.4f);
 		
 		engine.getSceneGraph().addLight(diverVision);
 	}
@@ -430,10 +425,10 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 	public void createViewports(){
 		engine.getRenderSystem().addViewport("MAIN",0f,0f,1f,1f);
 
-		Viewport main = engine.getRenderSystem().getViewport("MAIN");
-		Camera mainCam = main.getCamera();
-		avatar.getLocalLocation(v);
-		mainCam.setLocation(v.add(0f, spot.cameraOffset, 0f));
+//		Viewport main = engine.getRenderSystem().getViewport("MAIN");
+//		Camera mainCam = main.getCamera();
+//		avatar.getLocalLocation(v);
+//		mainCam.setLocation(v.add(0f, spot.cameraOffset, 0f));
 	}
 
 	@Override
@@ -583,7 +578,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		//			controller's buttons
 		HideObjectAction hideAxes = new HideObjectAction(hideableShapes);
 		//------------- avatar movement section -------------
-//Keyboard TODO:add camera movement to ForBAction and mouse control to take over the turn/tiltActions
 		ForBAction forward = new ForBAction(this, cam, -1, protClient);				//move actions
 		ForBAction back = new ForBAction(this, cam, 1, protClient);
 		LorRStrafeAction right = new LorRStrafeAction(this, cam, 1, protClient);
@@ -598,6 +592,14 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.RIGHT, Tright, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 
+/* 		StopAnimatingAction stop = new StopAnimatingAction(diverS);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.D, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
+*/
+		PanCameraAction pan = new PanCameraAction(cam, this);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.V, pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		ShootAction shoot = new ShootAction(harpoons, avatar, protClient);
 //		shoot.setBulletSpeed(2.5f);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -624,7 +626,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		//for(int i = 1; i <= 5; i++)
 		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
 				//test if deleting a middle one causes it to delete properly or crash the program
-//TODO: basic GUI to fit requirements
 //------------------sound section----------------------
 		updateEar();
 		bubbles.play();
@@ -634,7 +635,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 	}
 
 	public void updateEar(){
-		puffer.getWorldLocation(v);
+		enemy.getWorldLocation(v);
 		bubbles.setLocation(v);
 		avatar.getLocalLocation(v);
 		am.getEar().setLocation(v);
@@ -763,7 +764,10 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			} 
 		} 
 	}
-	
+	public void startAnimation(){
+		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
+//System.out.println("startAnimation() has been called");
+	}
 	@Override
 	public void update()
 	{
@@ -776,15 +780,25 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		updateEar();
 
 		//--------------Animation--------------
-		diverS.updateAnimation();
-//TODO:make move actions start animations and releasing stops animation
-
+		if(isAnimating){
+//System.out.println("isAnimating within if statement = " + isAnimating);
+			isAnimating = false;
+		}
+		else{
+			diverS.stopAnimation();
+			hasLooped = false;
+//System.out.println("isAnimating within else statement = " + isAnimating);
+		}
+			diverS.updateAnimation();
+//------------------Lights-----------------
 		avatar.getWorldLocation(v);
+		v.add(0f,2f,0f);
 		diverVision.setLocation(v);
-//add this to the move actions
+//TODO:move into move actions
 		avatar.getWorldForwardVector(v);
+		v.add(0f,.5f,0f);
 		diverVision.setDirection(v);
-//TODO: ask Gordon how to have this light only go in one direction. have this slightly above the avatar and looking down 30 degrees from the world right vector. Update in the turnAction
+//TODO:move into turnAction
 
 		//--------------Physics--------------	
 		AxisAngle4f aa = new AxisAngle4f();
