@@ -697,7 +697,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 	
-//-------------Physics----------------TODO:so much needs fixing
+//-------------Physics----------------TODO:
 	private float[] toFloatArray(double[] arr)
 	{ 
 		if (arr == null) return null;
@@ -736,7 +736,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		//System.out.println("Distance: " + distance + "Force: " + force);
 		
 		
-		if (distance.equals(avatarLocalLocation, radiusOfEffect))//TODO:turn this into regular collision monitoring rather than checking distance
+		if (distance.equals(avatarLocalLocation, radiusOfEffect))//TODO:turn this into regular collision monitoring
 		{
 //			obj.getPhysicsObject().applyForce(force.x(), force.y(), force.z(),0.0f,0.0f,0.0f);
 		}
@@ -842,7 +842,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			} 
 		} 
 
-//		calculateAvatarCollision(puffer);//TODO:do not hardcode specific enemies. just find special interactions in the loop
+//		calculateAvatarCollision(puffer);//TODO:just find special interactions in the loop
 		//when something in the bullets arraylist hits something send a hit message and move it to bulletStorage's location
 		//when the player gets hit then lower the private int health from MyGame and put the bullet in storage
 			//	if(bulletStorate.m31() > spot.cameraOffset+20f); bulletStorage.m31(spot.cameraOffset+10f);
