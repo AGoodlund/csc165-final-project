@@ -14,7 +14,7 @@ public class spot {
     zoomMax = 10f, zoomMin = .75f, azimuthMax = 270f, azimuthMin = 90f, defaultA=0f, defaultE=30f, defaultR = 5f,
     lookAboveFocus = .5f, orbitSpeed = .2f;
 
-    public static float cameraOffset = 25f;
+    public static float cameraOffset = 35f;
 
 //---------------------------   Orbit Camera---------------------------
     public static boolean limitAzimuth = false, limitZoom = true, limitElevation = true, followCamera = false;
@@ -38,6 +38,10 @@ public class spot {
 
 //---------------------------   Sound       ---------------------------    
     public static int bubbleVolume = 0;//25;
+
+//---------------------------   Scale       ---------------------------   
+    public static float[] mapSize = {120f,1f,120f};//30,1,30};
+    public static int mapTiling = 40;
 }
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name

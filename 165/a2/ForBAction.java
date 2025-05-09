@@ -15,10 +15,10 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     private float keyValue;
     private ProtocolClient protClient;
 
-    private Vector3f fwdDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, fwdDir;
+    private Vector3f fwdDir = new Vector3f(), v = new Vector3f();
     private Matrix4f loc = new Matrix4f();
 
-    private float[] f = new float[3], vals = new float[16];
+    private float[] vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
@@ -41,56 +41,29 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     public void performAction(float time, Event e){
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
-        keyValue *= direction;
+//TODO:start animation and add StopAnimatingAction action to the key's 'on release' setting
+//        if(keyboard)  if controller has wacky movement this being commented out is why
+            keyValue *= direction;
 
-        //TODO:change to basic movement along xyz axes with the camera having it's xz updated to be the same as the obj
         if(obj != null){
             obj.getLocalLocation(v);
             fwdDir.set(0f,0f,keyValue);
             fwdDir.mul(time*spot.runSpeed);//*keyValue);
             v.add(fwdDir);
             obj.setLocalLocation(v);
-//            obj.getLocalForwardVector(fwdDir);
-
-//            if(keyboard) //TODO:if controller has wacky movement this is why
-//                keyValue *= direction;
-//            fwdDir.mul(time*spot.runSpeed*keyValue);
-//            obj.getWorldLocation(v);
-//            v.add(fwdDir);
-//            obj.setLocalLocation(v); 
 
 //physics object moving alongside object
             obj.getWorldTranslation(loc);
             obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
-//            obj.getPhysicsObject().applyForce(0f,0f,spot.runSpeed*keyValue, 0f, 0f, 0f);
-            
-//this should just move to where the object is, but doesn't. ASK GORDON
-                //goes specifically along the Z axis, irrelevant of facing         
         }
 
-        if(cam != null){    //specifically for moving along floor with avatar. update moved to MyGame to keep up with the avatar physics object
-//            cam.translate(0f, 0f, keyValue);
+        if(cam != null){
             cam.setLocation(v);
             cam.heightAdjust(spot.cameraOffset);
-            //            obj.getWorldLocation(v);
-//            cam.setLocation(v);
-//            cam.heightAdjust(spot.cameraOffset);
-//            cam.translate(spot.cameraOffset);
-
-/* for free movement 
-            oldPos = cam.getLocation();
-            fwdDir = cam.getN(); //N is the camera's forward vector
-
-//            if(keyboard)
-                keyValue *= direction;
-            fwdDir.mul(time*spot.runSpeed * keyValue);
-            newPos = oldPos.add(fwdDir.x(),fwdDir.y(),fwdDir.z());
-
-            cam.setLocation(newPos);
-*/        }
+        }
         if(protClient != null)
 		{   obj.getWorldLocation(v);
-			protClient.sendMoveMessage(v);//obj.getWorldLocation());
+			protClient.sendMoveMessage(v);
 //System.out.println("ForBAction moved to " + obj.getWorldLocation());
 		}
     }    

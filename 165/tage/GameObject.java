@@ -91,6 +91,10 @@ public class GameObject
 	private PhysicsObject physicsObject;
 	private boolean isTerrain = false;
 
+//------------------ TAGS -----------------
+	public boolean dealsDamage = false, takesDamage = false;
+		//usable for physics collision decision making
+
 	//------------------ CONSTRUCTORS -----------------
 
 	// only applicable for creating the root node
