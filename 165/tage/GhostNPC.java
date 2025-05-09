@@ -13,9 +13,10 @@ public class GhostNPC extends GameObject
 		setPosition(p);
 	}
 	public GhostNPC(){
-		npc = new NPC;
+		
 		super(GameObject.root());
 		id = 8080;
+		//npc = new NPC;
 		setLocalLocation(new Vector3f(0f,0f,0f));
 		setLocalRotation(new Matrix4f().identity());
 	}
