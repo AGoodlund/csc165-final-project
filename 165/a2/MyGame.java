@@ -110,8 +110,18 @@ public class MyGame extends VariableFrameRateGame
 	private float vals[] = new float[16]; 
 	
 //Networking
-//	public ObjShape getEnemyShape() { return pufferS; }
-//	public TextureImage getEnemyTexture() { return pufferAltX; }
+	public ObjShape getEnemyShape() { return enemy.getShape(); }
+	public TextureImage getEnemyTexture() { return enemy.getTextureImage(); }
+	public Matrix4f getEnemySize(Matrix4f dest){ enemy.getWorldScale(dest); return dest; }
+
+	public ObjShape getDiverShape(){ return diverS; }
+	public TextureImage getDiverTexture(){ return diver.getTextureImage(); }
+	public Matrix4f getDiverSize(Matrix4f dest){ diver.getWorldScale(dest); return dest; }
+
+	public ObjShape getDolShape(){ return dol.getShape(); }
+	public TextureImage getDolTexture(){ return dol.getTextureImage(); }
+	public Matrix4f getDolSize(Matrix4f dest){ dol.getWorldScale(dest); return dest; }
+
 	
 //-------------My Game----------------
 	public MyGame() { super(); }
@@ -192,7 +202,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), diverS);//new Cube());//dolS, doltx);
+		avatar = new GameObject(GameObject.root(), diverS);
 		initialTranslation = (new Matrix4f()).translation(0f,2f,0f);
 		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = new Matrix4f().rotationY((float)Math.toRadians(-90f));
@@ -277,16 +287,6 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		dol.setLocalScale(initialScale);
 		dol.getRenderStates().disableRendering();
 
-/*  		//build Pufferfish
-		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
-		initialTranslation = (new Matrix4f()).translation(0f,-.5f,0f);
-		initialScale = (new Matrix4f()).scaling(10f);
-		puffer.setLocalTranslation(initialTranslation);
-		puffer.setLocalScale(initialScale);
-		
-		puffer.translate(0f,10f,0f);
-//		mappable.add(puffer);
-*/
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
 		y = new GameObject(GameObject.root(), yAxis);
@@ -337,15 +337,14 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		water.setLocalScale(initialScale);
 */
 		
-/* 
 		diver = new GameObject(GameObject.root(), diverS);
-		initialTranslation = new Matrix4f().translation(0f,1.5f,-1f);
-		initialScale = new Matrix4f().scaling(.5f);
+		avatar.getWorldTranslation(initialTranslation);
+		avatar.getWorldScale(initialScale);
+		avatar.getWorldRotation(initialRotation);
 		diver.setLocalTranslation(initialTranslation);
 		diver.setLocalScale(initialScale);
-		diver.yaw(180f);
-		diver.getRenderStates().setPositionalColor(true);
-*///		mappable.add(diver);
+		diver.setLocalRotation(initialRotation);
+		diver.getRenderStates().disableRendering();
 	}
 
 	@Override

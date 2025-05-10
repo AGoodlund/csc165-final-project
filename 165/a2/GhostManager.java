@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.joml.*;
 
 import tage.*;
+import tage.networking.Message.MessageType;
 
 public class GhostManager
 {
@@ -108,5 +109,43 @@ public class GhostManager
 		ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
 		ghostAvatar.setLocalScale(new Matrix4f().scaling(scale));
+	}
+
+	public void changeGhostAvatar(UUID id, MessageType changeTo){
+		ghostAvatar = findAvatar(id);
+		if(ghostAvatar == null)
+			return;
+
+		Matrix4f m = new Matrix4f(); //created during runtime because this should not be called all that often
+
+		switch(changeTo){
+			case DIVER:
+				ghostAvatar.setTextureImage(game.getDiverTexture());
+				ghostAvatar.setShape(game.getDiverShape());
+				game.getDiverSize(m);
+				ghostAvatar.setLocalScale(m);
+				break;
+			case DOL:
+				ghostAvatar.setTextureImage(game.getDolTexture());
+				ghostAvatar.setShape(game.getDolShape());
+				game.getDolSize(m);
+				ghostAvatar.setLocalScale(m);
+				break;
+			case ENEMY:
+				ghostAvatar.setTextureImage(game.getEnemyTexture());
+				ghostAvatar.setShape(game.getEnemyShape());
+				game.getEnemySize(m);
+				ghostAvatar.setLocalScale(m);
+				break;
+			case GAY_DOL:
+				ghostAvatar.setTextureImage(null);
+				ghostAvatar.setShape(game.getDolShape());
+				game.getDolSize(m);
+				ghostAvatar.setLocalScale(m);
+				ghostAvatar.getRenderStates().setPositionalColor(true);
+				break;
+			default:
+				break;
+		}
 	}
 }

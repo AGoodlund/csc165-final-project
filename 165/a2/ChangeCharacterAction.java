@@ -7,11 +7,15 @@ import tage.shapes.AnimatedShape;
 import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 import org.joml.Matrix4f;
+//import tage.networking.Message.CharacterType;
+import tage.networking.Message.MessageType;
 
 public class ChangeCharacterAction extends AbstractInputAction{
     private GameObject obj;
     private Character diver, dol, fish, dol_gay;
     private Character[] cast;
+    private MessageType[] names = {MessageType.DIVER, MessageType.DOL, MessageType.ENEMY, MessageType.GAY_DOL};
+//    private CharacterType[] names = {CharacterType.DIVER, CharacterType.DOL, CharacterType.ENEMY, CharacterType.GAY_DOL};
     private ProtocolClient protClient;
     private int tracker = 1;
 
@@ -49,10 +53,11 @@ public class ChangeCharacterAction extends AbstractInputAction{
     @Override
     public void performAction(float time, Event e){
         cast[tracker].changeCharacter(obj);
+System.out.println("sending NPC_CHANGE with " + names[tracker]);
+        protClient.changeAvatar(names[tracker]); //swap the ghost to the same setup
+
         tracker++;
         tracker = tracker % cast.length;
-
-//        protClient.changeAvatar(); swap the ghost to the same 
     }
 
 
