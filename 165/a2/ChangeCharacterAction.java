@@ -53,7 +53,7 @@ public class ChangeCharacterAction extends AbstractInputAction{
     @Override
     public void performAction(float time, Event e){
         cast[tracker].changeCharacter(obj);
-System.out.println("sending NPC_CHANGE with " + names[tracker]);
+//System.out.println("sending NPC_CHANGE with " + names[tracker]);
         protClient.changeAvatar(names[tracker], tracker); //swap the ghost to the same setup
 
         tracker++;

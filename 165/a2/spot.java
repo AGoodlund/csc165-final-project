@@ -37,7 +37,7 @@ public class spot {
     public static float startingScale = 3f;
 
 //---------------------------   Sound       ---------------------------    
-    public static int bubbleVolume = 25;
+    public static int bubbleVolume = 25, bowVolume = 5;
 
 //---------------------------   Scale       ---------------------------   
     public static float[] mapSize = {120f,2f,120f};//30,1,30};
@@ -46,34 +46,3 @@ public class spot {
 
 //REMEMBER: change the folder name, every package a2, the compile.bat and run.bat when changing the folder's name
 //      if nothing else try to run it after changing the folder to see what breaks
-
-/* TODO:
- * character selection upon joining
- *      model or texture choosing
- *      doesn't *have* to be both
- * character selection effects the texture and/or shape of ghosts
- * Add 3 lights to the scene
- *      jellyfish positional lights that are the same color as the solidColor for the fish
- *      if one gets shot the light toggles off for 5 seconds
- * HUD elements 
- *      Health
- * Hierarchical SceneGraph between at least 2 objects
- *      harpoon becoming child object of whatever it hits
- * stop physics based movement from being so jittery
- * physics object that shares XZ with character box and Y with heightmap
- * shooting harpoon
- *      NPC takes damage from the shot
- *      NPC dies and respawns in the level
- *      Player has health
- *      Player resets to the raft if they die
- * harpoon sending back a hit message to put "HIT!" above cursor for HUD element
- * physics plane walls to prevent player from going past the bounds of the ground
- * UorDLookAction for controllers
- * 
- * 
-
-COMPLETED
- * 
- * skybox not from tage or 155
- * animated model added to game
- */

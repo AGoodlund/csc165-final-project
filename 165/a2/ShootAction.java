@@ -5,6 +5,7 @@ import tage.GameObject;
 import tage.input.action.AbstractInputAction;
 
 import org.joml.*;
+import tage.audio.Sound;
 
 import java.util.ArrayList;
 
@@ -12,6 +13,7 @@ public class ShootAction extends AbstractInputAction{
     private ArrayList<GameObject> ammo = new ArrayList<GameObject>();
     private GameObject host, obj;
     private ProtocolClient protClient;
+    private Sound sfx;
 
     private Vector3f v = new Vector3f();
     private Matrix4f m = new Matrix4f();
@@ -37,18 +39,22 @@ public class ShootAction extends AbstractInputAction{
 /** set the speed of the bullets themselves */
     public void setBulletSpeed(float speed){ bulletSpeed = (int)(speed*1000); }
 
+    public void addSound(Sound s){ sfx = s; }
+
 @Override
     public void performAction(float time, Event e){
         currTime = System.currentTimeMillis();
         if(currTime - prevShot < shootSpeed) return; //only shoot once per <shootSpeed> milliseconds
         prevShot = currTime;
-
         obj = ammo.get(head);
 //        ammo.get(head).getRenderStates().enableRendering();
 
         host.getLocalLocation(v);
         obj.setLocalLocation(v);
 
+        sfx.setLocation(v);
+        sfx.play();
+        
         host.getWorldRotation(m);
         host.getWorldForwardVector(v);
         v.negate();

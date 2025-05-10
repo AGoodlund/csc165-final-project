@@ -82,7 +82,7 @@ public class MyGame extends VariableFrameRateGame
 	private float height;
 
 //-------------Sounds--------------
-	private Sound bubbles;
+	private Sound bubbles, bow;
 	private Vector3f up = new Vector3f(spot.y);
 
 //-------------Node Controllers-------------
@@ -409,7 +409,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 
 	@Override
 	public void loadSounds(){
-		AudioResource bubbling;
+		AudioResource bubbling, shooting;
 		am = engine.getAudioManager();
 		bubbling = am.createAudioResource("sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);//sound_ahead is the name of the sound's creator
 		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
@@ -417,6 +417,13 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		bubbles.setMaxDistance(100f); //This is the distance at which you hear the quiet version of the sound. Anything past this is imperceptable.
 		bubbles.setMinDistance(10f); //This is the distance at which you hear the loud version of the sound.
 		bubbles.setRollOff(5f);
+
+		shooting = am.createAudioResource("752207__dude_x-soundlab__crossbow-fire-vii.wav", AudioResourceType.AUDIO_SAMPLE);
+		bow = new Sound(shooting, SoundType.SOUND_EFFECT, spot.bowVolume, false);
+		bow.initialize(am);
+		bow.setMaxDistance(50f);
+		bow.setMinDistance(5f);
+		bubbles.setRollOff(1f);
 	}
 
 private void setAmmoPhysics(GameObject g, PhysicsObject p){
@@ -571,6 +578,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 		ShootAction shoot = new ShootAction(harpoons, avatar, protClient);
 //		shoot.setBulletSpeed(2.5f);
+		shoot.addSound(bow);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
 		ChangeCharacterAction change = new ChangeCharacterAction(avatar, protClient);

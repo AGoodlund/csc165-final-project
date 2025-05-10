@@ -264,7 +264,7 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 			message.addItem(new Vector3f((float)pos, 0, 0));
 //			message.addChar(name);
 
-System.out.println("Sending Message as " + message.toString());
+//System.out.println("Sending Message as " + message.toString());
 
 			sendPacket(message);
 		}
