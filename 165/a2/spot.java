@@ -37,10 +37,10 @@ public class spot {
     public static float startingScale = 3f;
 
 //---------------------------   Sound       ---------------------------    
-    public static int bubbleVolume = 0;//25;
+    public static int bubbleVolume = 25;
 
 //---------------------------   Scale       ---------------------------   
-    public static float[] mapSize = {120f,1f,120f};//30,1,30};
+    public static float[] mapSize = {120f,2f,120f};//30,1,30};
     public static int mapTiling = 40;
 }
 
