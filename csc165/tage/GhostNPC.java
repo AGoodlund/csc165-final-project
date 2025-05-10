@@ -11,19 +11,16 @@ public class GhostNPC extends GameObject
 		super(GameObject.root(), s, t);
 		this.id = id;
 		setPosition(p);
+		System.out.println("A ghostNPC has ben created with ID " + id ); //TODO: remove
 	}
 	public GhostNPC(){
 		
 		super(GameObject.root());
 		id = 8080;
-		//npc = new NPC;
 		setLocalLocation(new Vector3f(0f,0f,0f));
 		setLocalRotation(new Matrix4f().identity());
-	}
-	//TODO: Add ghost specific behavior functions to this
-	public void doThing() 
-	{ 
 		
+		System.out.println("A generic ghostNPC has ben created."); //TODO: remove
 	}
 	
 	public void setPosition (Vector3f move)
@@ -31,7 +28,7 @@ public class GhostNPC extends GameObject
 		this.translate(move.x(), move.y(), move.z()); 
 	}
 	
-	public Vector3f getPosition () //not using NPC class so super.getWorldLocation(v);
+	public Vector3f getPosition ()
 	{
 		Vector3f loc = new Vector3f();
 		this.getWorldLocation(loc);

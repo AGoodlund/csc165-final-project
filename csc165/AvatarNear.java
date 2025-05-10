@@ -4,8 +4,7 @@ public class AvatarNear extends BTCondition
 	NPC npc;
 	NPCcontroller npcc;
 	GameServerUDP server;
-	public AvatarNear(GameServerUDP s, NPCcontroller c, NPC n,
-	boolean toNegate)
+	public AvatarNear(GameServerUDP s, NPCcontroller c, NPC n, boolean toNegate)
 	{ 
 		super(toNegate);
 		server = s; npcc = c; npc = n;

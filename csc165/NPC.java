@@ -1,4 +1,4 @@
-
+import org.joml.*;
 public class NPC
 { 
 	double locationX, locationY, locationZ;
@@ -9,6 +9,7 @@ public class NPC
 		locationX=0.0;
 		locationY=0.0;
 		locationZ=0.0;
+		System.out.println("A generic Normal NPC has ben created."); //TODO: remove
 	}
 	
 	public void randomizeLocation(int seedX, int seedZ)
@@ -30,4 +31,24 @@ public class NPC
 		
 		locationX = locationX + dir;
 	} 
+	
+	public Vector3f getPosition ()
+	{
+		
+		float locX = (float)locationX;
+		float locY = (float)locationY;
+		float locZ = (float)locationZ;
+		Vector3f loc = new Vector3f(locX, locY,locZ);
+		//this.getWorldLocation(loc);
+		return loc;
+	}
+	
+		public void setPosition ()
+	{
+		//TODO: add to this
+		/*Vector3f loc = new Vector3f();
+		this.getWorldLocation(loc);
+		return loc;*/
+	}
+	
 }

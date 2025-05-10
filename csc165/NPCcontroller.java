@@ -3,14 +3,14 @@ import tage.ai.behaviortrees.*;
 import tage.GhostNPC;
 public class NPCcontroller
 { 
-	private GhostNPC npc;
+	private NPC npc;
 	Random rn = new Random();
 	BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
 	boolean nearFlag = false;
 	long thinkStartTime, tickStartTime;
 	long lastThinkUpdateTime, lastTickUpdateTime;
 	GameServerUDP server;
-	double criteria = 2.0;
+	//double criteria = 2.0;
 	
 	public void updateNPCs()
 	{ npc.updateLocation();}
@@ -28,7 +28,7 @@ public class NPCcontroller
 	}
 	public void setupNPCs()
 	{ 
-		npc = new GhostNPC();
+		npc = new NPC();
 		npc.randomizeLocation(rn.nextInt(40),rn.nextInt(40));
 	}
 	
@@ -59,8 +59,13 @@ public class NPCcontroller
 	public void setupBehaviorTree()
 	{ 
 		bt.insertAtRoot(new BTSequence(10));
-		bt.insertAtRoot(new BTSequence(20));
-		//bt.insert(10, new OneSecPassed(this,npc,false));
+		//TODO: Re-implement
+		//bt.insert(10, new AvatarNear(server,this,npc,false));
+		bt.insert(10, new FollowPlayer(server, this, npc));
+		//TODO Add a player to follow and figure out a way to do that
+		
+		
+		//bt.insertAtRoot(new BTSequence(20));
 		//bt.insert(10, new GetSmall(npc));
 		//bt.insert(20, new AvatarNear(server,this,npc,false));
 		//bt.insert(20, new GetBig(npc));
@@ -80,7 +85,7 @@ public class NPCcontroller
 		return nearFlag;
 	}
 	
-	public GhostNPC getNPC ()
+	public NPC getNPC ()
 	{
 		return npc;
 	}

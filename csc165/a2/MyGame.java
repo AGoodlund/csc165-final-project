@@ -636,6 +636,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		}
 	}
 	
+	//TODO: YEEEEEEEET
 	private Vector3f distanceFromAvatar (GameObject obj) 
 	{
 		Vector3f avatarLoc = new Vector3f();

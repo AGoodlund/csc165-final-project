@@ -35,7 +35,7 @@ public class ProtocolClient extends GameConnectionClient
 	
 	private void updateGhostNPC(Vector3f position, double gsize)
 	{ 
-		boolean gs;
+		//boolean gs;
 		
 		if (ghostNPC == null)
 		{ try{ createGhostNPC(position);}
@@ -43,13 +43,19 @@ public class ProtocolClient extends GameConnectionClient
 		}
 	
 		ghostNPC.setPosition(position);
-		if (gsize == 1.0)
+		/*if (gsize == 1.0)
 			gs=false;
 	
 		else 
 			gs=true;
-//		ghostNPC.setSize(gs);
+		ghostNPC.setSize(gs);*/
 	}
+	
+	/*public void getPlayerLocation ()
+	{
+		this.game.getPlayerPosition(avatarLoc);
+	}*/
+	
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
