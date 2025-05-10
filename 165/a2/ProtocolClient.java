@@ -149,8 +149,8 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 			case CHANGE_NPC:
 				ghostID = message.getSenderID();
 //				Message.CharacterType s = message.getCharacter();
-System.out.println("message recieved as\n" + message.toString());
-				ghostManager.changeGhostAvatar(ghostID, message.character);
+//System.out.println("message recieved as\n" + message.toString());
+				ghostManager.changeGhostAvatar(ghostID);//, message.character);
 				break;				
 			case DEFAULT:
 

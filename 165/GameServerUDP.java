@@ -71,7 +71,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				sendMoveMessages(ghostID);//vf);
 				break;
 			case CHANGE_NPC:
-System.out.println("CHANGE_NPC command being forwarded" + message.toString());
+//System.out.println("CHANGE_NPC command being forwarded" + message.toString());
 				ghostID = message.getSenderID();
 				sendChangeMessage(ghostID);
 				break;
