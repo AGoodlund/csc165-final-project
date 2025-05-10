@@ -265,10 +265,9 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		jellyR.getRenderStates().setColor(new Vector3f(spot.red));
 		jellyG.getRenderStates().setColor(new Vector3f(spot.green));
 		jellyY.getRenderStates().setColor(new Vector3f(spot.yellow));
-		jellyY.getRenderStates().setPositionalColor(true);
-		jellyR.getRenderStates().setPositionalColor(true);
-		jellyG.getRenderStates().setPositionalColor(true);
-//		jellyY.getRenderStates().setHasSolidColor(true);//or set them to hasPositionalColor(true);
+		jellyY.getRenderStates().setHasSolidColor(true);
+		jellyR.getRenderStates().setHasSolidColor(true);
+		jellyG.getRenderStates().setHasSolidColor(true);
 		jellyR.getRenderStates().setRenderHiddenFaces(true);
 		jellyG.getRenderStates().setRenderHiddenFaces(true);
 		jellyY.getRenderStates().setRenderHiddenFaces(true);
@@ -316,26 +315,6 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(2); //1 for regular sand.png, 2 for sand_watery
 		terr.getRenderStates().setTileFactor(spot.mapTiling);
-
-/* 
-		terr.translate(0f,-10f,0f); //Removed so I could use terrain again
-
-		raft = new GameObject(GameObject.root(),raftS);
-		initialTranslation=(new Matrix4f()).translate(0f,-.5f+20f,0f);
-		raft.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(3f,.5f,5f);
-		raft.setLocalScale(initialScale);
-		raft.getRenderStates().setHasSolidColor(true);
-		raft.getRenderStates().setColor(new Vector3f(0.725f, 0.478f, 0.341f));
-*/
-/* 		water = new GameObject(GameObject.root(), waterS);
-		water.getRenderStates().setColor(new Vector3f(spot.blue));
-		water.getRenderStates().setHasSolidColor(true);
-		initialTranslation = new Matrix4f().translation(0f,-.25f+20f,0f);
-		water.setLocalTranslation(initialTranslation);
-		initialScale = new Matrix4f().scaling(200.0f, 1.0f, 200.0f);
-		water.setLocalScale(initialScale);
-*/
 		
 		diver = new GameObject(GameObject.root(), diverS);
 		avatar.getWorldTranslation(initialTranslation);
@@ -807,7 +786,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 		//----------------Height Map-----------------
 		avatar.getWorldLocation(v);
-		height = terr.getHeight(v.x(), v.z())+2;
+		height = terr.getHeight(v.x(), v.z())+3.5f;
 		avatar.heightAdjust(height);//avatar is the only one that needs to follow the heightmap
 		avatar.getWorldTranslation(m);
         avatar.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
