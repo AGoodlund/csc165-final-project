@@ -110,15 +110,15 @@ public class GhostManager
 		ghostAvatar.setLocalScale(new Matrix4f().scaling(scale));
 	}
 
-	public void changeGhostAvatar(UUID id){//, MessageType changeTo){
+	public void changeGhostAvatar(UUID id, int pos){//, MessageType changeTo){
 		ghostAvatar = findAvatar(id);
 		if(ghostAvatar == null)
 			return;
 
 		Matrix4f m = new Matrix4f(); //created during runtime because this should not be called all that often
-		characterFlag++;
-		characterFlag %= 4;
-		switch(characterFlag){
+//		characterFlag++;
+//		characterFlag %= 4;
+		switch(pos){//characterFlag){
 			case 0:
 				ghostAvatar.setTextureImage(game.getDiverTexture());
 				ghostAvatar.setShape(game.getDiverShape());

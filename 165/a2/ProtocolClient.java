@@ -148,9 +148,10 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 
 			case CHANGE_NPC:
 				ghostID = message.getSenderID();
+				message.getVector(ghostVector);
 //				Message.CharacterType s = message.getCharacter();
 //System.out.println("message recieved as\n" + message.toString());
-				ghostManager.changeGhostAvatar(ghostID);//, message.character);
+				ghostManager.changeGhostAvatar(ghostID, (int)ghostVector.x());//, message.character);
 				break;				
 			case DEFAULT:
 
@@ -256,11 +257,12 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 		}
 	}
 
-	public void changeAvatar(Message.MessageType name){
+	public void changeAvatar(Message.MessageType name, int pos){
 		try{
 			message.addItem(id);
 			message.addItem(Message.MessageType.CHANGE_NPC);
-			message.addChar(name);
+			message.addItem(new Vector3f((float)pos, 0, 0));
+//			message.addChar(name);
 
 System.out.println("Sending Message as " + message.toString());
 
