@@ -93,13 +93,7 @@ public class Message implements Serializable{
 /** add a character to the message */
     public void addChar(MessageType s){ character = s; }
 /** retrieve a float from the message */
-    public float getNum(){ return num; } 
-/** retrieve shape name the message */
-    public String getShape(){ return shape; }
-/** add texture name string */
-    public void addTexture(String s){ texture = s; } //TODO: Change from strings to ints, or use string in the switch statement
-/** retrieve texture name */
-    public String getTexture(){ return texture; }
+    public float getNum(){ return num; }   
 
 /** add a receiver UUID to the message */
     public void addDestination(UUID receiver){ receiverID = receiver; }
@@ -140,8 +134,6 @@ public class Message implements Serializable{
         s += "\n\tCharacterType = " + character;
         s += "\n\tSender ID = " + senderID;
         s += "\n\tDestination ID = " + receiverID;
-        s += "\n\tshape = " + shape; //These are just strings
-        s += "\n\ttexture = " + texture;
         s += "\n\tv:\n" + v;
         s += "\n\tm:\n" + m;
 

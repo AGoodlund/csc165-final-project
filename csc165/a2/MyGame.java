@@ -79,8 +79,6 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape jellyfish;
 	private Light red, green, yellow, diverVision;
 
-	private float height;
-
 //-------------Sounds--------------
 	private Sound bubbles, bow;
 	private Vector3f up = new Vector3f(spot.y);
