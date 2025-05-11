@@ -85,10 +85,6 @@ public class MyGame extends VariableFrameRateGame
 	private Sound bubbles, bow;
 	private Vector3f up = new Vector3f(spot.y);
 
-//-------------Node Controllers-------------
-//	private RotationController rc;
-//	private RollController roll;
-
 //-------------Networking----------------
 	private GhostManager gm;
 	private String serverAddress;
@@ -167,10 +163,7 @@ public class MyGame extends VariableFrameRateGame
 			harpoonS.setMatAmb(Utils.goldAmbient());
 			harpoonS.setMatDif(Utils.goldDiffuse());
 			harpoonS.setMatSpe(Utils.goldSpecular());
-			harpoonS.setMatShi(Utils.goldShininess());
-//		orbS = new Sphere(2);
-//		crystalS = new ManualCrystal();
-			
+			harpoonS.setMatShi(Utils.goldShininess());			
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
 		yAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
@@ -208,6 +201,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		initialRotation = new Matrix4f().rotationY((float)Math.toRadians(-90f));
 		avatar.setLocalRotation(initialRotation);
 		avatar.getRenderStates().setPositionalColor(true);
+		avatar.takesDamage = true;
 
 //weapons and ammo section
 		gun = new GameObject(GameObject.root(), gunS);
@@ -470,25 +464,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		//Doesn't take movement into account
 		//Add force in a direction to a physics object
 		//Every second add a random force to avatar
-/* 		
 
-		//Puffer Fish
-		//Gravity
-		puffer.getLocalTranslation(physicsTranslation);
-		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		pufferP = (engine.getSceneGraph()).addPhysicsSphere(tempMass, tempTransform, pufferRadius);
-
-		//pufferP.isDynamic() = true;
-		pufferP.setSleepThresholds(5.0f,5.0f);
-		pufferP.setBounciness(0.8f);
-		puffer.setPhysicsObject(pufferP);
-		
-		raft.getLocalTranslation(physicsTranslation);
-		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		groundPlaneP = (engine.getSceneGraph()).addPhysicsBox(0f, tempTransform, new float[]{6f,1f,10f});
-		groundPlaneP.setBounciness(0.0f);
-		raft.setPhysicsObject(groundPlaneP);
-*/
  		//Terrain
 		terr.getLocalTranslation(physicsTranslation); 
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
@@ -556,7 +532,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.V, pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 
 		ShootAction shoot = new ShootAction(harpoons, avatar, protClient);
-//		shoot.setBulletSpeed(2.5f);
 		shoot.addSound(bow);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
@@ -582,6 +557,13 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Y, fc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			//REMEMBER: buttons start at 0, but are shown starting at 1
 
+			LorRStrafeAction lr = new LorRStrafeAction(this, cam, protClient);
+
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , toggleLight, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , change, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		}
 //https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
@@ -631,8 +613,12 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 	private int screenMiddleX(){
 		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualWidth() - engine.getRenderSystem().getViewport("MAIN").getActualWidth()/2); 
 	}
+	public void startAnimation(){
+		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
+	}
 	
-//-------------Physics----------------TODO:
+//-------------Physics----------------
+//TODO:
 	private float[] toFloatArray(double[] arr)
 	{ 
 		if (arr == null) return null;
@@ -664,7 +650,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		Vector3f distance = distanceFromAvatar(obj);
 		
 		Vector3f force = distance;
-//TODO:don't initialize in a function run in update()
 		
 		force.mul((-1 * strength)); 
 		
@@ -682,7 +667,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		Vector3f avatarLoc = new Vector3f();
 		Vector3f objLoc = new Vector3f();
 		Vector3f distanceBetween = new Vector3f();
-//TODO:don't initialize in a function run in update()
 		
 		getPlayerPosition(avatarLoc);
 		getObjectPosition(obj, objLoc);
@@ -691,7 +675,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		return distanceBetween;
 	}
 	
-	private void checkForCollisions()
+	private void checkForCollisions() //TODO: when a collision is detected run resolveCollision
 	{ 
 		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
@@ -714,14 +698,19 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 			for (int j = 0; j < manifold.getNumContacts(); j++)
 			{ 
 				contactPoint = manifold.getContactPoint(j);
-
 			} 
 		} 
 	}
-	public void startAnimation(){
-		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
-//System.out.println("startAnimation() has been called");
-	}
+/*
+	private void resolveCollision(GameObject a, GameObject b){ //determine what special collision needs to happen
+		if(a.dealsDamage && b.takesDamage){
+			if(b == avatar)
+				health--;
+			else return;
+				protClient.dealDamage(b); //protClient tells the server which ghostNPC needs to take damage
+		}
+	} 
+*/	
 //-------------Terrain---------------- 
 /*	public void applyHeightMap(){
 		for(GameObject obj: mappable){ 
