@@ -23,7 +23,7 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     private float[] vals = new float[16];
     
 /** Constructor for camera and avatar with controller */
-    public ForBAction(MyGame g, Camera c, ProtocolClient p){ cam = c; obj = g.getAvatar(); protClient = p; }
+    public ForBAction(MyGame g, Camera c, ProtocolClient p){ game = g; cam = c; obj = g.getAvatar(); protClient = p; }
 /** Constructor for camera and avatar with keyboard */
     public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }// objS = anim; }
     public void addLight(Light l){ light = l; }

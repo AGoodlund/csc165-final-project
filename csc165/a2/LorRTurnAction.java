@@ -9,6 +9,7 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 
 public class LorRTurnAction extends AbstractInputAction {    //move camera+avatar forward
+    private MyGame game;
     private GameObject obj = null;
     private Camera cam = null;
     private Light light;
@@ -22,7 +23,7 @@ public class LorRTurnAction extends AbstractInputAction {    //move camera+avata
 //    private float[] vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
-    public LorRTurnAction(MyGame g, ProtocolClient p){ obj = g.getAvatar(); protClient = p; }
+    public LorRTurnAction(MyGame g, ProtocolClient p){ game = g; obj = g.getAvatar(); protClient = p; }
 
     public LorRTurnAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
 
