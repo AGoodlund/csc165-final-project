@@ -4,16 +4,19 @@ public class NPC
 	double locationX, locationY, locationZ;
 	double dir = 0.1;
 	double size = 1.0;
+	int id;
 	public NPC()
 	{ 
 		locationX=0.0;
 		locationY=0.0;
 		locationZ=0.0;
 		System.out.println("A generic Normal NPC has ben created."); //TODO: remove
+		id = 3621;
 	}
 	
 	public void randomizeLocation(int seedX, int seedZ)
 	{ 
+		locationX = seedZ;
 		locationX = ((double)seedX)/4.0 - 5.0;
 		locationY = 0;
 		locationZ = -2;

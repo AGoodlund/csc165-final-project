@@ -442,6 +442,11 @@ public class MyGame extends VariableFrameRateGame
 			engine.enablePhysicsWorldRender();
 		}
 		
+		
+		// ------------- NPCs/AI section ------------------
+		
+		protClient.createGhostNPC(new Vector3f()); //TODO and change to instantiate a regular npc. ghostNPC must be made private again
+		
 		// ------------- inputs section ------------------
 		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
 		//		associateActionWithAllGamepads means you're using Identifier.Axis to get a joystick and .Button for the 
@@ -725,7 +730,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			//calculateAvatarCollision(diver);
 			}
 			catch (Exception e){}
-		
+	
 	
 		
 		//--------------HUD drawing----------------

@@ -27,7 +27,7 @@ public class ProtocolClient extends GameConnectionClient
 	
 	
 	// ------------- GHOST NPC SECTION --------------
-	private void createGhostNPC(Vector3f position) 
+	public void createGhostNPC(Vector3f position) //TODO: Change back to private
 	{ 
 		if (ghostNPC == null)
 		ghostNPC = new GhostNPC(0, game.getGhostShape(1), game.getGhostTexture(3), position);

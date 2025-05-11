@@ -57,7 +57,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	public void sendNPCinfo()
 	{ 
 	//TODO: Re-implement
-		//message.addItem(npcCtrl.getNPC().getPosition());
+		message.addItem(npcCtrl.getNPC().getPosition());
 		//message.addItem(npcCtrl.getNPC().getOrientation());
 		//sendToAll();
 	}
