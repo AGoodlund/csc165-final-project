@@ -12,6 +12,7 @@ import org.joml.*;
 import tage.*;
 import tage.networking.client.GameConnectionClient;
 import tage.networking.Message;
+//import tage.networking.Message.CharacterType;
 
 public class ProtocolClient extends GameConnectionClient
 {
@@ -46,17 +47,12 @@ public class ProtocolClient extends GameConnectionClient
 		/*if (gsize == 1.0)
 			gs=false;
 	
-		else 
-			gs=true;
-		ghostNPC.setSize(gs);*/
-	}
-	
-	/*public void getPlayerLocation ()
-	{
-		this.game.getPlayerPosition(avatarLoc);
-	}*/
-	
-	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
+	else 
+		gs=true;
+	ghostNPC.setSize(gs);
+}*/
+
+public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
 		this.id = UUID.randomUUID();
@@ -149,12 +145,18 @@ public class ProtocolClient extends GameConnectionClient
 				break;
 			case IS_NEAR:
 				break;
-				
+
+			case CHANGE_NPC:
+				ghostID = message.getSenderID();
+				message.getVector(ghostVector);
+//				Message.CharacterType s = message.getCharacter();
+//System.out.println("message recieved as\n" + message.toString());
+				ghostManager.changeGhostAvatar(ghostID, (int)ghostVector.x());//, message.character);
+				break;				
 			case DEFAULT:
 
 				break;
 			default:
-
 				System.out.println("an unknown MessageType was sent to ProtocolClient");
 				break;
 		}
@@ -203,8 +205,6 @@ public class ProtocolClient extends GameConnectionClient
 			message.addItem(Message.MessageType.CREATE);
 			message.addItem(position);
 			message.addItem(facing);
-//			message.addShape(shapeName);
-//			message.addTexture(textureName);
 
 			sendPacket(message);
 		} catch (IOException e) 
@@ -256,6 +256,24 @@ public class ProtocolClient extends GameConnectionClient
 			e.printStackTrace();
 		}
 	}
+
+	public void changeAvatar(Message.MessageType name, int pos){
+		try{
+			message.addItem(id);
+			message.addItem(Message.MessageType.CHANGE_NPC);
+			message.addItem(new Vector3f((float)pos, 0, 0));
+//			message.addChar(name);
+
+//System.out.println("Sending Message as " + message.toString());
+
+			sendPacket(message);
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+
+	}
+
 public void trace(){
 	System.out.println("\nPROTOCOL_CLIENT" + message.toString());
 }

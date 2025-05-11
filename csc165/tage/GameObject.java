@@ -159,21 +159,14 @@ public class GameObject
 
 // --------------------------------------------------- pitch is up/down movement, yaw is left right movement
 	private void yaw(float rad, boolean isGlobal){
-//		Matrix4f addedRotation;
-//		Matrix4f worldRot = getWorldRotation();
 		if(isGlobal){
 			localRotation.rotate(rad, up);
-			update();
-//			addedRotation = (new Matrix4f()).rotation(rad, new Vector3f(spot.y));
 		}
 		else{			//local yaw turns around object's up vector
-//			Vector3f localUp = getWorldUpVector();
 			getWorldUpVector(v);
-			localRotation.rotate(rad, v);//getWorldUpVector());
-			update();
-//			addedRotation = (new Matrix4f()).rotation(rad, localUp);
+			localRotation.rotate(rad, v);
 		}
-//		setLocalRotation(addedRotation.mul(worldRot));
+			update();
 	}
 /** yaws avatar around its V vector */
 	public void yaw(float rad){ yaw(rad, true); }

@@ -179,7 +179,7 @@ void main(void)
 			tcolor = texture(t,r);
 			fragColor = min((tcolor * vec4((ambient + diffuse),1.0) + vec4(specular,0.0)), vec4(1,1,1,1));
 		}
-		else if (colorSplashPointer == 1){// (&& has_texture == 0)
+		else if (colorSplashPointer == 1 && has_texture == 0){
 			fragColor = min(varyingColor * vec4((ambient + diffuse + specular), 1.0), vec4(1,1,1,1));
 		}
 		

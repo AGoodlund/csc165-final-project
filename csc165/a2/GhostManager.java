@@ -9,12 +9,14 @@ import java.util.Vector;
 import org.joml.*;
 
 import tage.*;
+//import tage.networking.Message.MessageType;
 
 public class GhostManager
 {
 	private MyGame game;
 	private Vector<GhostAvatar> ghostAvatars = new Vector<GhostAvatar>();
 	private GhostAvatar ghostAvatar;
+	private int characterFlag = 0;
 
 	public GhostManager(VariableFrameRateGame vfrg)
 	{	game = (MyGame)vfrg;
@@ -46,9 +48,7 @@ public class GhostManager
 	public void createGhostAvatar(UUID id, Vector3f position, Matrix4f rotation, String ghostShape, String ghostTexture, float scale) throws IOException{
 		System.out.println("adding ghost with ID --> " + id);
 		ObjShape s = game.getGhostShape();
-			//TODO: pull the ghosts shape from a list of shapes initialized in MyGame
 		TextureImage t = game.getGhostTexture();
-			//TODO: pull ghost texture from a list of textures initialized in MyGame
 		GhostAvatar newAvatar = new GhostAvatar(id, s, t, position);
 		Matrix4f initialScale = (new Matrix4f()).scaling(scale);
 		newAvatar.setLocalScale(initialScale);
@@ -108,5 +108,44 @@ public class GhostManager
 		ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
 		ghostAvatar.setLocalScale(new Matrix4f().scaling(scale));
+	}
+
+	public void changeGhostAvatar(UUID id, int pos){//, MessageType changeTo){
+		ghostAvatar = findAvatar(id);
+		if(ghostAvatar == null)
+			return;
+
+		Matrix4f m = new Matrix4f(); //created during runtime because this should not be called all that often
+//		characterFlag++;
+//		characterFlag %= 4;
+		switch(pos){//characterFlag){
+			case 0:
+				ghostAvatar.setTextureImage(game.getDiverTexture());
+				ghostAvatar.setShape(game.getDiverShape());
+				game.getDiverSize(m);
+				ghostAvatar.setLocalScale(m);
+				break;
+			case 1:
+				ghostAvatar.setTextureImage(game.getDolTexture());
+				ghostAvatar.setShape(game.getDolShape());
+				game.getDolSize(m);
+				ghostAvatar.setLocalScale(m);
+				break;
+			case 2:
+				ghostAvatar.setTextureImage(game.getEnemyTexture());
+				ghostAvatar.setShape(game.getEnemyShape());
+				game.getEnemySize(m);
+				ghostAvatar.setLocalScale(m);
+				break;
+			case 3:
+				ghostAvatar.setTextureImage(null);
+				ghostAvatar.setShape(game.getDolShape());
+				game.getDolSize(m);
+				ghostAvatar.setLocalScale(m);
+				ghostAvatar.getRenderStates().setPositionalColor(true);
+				break;
+			default:
+				break;
+		}
 	}
 }

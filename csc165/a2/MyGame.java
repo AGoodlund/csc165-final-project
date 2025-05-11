@@ -16,7 +16,6 @@ import java.awt.event.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.UUID;
 import java.net.InetAddress;
 
 import java.net.UnknownHostException;
@@ -26,10 +25,7 @@ import org.joml.*;
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
-import java.util.ArrayList;
 import javax.swing.*;
-
-//import com.jogamp.opengl.awt.GLCanvas;//this is for mouse movement
 
 import tage.physics.PhysicsEngine;
 import tage.physics.PhysicsObject;
@@ -57,30 +53,25 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z, terr, diver, enemy;//, puffer;
+	private GameObject avatar, x, y, z, terr, diver, enemy, dol;//, puffer;
 
 	private AnimatedShape diverS;
 	public boolean isAnimating = false, hasLooped = false;
 
 	private ObjShape dolS, xAxis, yAxis, zAxis, terrS, pufferS, pufferCalmS;
-	private TextureImage doltx, hills, grass, pufferX, pufferAltX;
+	private TextureImage dolX, hills, grass, pufferX, pufferAltX;
 
 	private Light light1;
 	private int skybox, seabox;
 
 //weapon objects
 	private GameObject 	laser, gun, 
-						crystal, 
-						orb,
-						harpoon, harpoon2, harpoon3, harpoon4, harpoon5; //These are the potential projectile shapes
-							//Might need a list of each of these for AttackAction that spawns one (with physics object) and gives it a hard shove along the WorldForwardVector
+						harpoon1, harpoon2, harpoon3, harpoon4, harpoon5; 
 
 	private PhysicsObject bullet1, bullet2, bullet3, bullet4, bullet5;
 	private Matrix4f bulletStorage = new Matrix4f();
 
 	private ArrayList<GameObject> harpoons = new ArrayList<GameObject>();
-	private ArrayList<GameObject> crystals = new ArrayList<GameObject>();
-	private ArrayList<GameObject> orbs = new ArrayList<GameObject>();
 
 	private ObjShape laserS, gunS, crystalS, harpoonS, orbS;
 
@@ -88,13 +79,11 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape jellyfish;
 	private Light red, green, yellow, diverVision;
 
-//-------------Sounds--------------
-	private Sound bubbles;
-	private Vector3f up = new Vector3f(spot.y);
+	private float height;
 
-//-------------Node Controllers-------------
-//	private RotationController rc;
-//	private RollController roll;
+//-------------Sounds--------------
+	private Sound bubbles, bow;
+	private Vector3f up = new Vector3f(spot.y);
 
 //-------------Networking----------------
 	private GhostManager gm;
@@ -130,12 +119,20 @@ public class MyGame extends VariableFrameRateGame
 	private PhysicsObject dolP, ghostP, raftP, groundPlaneP, avatarP, groundingP;//, pufferP;
 	private float[] gravity = {0f, 0f,0f};//-20f, 0f};//-6f, 0f};
 	private float vals[] = new float[16]; 
-	//mappableP.add(pufferP);
-
 	
 //Networking
-//	public ObjShape getEnemyShape() { return pufferS; }
-//	public TextureImage getEnemyTexture() { return pufferAltX; }
+	public ObjShape getEnemyShape() { return enemy.getShape(); }
+	public TextureImage getEnemyTexture() { return enemy.getTextureImage(); }
+	public Matrix4f getEnemySize(Matrix4f dest){ enemy.getWorldScale(dest); return dest; }
+
+	public ObjShape getDiverShape(){ return diverS; }
+	public TextureImage getDiverTexture(){ return diver.getTextureImage(); }
+	public Matrix4f getDiverSize(Matrix4f dest){ diver.getWorldScale(dest); return dest; }
+
+	public ObjShape getDolShape(){ return dol.getShape(); }
+	public TextureImage getDolTexture(){ return dol.getTextureImage(); }
+	public Matrix4f getDolSize(Matrix4f dest){ dol.getWorldScale(dest); return dest; }
+
 	
 //-------------My Game----------------
 	public MyGame() { super(); }
@@ -167,13 +164,13 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes(){	
 		dolS = new ImportedModel("ULPD.obj");
 		ghostS = new ImportedModel("dolphinLowPoly.obj");
-		pufferS = new ImportedModel("PufferFish_Angry.obj");
+		pufferS = new ImportedModel("PufferFish_Angry_flipped.obj");
 		pufferCalmS = new ImportedModel("PufferFish_Calm.obj");
 		jellyfish = new ImportedModel("Jellyfish.obj");
 
-		terrS = new Plane();//TerrainPlane(1000); //pixels per axis is 1000 X 1000
+		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
 
-//		raftS = new Cube();
+
 		diverS = new AnimatedShape("Diver.rkm", "Diver.rks");
 			diverS.loadAnimation("WALK", "Diver_walk.rka");
 		gunS = new ImportedModel("crossbow_loaded.obj");
@@ -181,10 +178,7 @@ public class MyGame extends VariableFrameRateGame
 			harpoonS.setMatAmb(Utils.goldAmbient());
 			harpoonS.setMatDif(Utils.goldDiffuse());
 			harpoonS.setMatSpe(Utils.goldSpecular());
-			harpoonS.setMatShi(Utils.goldShininess());
-		orbS = new Sphere(2);
-		crystalS = new ManualCrystal();
-			
+			harpoonS.setMatShi(Utils.goldShininess());			
 
 		xAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
 		yAxis = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
@@ -194,15 +188,13 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadTextures(){	
-		doltx = new TextureImage("ULPDuv.png");
+		dolX = new TextureImage("ULPDuv.png");
 		ghostT = new TextureImage("oiter.png");
 		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
 		pufferAltX = new TextureImage("Pufferfish_Angry_SpineyAlt.png");
 
-//		hills = new TextureImage("heightmap map.png");
 		grass = new TextureImage("sand_watery.png");
-//		hills = new TextureImage("hills.jpg");
-//		grass = new TextureImage("grass.jpg");
+		hills = new TextureImage("heightmap map.png");
 	}
 private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale, float[] color){
 	Matrix4f initialScale;
@@ -218,16 +210,13 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 	{	Matrix4f initialTranslation, initialScale, initialRotation;
 
 		// build dolphin in the center of the window
-		avatar = new GameObject(GameObject.root(), diverS);//new Cube());//dolS, doltx);
+		avatar = new GameObject(GameObject.root(), diverS);
 		initialTranslation = (new Matrix4f()).translation(0f,2f,0f);
 		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = new Matrix4f().rotationY((float)Math.toRadians(-90f));
 		avatar.setLocalRotation(initialRotation);
-//		initialScale = new Matrix4f().scaling(0.5f);
-//		avatar.setLocalScale(initialScale);
-//		avatar.getRenderStates().setColor(new Vector3f(spot.black));
-//		avatar.getRenderStates().setHasSolidColor(true);
 		avatar.getRenderStates().setPositionalColor(true);
+		avatar.takesDamage = true;
 
 //weapons and ammo section
 		gun = new GameObject(GameObject.root(), gunS);
@@ -237,39 +226,30 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		gun.setLocalScale(initialScale);
 		initialRotation = new Matrix4f().rotationY((float)Math.toRadians(-90f));
 		gun.setLocalRotation(initialRotation);
-		gun.getRenderStates().setColor(new Vector3f(spot.grey));
-		gun.getRenderStates().setHasSolidColor(true);
+		gun.getRenderStates().isEnvironmentMapped(true);
 		gun.setParent(avatar);
 		gun.propagateRotation(true);
 		gun.propagateTranslation(true);
- 		
-		harpoon = new GameObject(GameObject.root(), harpoonS);
+		gun.propagateScale(false);
+   		
+		harpoon1 = new GameObject(GameObject.root(), harpoonS);
 		harpoon2 = new GameObject(GameObject.root(), harpoonS);
 		harpoon3 = new GameObject(GameObject.root(), harpoonS);
 		harpoon4 = new GameObject(GameObject.root(), harpoonS);
 		harpoon5 = new GameObject(GameObject.root(), harpoonS);
 		float bulletScale = 1f;
 		float[] color = spot.yellow;
-		createBullet(harpoon, harpoons, bulletScale, color);
+		createBullet(harpoon1, harpoons, bulletScale, color);
 		createBullet(harpoon2, harpoons, bulletScale, color);
 		createBullet(harpoon3, harpoons, bulletScale, color);
 		createBullet(harpoon4, harpoons, bulletScale, color);
 		createBullet(harpoon5, harpoons, bulletScale, color);
 
-		orb = new GameObject(GameObject.root(), orbS);
-		initialScale = new Matrix4f().scaling(.5f);
-		orb.setLocalScale(initialScale);
-		orb.getRenderStates().setColor(new Vector3f(spot.teal));
-		orb.getRenderStates().setHasSolidColor(true);
-		orb.getRenderStates().disableRendering();
-
-		crystal = new GameObject(GameObject.root(), crystalS);
-		initialScale = new Matrix4f().scaling(.3f);
-		initialRotation = new Matrix4f().rotationZ((float)Math.toRadians(90f));
-		crystal.setLocalScale(initialScale);
-		crystal.setLocalRotation(initialRotation);
-		crystal.getRenderStates().setPositionalColor(true);
-		crystal.getRenderStates().disableRendering();
+		harpoon1.getRenderStates().setPositionalColor(true);
+		harpoon2.getRenderStates().setPositionalColor(true);
+		harpoon3.getRenderStates().setPositionalColor(true);
+		harpoon4.getRenderStates().setPositionalColor(true);
+		harpoon5.getRenderStates().setPositionalColor(true);
 //W&E section end
 
 		//build illuminated jellyfish
@@ -294,47 +274,27 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		jellyR.getRenderStates().setColor(new Vector3f(spot.red));
 		jellyG.getRenderStates().setColor(new Vector3f(spot.green));
 		jellyY.getRenderStates().setColor(new Vector3f(spot.yellow));
+		jellyY.getRenderStates().setHasSolidColor(true);
 		jellyR.getRenderStates().setHasSolidColor(true);
 		jellyG.getRenderStates().setHasSolidColor(true);
-		jellyY.getRenderStates().setHasSolidColor(true);//or set them to hasPositionalColor(true);
 		jellyR.getRenderStates().setRenderHiddenFaces(true);
 		jellyG.getRenderStates().setRenderHiddenFaces(true);
 		jellyY.getRenderStates().setRenderHiddenFaces(true);
 
  		// build Enemy Pufferfish
 		enemy = new GameObject(GameObject.root(), pufferS, pufferAltX);
-		initialTranslation = (new Matrix4f()).translation(8f,0f,-3f);
-
-		initialScale = (new Matrix4f()).scaling(5f);
+		initialTranslation = (new Matrix4f()).translation(8f,3f,-3f);
+		initialScale = (new Matrix4f()).scaling(10f);
 		enemy.setLocalTranslation(initialTranslation);
 		enemy.setLocalScale(initialScale);
-//		mappable.add(enemy);
-/*
-		//build crystal
-		crystal = new GameObject(GameObject.root(),crystalS);
-//			crystal.getRenderStates().setColor(teal).setHasSolidColor(true);
-//			crystal.getRenderStates().setHasSolidColor(true);
-		initialTranslation = (new Matrix4f()).translation(0f,3f,-2f);
-		initialScale = (new Matrix4f()).scaling(2f);
-		crystal.setLocalTranslation(initialTranslation);
-		crystal.setLocalScale(initialScale);
-		crystal.getRenderStates().setPositionalColor(true);
 
-//		crystal.setParent(torus);
-//		crystal.propagateScale(false);
-//		crystal.propagateTranslation(true);
-*/
+		dol = new GameObject(GameObject.root(), dolS, dolX);
+		initialTranslation = new Matrix4f().translation(0,2,0);
+		initialScale = new Matrix4f().scaling(1f);
+		dol.setLocalTranslation(initialTranslation);
+		dol.setLocalScale(initialScale);
+		dol.getRenderStates().disableRendering();
 
-/*  		//build Pufferfish
-		puffer = new GameObject(GameObject.root(), pufferS, pufferX);
-		initialTranslation = (new Matrix4f()).translation(0f,-.5f,0f);
-		initialScale = (new Matrix4f()).scaling(10f);
-		puffer.setLocalTranslation(initialTranslation);
-		puffer.setLocalScale(initialScale);
-		
-		puffer.translate(0f,10f,0f);
-//		mappable.add(puffer);
-*/
 		//build lines
 		x = new GameObject(GameObject.root(), xAxis);
 		y = new GameObject(GameObject.root(), yAxis);
@@ -357,44 +317,22 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		//Terrain
 		terr = new GameObject(GameObject.root(),terrS,grass);
 		initialTranslation = (new Matrix4f()).translation(0f,0f,0f); 
-
 		terr.setLocalTranslation(initialTranslation);
 		initialScale = new Matrix4f().scaling(spot.mapSize[0], spot.mapSize[1], spot.mapSize[2]);
 		terr.setLocalScale(initialScale);
-//		terr.setHeightMap(hills);
+		terr.setHeightMap(hills);
 		// set tiling for terrain texture
 		terr.getRenderStates().setTiling(2); //1 for regular sand.png, 2 for sand_watery
 		terr.getRenderStates().setTileFactor(spot.mapTiling);
-
-/* 
-		terr.translate(0f,-10f,0f); //Removed so I could use terrain again
-
-		raft = new GameObject(GameObject.root(),raftS);
-		initialTranslation=(new Matrix4f()).translate(0f,-.5f+20f,0f);
-		raft.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(3f,.5f,5f);
-		raft.setLocalScale(initialScale);
-		raft.getRenderStates().setHasSolidColor(true);
-		raft.getRenderStates().setColor(new Vector3f(0.725f, 0.478f, 0.341f));
-*/
-/* 		water = new GameObject(GameObject.root(), waterS);
-		water.getRenderStates().setColor(new Vector3f(spot.blue));
-		water.getRenderStates().setHasSolidColor(true);
-		initialTranslation = new Matrix4f().translation(0f,-.25f+20f,0f);
-		water.setLocalTranslation(initialTranslation);
-		initialScale = new Matrix4f().scaling(200.0f, 1.0f, 200.0f);
-		water.setLocalScale(initialScale);
-*/
 		
-/* 
 		diver = new GameObject(GameObject.root(), diverS);
-		initialTranslation = new Matrix4f().translation(0f,1.5f,-1f);
-		initialScale = new Matrix4f().scaling(.5f);
+		avatar.getWorldTranslation(initialTranslation);
+		avatar.getWorldScale(initialScale);
+		avatar.getWorldRotation(initialRotation);
 		diver.setLocalTranslation(initialTranslation);
 		diver.setLocalScale(initialScale);
-		diver.yaw(180f);
-		diver.getRenderStates().setPositionalColor(true);
-*///		mappable.add(diver);
+		diver.setLocalRotation(initialRotation);
+		diver.getRenderStates().disableRendering();
 	}
 	
 		
@@ -434,6 +372,14 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		avatar.getWorldLocation(v);
 		diverVision.setLocation(v);
 		diverVision.setDiffuse(.55f,.8f,.4f);
+
+		avatar.getWorldLocation(v);
+		v.add(0f,2f,0f);
+		diverVision.setLocation(v);
+		avatar.getWorldForwardVector(v);
+		v.add(0f,.5f,0f);
+		diverVision.setDirection(v);
+
 		
 		engine.getSceneGraph().addLight(diverVision);
 	}
@@ -441,16 +387,10 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 	@Override
 	public void createViewports(){
 		engine.getRenderSystem().addViewport("MAIN",0f,0f,1f,1f);
-
-//		Viewport main = engine.getRenderSystem().getViewport("MAIN");
-//		Camera mainCam = main.getCamera();
-//		avatar.getLocalLocation(v);
-//		mainCam.setLocation(v.add(0f, spot.cameraOffset, 0f));
 	}
 
 	@Override
 	public void loadSkyBoxes(){
-//		skybox = engine.getSceneGraph().loadCubeMap("lakeIslands");
 		seabox = engine.getSceneGraph().loadCubeMap("unda da sea");
 		engine.getSceneGraph().setActiveSkyBoxTexture(seabox);
 		engine.getSceneGraph().setSkyBoxEnabled(true);
@@ -458,21 +398,25 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 
 	@Override
 	public void loadSounds(){
-		AudioResource bubbling;
+		AudioResource bubbling, shooting;
 		am = engine.getAudioManager();
 		bubbling = am.createAudioResource("sound_ahead__bubbles_low_4.wav", AudioResourceType.AUDIO_SAMPLE);//sound_ahead is the name of the sound's creator
 		bubbles = new Sound(bubbling, SoundType.SOUND_EFFECT, spot.bubbleVolume, true);
 		bubbles.initialize(am);
-		bubbles.setMaxDistance(20f); //This is the distance at which you hear the quiet version of the sound. Anything past this is imperceptable.
-		bubbles.setMinDistance(2f); //This is the distance at which you hear the loud version of the sound.
+		bubbles.setMaxDistance(100f); //This is the distance at which you hear the quiet version of the sound. Anything past this is imperceptable.
+		bubbles.setMinDistance(10f); //This is the distance at which you hear the loud version of the sound.
 		bubbles.setRollOff(5f);
+
+		shooting = am.createAudioResource("752207__dude_x-soundlab__crossbow-fire-vii.wav", AudioResourceType.AUDIO_SAMPLE);
+		bow = new Sound(shooting, SoundType.SOUND_EFFECT, spot.bowVolume, false);
+		bow.initialize(am);
+		bow.setMaxDistance(50f);
+		bow.setMinDistance(5f);
+		bubbles.setRollOff(1f);
 	}
 
 private void setAmmoPhysics(GameObject g, PhysicsObject p){
 	double[ ] tempTransform;
-//	Matrix4f physicsTranslation = new Matrix4f();
-
-//	g.getLocalTranslation(physicsTranslation);
 	tempTransform = toDoubleArray(bulletStorage.get(vals));//physicsTranslation.get(vals));
 	p = engine.getSceneGraph().addPhysicsSphere(1f, tempTransform, .25f);
 	g.setPhysicsObject(p);
@@ -539,25 +483,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		//Doesn't take movement into account
 		//Add force in a direction to a physics object
 		//Every second add a random force to avatar
-/* 		
 
-		//Puffer Fish
-		//Gravity
-		puffer.getLocalTranslation(physicsTranslation);
-		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		pufferP = (engine.getSceneGraph()).addPhysicsSphere(tempMass, tempTransform, pufferRadius);
-
-		//pufferP.isDynamic() = true;
-		pufferP.setSleepThresholds(5.0f,5.0f);
-		pufferP.setBounciness(0.8f);
-		puffer.setPhysicsObject(pufferP);
-		
-		raft.getLocalTranslation(physicsTranslation);
-		tempTransform = toDoubleArray(physicsTranslation.get(vals));
-		groundPlaneP = (engine.getSceneGraph()).addPhysicsBox(0f, tempTransform, new float[]{6f,1f,10f});
-		groundPlaneP.setBounciness(0.0f);
-		raft.setPhysicsObject(groundPlaneP);
-*/
  		//Terrain
 		terr.getLocalTranslation(physicsTranslation); 
 		tempTransform = toDoubleArray(physicsTranslation.get(vals));
@@ -580,7 +506,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		avatarP.setFriction(1f);
 		avatar.setPhysicsObject(avatarP);
 
-		setAmmoPhysics(harpoon, bullet1);
+		setAmmoPhysics(harpoon1, bullet1);
 		setAmmoPhysics(harpoon2, bullet2);
 		setAmmoPhysics(harpoon3, bullet3);
 		setAmmoPhysics(harpoon4, bullet4);
@@ -609,6 +535,12 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		LorRStrafeAction left = new LorRStrafeAction(this, cam, -1, protClient);
 		LorRTurnAction Tleft = new LorRTurnAction(this, 1, protClient); 			//yaw left and right
 		LorRTurnAction Tright = new LorRTurnAction(this, -1, protClient);
+		forward.addLight(diverVision);
+		back.addLight(diverVision);
+		right.addLight(diverVision);
+		left.addLight(diverVision);
+		Tleft.addLight(diverVision);
+		Tright.addLight(diverVision);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, forward, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);	
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, back, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, left, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -617,46 +549,59 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.RIGHT, Tright, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.H, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 
-/* 		StopAnimatingAction stop = new StopAnimatingAction(diverS);
-		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.W, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
-		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.A, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
-		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.S, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
-		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.D, stop, InputManager.INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
-*/
+		ToggleFlashLightAction toggleLight = new ToggleFlashLightAction(diverVision);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.F, toggleLight, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
 		PanCameraAction pan = new PanCameraAction(cam, this);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.V, pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
 		ShootAction shoot = new ShootAction(harpoons, avatar, protClient);
-//		shoot.setBulletSpeed(2.5f);
+		shoot.addSound(bow);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
+		ChangeCharacterAction change = new ChangeCharacterAction(avatar, protClient);
+			change.addShapes(avatar.getShape(), dol.getShape(), enemy.getShape());
+			change.addTextures(avatar.getTextureImage(), dol.getTextureImage(), enemy.getTextureImage());
+			Matrix4f m2 = new Matrix4f(), m3 = new Matrix4f();
+			avatar.getWorldScale(m);
+			dol.getWorldScale(m2);
+			enemy.getWorldScale(m3);
+			change.addSizes(m, m2, m3);
+		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.C, change, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
 //all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
 			//controller
 		if(gamepad != null){	//if a gamepad is plugged in
 //TODO: update controls to work with controller to fit requirements
-			LorRTurnAction rc = new LorRTurnAction(this, -1);
-			ForBAction fc = new ForBAction(this, -1);
+			LorRTurnAction rc = new LorRTurnAction(this, protClient);
+			ForBAction fc = new ForBAction(this, cam, -1, protClient);
+			rc.addLight(diverVision);
+			fc.addLight(diverVision);
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Y, fc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			//REMEMBER: buttons start at 0, but are shown starting at 1
 
+			LorRStrafeAction lr = new LorRStrafeAction(this, cam, protClient);
+
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , toggleLight, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , change, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		}
 //https://javadoc.io/doc/net.java.jinput/jinput/2.0.7/net/java/games/input/Component.Identifier.html
 
 
 		// ------------- HUD section ------------------
-		//Hud Testing Section
-//		HUDscore = engine.getHUDmanager().addHudElement(dispStr1, hud1Color, 15, 45);
 		HUDCoords = engine.getHUDmanager().addHudElement(dispStr2, hud2Color, 15,15);
-		//engine.getHUDmanager().addHUDElement("Third HUD Test",white, engine.getRenderSystem().getWindowX(),engine.getRenderSystem().getWindowY());
-		//for(int i = 1; i <= 5; i++)
-		//engine.getHUDmanager().addHUDElement("HUD stack test", new Vector3f(.2f*i, 1f-.2f*(i-1), .5f), 15,45*i);	
-				//test if deleting a middle one causes it to delete properly or crash the program
+
 //------------------sound section----------------------
 		updateEar();
 		bubbles.play();
 
 //--------------Animation section--------------
-		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
+//		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
 	}
 
 	public void updateEar(){
@@ -664,7 +609,11 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		bubbles.setLocation(v);
 		avatar.getLocalLocation(v);
 		am.getEar().setLocation(v);
-		cam.getN(v);
+		cam.getLocation(v);
+		if(v.y() > 5)
+			cam.getV(v);
+		else
+			cam.getN(v);
 		am.getEar().setOrientation(v, up);
 	}
 	
@@ -688,22 +637,12 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 	private int screenMiddleX(){
 		return (int)(engine.getRenderSystem().getViewport("MAIN").getActualWidth() - engine.getRenderSystem().getViewport("MAIN").getActualWidth()/2); 
 	}
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//TODO:implement choosing character when loading in for requirements. Example code below
-	//needs to send information so the ghosts are the same
-public void changeAvatar(GameObject obj, TextureImage img, ObjShape shape){
-	obj.setTextureImage(img);
-	obj.setShape(shape);
-}
-public void changeAvatar(GameObject obj, TextureImage img){
-	obj.setTextureImage(img);
-}
-public void changeAvatar(GameObject obj, ObjShape shape){
-	obj.setShape(shape);
-}
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
+	public void startAnimation(){
+		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
+	}
 	
-//-------------Physics----------------TODO:
+//-------------Physics----------------
+//TODO:
 	private float[] toFloatArray(double[] arr)
 	{ 
 		if (arr == null) return null;
@@ -735,7 +674,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		Vector3f distance = distanceFromAvatar(obj);
 		
 		Vector3f force = distance;
-//TODO:don't initialize in a function run in update()
 		
 		force.mul((-1 * strength)); 
 		
@@ -754,7 +692,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		Vector3f avatarLoc = new Vector3f();
 		Vector3f objLoc = new Vector3f();
 		Vector3f distanceBetween = new Vector3f();
-//TODO:don't initialize in a function run in update()
 		
 		getPlayerPosition(avatarLoc);
 		getObjectPosition(obj, objLoc);
@@ -763,7 +700,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 		return distanceBetween;
 	}
 	
-	private void checkForCollisions()
+	private void checkForCollisions() //TODO: when a collision is detected run resolveCollision
 	{ 
 		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
@@ -786,14 +723,29 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			for (int j = 0; j < manifold.getNumContacts(); j++)
 			{ 
 				contactPoint = manifold.getContactPoint(j);
-
 			} 
 		} 
 	}
-	public void startAnimation(){
-		diverS.playAnimation("WALK", 1f, AnimatedShape.EndType.LOOP, 0);
-//System.out.println("startAnimation() has been called");
+/*
+	private void resolveCollision(GameObject a, GameObject b){ //determine what special collision needs to happen
+		if(a.dealsDamage && b.takesDamage){
+			if(b == avatar)
+				health--;
+			else return;
+				protClient.dealDamage(b); //protClient tells the server which ghostNPC needs to take damage
+		}
+	} 
+*/	
+//-------------Terrain---------------- 
+/*	public void applyHeightMap(){
+		for(GameObject obj: mappable){ 
+			obj.getWorldLocation(v);
+			height = terr.getHeight(); //height map + y position of the plane
+			if(obj.getHeight() < height)
+				obj.heightAdjust(height);
+		}
 	}
+*/
 	@Override
 	public void update()
 	{
@@ -816,22 +768,12 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 //System.out.println("isAnimating within else statement = " + isAnimating);
 		}
 			diverS.updateAnimation();
-//------------------Lights-----------------
-		avatar.getWorldLocation(v);
-		v.add(0f,2f,0f);
-		diverVision.setLocation(v);
-//TODO:move into move actions
-		avatar.getWorldForwardVector(v);
-		v.add(0f,.5f,0f);
-		diverVision.setDirection(v);
-//TODO:move into turnAction
 
 		//--------------Physics--------------	
 		AxisAngle4f aa = new AxisAngle4f();
 		Matrix4f mat = new Matrix4f();
 		Matrix4f mat2 = new Matrix4f().identity();
 		Matrix4f mat3 = new Matrix4f().identity();
-			//TODO:don't initialize in update()
 
 		checkForCollisions();
 
@@ -845,9 +787,7 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			mat2.set(3,2,mat.m32());
 			go.setLocalTranslation(mat2);
 			// set rotation
-//			mat.getRotation(aa); rotation doesn't need to be enforced
-//			mat3.rotation(aa);
-//			go.setLocalRotation(mat3);
+//			to make enemies turn just have them run lookAt(avatar) whenever Think updates their pathing
 			} 
 		} 
 
@@ -857,17 +797,17 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 			//	if(bulletStorate.m31() > spot.cameraOffset+20f); bulletStorage.m31(spot.cameraOffset+10f);
 			//statement to put somewhere so the storage is reusable instead of slowly building toward an overflow
 		
-		
 
-
+		//----------------Height Map-----------------
+		avatar.getWorldLocation(v);
+		height = terr.getHeight(v.x(), v.z())+3.5f;
+		avatar.heightAdjust(height);//avatar is the only one that needs to follow the heightmap
+		avatar.getWorldTranslation(m);
+        avatar.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
 		
 		//--------------HUD drawing----------------
-//		cam.getLocation(v);
-//		dispStr2 = "(" + v.x() + ", " + v.y() + ", " + v.z() + ")";
 		dispStr2 = "HEALTH: " + health;
-//		engine.getHUDmanager().setHUDValue(HUDscore, dispStr1);
 		engine.getHUDmanager().setHUDValue(HUDCoords, dispStr2);
-//		engine.getHUDmanager().setHUDPosition(HUDscore, findViewportMiddleX("MAIN", dispStr1), 15);
 		
 		//--------------Game Loop----------------
 		im.update((float)elapsTime);
@@ -1018,9 +958,6 @@ public void changeAvatar(GameObject obj, ObjShape shape){
 					protClient.sendByeMessage();
 				shutdown();
 				System.exit(0);
-				break;
-			case KeyEvent.VK_F: //TODO:make this into an actual action
-				diverVision.toggleOnOff();
 				break;
 		}
 	}

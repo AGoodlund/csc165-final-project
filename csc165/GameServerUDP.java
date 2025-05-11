@@ -131,10 +131,16 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 //System.out.println("message in case MOVE in GameServer\n" + message.toString());
 				sendMoveMessages(ghostID);//vf);
 				break;
+			case CHANGE_NPC:
+//System.out.println("CHANGE_NPC command being forwarded" + message.toString());
+				ghostID = message.getSenderID();
+				sendChangeMessage(ghostID);
+				break;
 			case WSDS:
 
 				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
 				break;
+<<<<<<< HEAD:csc165/GameServerUDP.java
 				
 			case CREATE_NPC:
 				System.out.println("CREATE_NPC");
@@ -160,6 +166,9 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				sendNPCstart(clientID);
 				break;
 				
+=======
+
+>>>>>>> misc-additions:165/GameServerUDP.java
 			case DEFAULT:
 
 				System.out.println("received blank message");
@@ -278,6 +287,15 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 		catch (IOException p)
 		{	p.printStackTrace();
 	}	}
+
+	public void sendChangeMessage(UUID clientID){
+		try{
+			forwardPacketToAll(message, clientID);
+		}
+		catch (IOException e){
+			e.printStackTrace();
+		}
+	}
 
 public void trace(){
 	System.out.println("GAME_SERVER_UDP" + message.toString());
