@@ -51,7 +51,6 @@ public class CameraOrbit3D extends Camera{ //code from https://csus.instructure.
                 InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
             engine.getInputManager().associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.RY, ele,
                 InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-//TODO: find the shoulder buttons on a controller
             engine.getInputManager().associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Z, zoom,
                 InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
         }       //might need to do associateActionWithAllGamepads rather than with the string

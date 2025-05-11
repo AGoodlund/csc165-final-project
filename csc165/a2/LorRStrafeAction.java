@@ -23,7 +23,7 @@ public class LorRStrafeAction extends AbstractInputAction {
     private float[] vals = new float[16];
     
 /** Constructor for camera and avatar with controller */
-    public LorRStrafeAction(MyGame g, Camera c, ProtocolClient p){ cam = c; obj = g.getAvatar(); protClient = p; }
+    public LorRStrafeAction(MyGame g, Camera c, ProtocolClient p){ game = g; cam = c; obj = g.getAvatar(); protClient = p; }
 /** Constructor for camera and avatar with keyboard */
     public LorRStrafeAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }// objS = anim; }
 
@@ -41,7 +41,6 @@ public class LorRStrafeAction extends AbstractInputAction {
         game.hasLooped = true;
 
         keyValue *= direction;
-//TODO: perhaps limit camera to being at 0 and only moves far enough so that the ground is always in view. Hallway method
         if(obj != null){
             obj.getLocalLocation(v);
             strafeDir.set(keyValue,0f,0f);

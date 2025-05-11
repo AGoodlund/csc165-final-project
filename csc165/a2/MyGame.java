@@ -572,21 +572,23 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 //all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
 			//controller
 		if(gamepad != null){	//if a gamepad is plugged in
-//TODO: update controls to work with controller to fit requirements
-			LorRTurnAction rc = new LorRTurnAction(this, protClient);
-			ForBAction fc = new ForBAction(this, cam, -1, protClient);
+			LorRTurnAction rc = new LorRTurnAction(this, -1, protClient);
+			ForBAction fc = new ForBAction(this, cam, protClient);
+			LorRStrafeAction lr = new LorRStrafeAction(this, cam, protClient);
+			
 			rc.addLight(diverVision);
+			lr.addLight(diverVision);
 			fc.addLight(diverVision);
-			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
+			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.RX, rc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 	//Axis.X/Y are the left joystick
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.Y, fc, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Axis.X, lr, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			//REMEMBER: buttons start at 0, but are shown starting at 1
 
-			LorRStrafeAction lr = new LorRStrafeAction(this, cam, protClient);
 
-//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , toggleLight, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , change, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-//			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button. , pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button._8, toggleLight, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Axis.Z, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button._0, change, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			im.associateAction(gamepad, net.java.games.input.Component.Identifier.Button._3, pan, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			
 			im.associateAction(gamepad,net.java.games.input.Component.Identifier.Button._6, hideAxes, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		}
