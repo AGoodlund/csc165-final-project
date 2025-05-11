@@ -16,13 +16,14 @@ public class Message implements Serializable{
     private UUID senderID, receiverID;
     private static Message message; //singleton to force reuse and lower memory overhead
     private boolean respondSuccessful;
-    private String shape, texture;
     private float num;
 
     private Vector3f v;
     private Matrix4f m; 
 
-    public MessageType type;    //left as public so it's easier to access
+    public MessageType type, character;    //left as public so it's easier to access
+
+//    public CharacterType character;
     
 /** an enum that holds the type of message is being sent/received. This may need to be its own thing */
     public enum MessageType{
@@ -35,11 +36,23 @@ public class Message implements Serializable{
     TURN,
     MOVE,
 	CREATE_NPC,
+    CHANGE_NPC,
 	MNPC,
 	IS_NEAR,
-	NPC_REQUEST
+	NPC_REQUEST,
+    DIVER,
+    ENEMY,
+    DOL,
+    GAY_DOL
     }
-
+/* * enum to hold ghost avatar looks because it was sending Strings as null 
+    public enum CharacterType{
+    DIVER,
+    ENEMY,
+    DOL,
+    GAY_DOL
+    }
+*/
     private Message(){
         v = new Vector3f();
         m = new Matrix4f();
@@ -62,11 +75,11 @@ public class Message implements Serializable{
         setIDType(sender, receiver, type);
     }
 /** make a complete message with both a Matrix and Vector */
-public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, MessageType type){
-    v.set(vec);
-    m.set(mat);
-    setIDType(sender, receiver, type);
-}
+    public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, MessageType type){
+        v.set(vec);
+        m.set(mat);
+        setIDType(sender, receiver, type);
+    }
 /** add a Vector3f to the message */
     public void addItem(Vector3f input){ v.set(input); }
 /** add a Matrix4f to the message */
@@ -77,8 +90,8 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
     public void addItem(MessageType type){ this.type = type; }
 /** add an arbitrary float to the message */
     public void addItem(float f){ num = f; }
-/** add shape name to the message */
-    public void addShape(String s){ shape = s; }
+/** add a character to the message */
+    public void addChar(MessageType s){ character = s; }
 /** retrieve a float from the message */
     public float getNum(){ return num; } 
 /** retrieve shape name the message */
@@ -124,6 +137,7 @@ public void makeMessage(Vector3f vec, Matrix4f mat, UUID sender, UUID receiver, 
         String s;
         s = "\nContents of Message:\n";
         s += "\tMessageType = " + type;
+        s += "\n\tCharacterType = " + character;
         s += "\n\tSender ID = " + senderID;
         s += "\n\tDestination ID = " + receiverID;
         s += "\n\tshape = " + shape; //These are just strings

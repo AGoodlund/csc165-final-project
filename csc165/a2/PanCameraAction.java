@@ -23,7 +23,7 @@ public class PanCameraAction extends AbstractInputAction{
 
         isFlat = !isFlat;
         if(isFlat)
-            v.set(v.x(), 1, spot.cameraOffset);
+            v.set(v.x(), 1, v.z()+spot.cameraOffset);
         else
             v.set(v.x(), spot.cameraOffset, v.z());
         c.setLocation(v);
