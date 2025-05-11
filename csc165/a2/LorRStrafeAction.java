@@ -6,7 +6,7 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 import org.joml.*;
 
-public class LorRStrafeAction extends AbstractInputAction {    //move camera+avatar forward
+public class LorRStrafeAction extends AbstractInputAction {
     private MyGame game;
     private GameObject obj;
     private Camera cam;
@@ -15,7 +15,9 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
     private float keyValue;
     private ProtocolClient protClient;
 
-    private Vector3f strafeDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, strafeDir;
+    private Vector3f strafeDir = new Vector3f(), v = new Vector3f();
+    private Matrix4f loc = new Matrix4f();
+    private float[] vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public LorRStrafeAction(MyGame g, Camera c){ game = g; cam = c; obj = g.getAvatar(); keyboard = false; }
@@ -32,7 +34,7 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
     public LorRStrafeAction(Camera c, int dir){ cam = c; game = null; obj = null; direction = dir; keyboard = true; } 
 
     public LorRStrafeAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
-    public LorRStrafeAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
+    public LorRStrafeAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }//objS = anim; }
 
 @Override
     public void performAction(float time, Event e){
@@ -40,25 +42,36 @@ public class LorRStrafeAction extends AbstractInputAction {    //move camera+ava
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
 
-        if(obj != null){
-//            strafeDir = obj.getLocalRightVector();
-            obj.getLocalRightVector(strafeDir);
+        if(!game.isAnimating && !game.hasLooped){
+            game.startAnimation();
+        }
+        game.isAnimating = true;
+        game.hasLooped = true;
 
-//            if(keyboard)
-                keyValue *= direction;
-            strafeDir.mul(time*spot.runSpeed*keyValue);
-            obj.getWorldLocation(v);
+        keyValue *= direction;
+//TODO: perhaps limit camera to being at 0 and only moves far enough so that the ground is always in view. Hallway method
+        if(obj != null){
+            obj.getLocalLocation(v);
+            strafeDir.set(keyValue,0f,0f);
+            strafeDir.mul(time*spot.runSpeed);
             v.add(strafeDir);
             obj.setLocalLocation(v);
-//            obj.setLocalLocation(obj.getWorldLocation().add(strafeDir.x(),strafeDir.y(),strafeDir.z()));
+            
+            obj.getWorldTranslation(loc);
+            obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
         }
 
         if(cam != null){
+            cam.getLocation(v);
+            v.add(strafeDir);
             cam.setLocation(v);
-            cam.heightAdjust(spot.cameraOffset);
+//            cam.setLocation(v);
+//            cam.heightAdjust(spot.cameraOffset);
         }
 
         if(protClient != null){
-			obj.getWorldLocation(v); protClient.sendMoveMessage(v);}//obj.getWorldLocation());
-    }    
+			obj.getWorldLocation(v); protClient.sendMoveMessage(v);
+        }//obj.getWorldLocation());
+
+    }
 }

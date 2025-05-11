@@ -15,7 +15,10 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     private float keyValue;
     private ProtocolClient protClient;
 
-    private Vector3f fwdDir = new Vector3f(), v = new Vector3f();//oldPos, newPos, fwdDir;
+    private Vector3f fwdDir = new Vector3f(), v = new Vector3f();
+    private Matrix4f loc = new Matrix4f();
+
+    private float[] vals = new float[16];
     
 /** Constructor for camera and avatar movign in sync without keyboard */
     public ForBAction(MyGame g, Camera c){ cam = c; obj = g.getAvatar(); }
@@ -32,74 +35,47 @@ public class ForBAction extends AbstractInputAction {    //move camera+avatar fo
     public ForBAction(Camera c, int dir){ cam = c; direction = dir; keyboard = true; }
     
     public ForBAction(MyGame g, int dir, ProtocolClient p){ obj = g.getAvatar(); direction = dir; keyboard = true; protClient = p; }
-    public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }
+    public ForBAction(MyGame g, Camera c, int dir, ProtocolClient p){ game = g; obj = g.getAvatar(); cam = c; direction = dir; keyboard = true; protClient = p; }// objS = anim; }
 
 @Override
     public void performAction(float time, Event e){
-
         keyValue = e.getValue();
         if(keyValue > -0.2f && keyValue < 0.2f) return; //deadzone
 
-        if(obj != null){
-//            fwdDir = obj.getLocalForwardVector();
-            obj.getLocalForwardVector(fwdDir);
+        if(!game.isAnimating && !game.hasLooped){
+            game.startAnimation();
+        }
+        game.isAnimating = true;
+        game.hasLooped = true;
 
-//            if(keyboard) //TODO:if controller has wacky movement this is why
-                keyValue *= direction;
-            fwdDir.mul(time*spot.runSpeed*keyValue);
-            obj.getWorldLocation(v);
+//System.out.println("isAnimating in moveAction = " + game.isAnimating);
+
+//        if(keyboard)  if controller has wacky movement this being commented out is why
+            keyValue *= direction;
+
+        if(obj != null){
+            obj.getLocalLocation(v);
+            fwdDir.set(0f,0f,keyValue);
+            fwdDir.mul(time*spot.runSpeed);//*keyValue);
             v.add(fwdDir);
             obj.setLocalLocation(v);
-//            obj.setLocalLocation(obj.getWorldLocation().add(fwdDir.x(),fwdDir.y(),fwdDir.z()));
+
+//physics object moving alongside object
+            obj.getWorldTranslation(loc);
+            obj.getPhysicsObject().setTransform(obj.toDoubleArray(loc.get(vals))); 
         }
 
-        if(cam != null){    //specifically for moving along floor with avatar
+        if(cam != null){
+            cam.getLocation(v);
+            v.add(fwdDir);
             cam.setLocation(v);
-            cam.heightAdjust(spot.cameraOffset);
-//            cam.translate(spot.cameraOffset);
-
-/* for free movement 
-            oldPos = cam.getLocation();
-            fwdDir = cam.getN(); //N is the camera's forward vector
-
-//            if(keyboard)
-                keyValue *= direction;
-            fwdDir.mul(time*spot.runSpeed * keyValue);
-            newPos = oldPos.add(fwdDir.x(),fwdDir.y(),fwdDir.z());
-
-            cam.setLocation(newPos);
-*/        }
+//            cam.setLocation(v);
+//            cam.heightAdjust(spot.cameraOffset);
+        }
         if(protClient != null)
 		{   obj.getWorldLocation(v);
-			protClient.sendMoveMessage(v);//obj.getWorldLocation());
+			protClient.sendMoveMessage(v);
 //System.out.println("ForBAction moved to " + obj.getWorldLocation());
 		}
     }    
 }
-/*@Override
-public void performAction(float time, Event e)
-{ c = (game.getEngine().getRenderSystem())
-.getViewport("MAIN").getCamera();
-oldPosition = c.getLocation();
-fwdDirection = c.getN();
-fwdDirection.mul(0.01f);
-newPosition = oldPosition.add(fwdDirection.x(),
-fwdDirection.y(), fwdDirection.z());
-c.setLocation(newPosition);
-} */
-
-/*
- * 		Vector3f loc, fwd, up, right, newLocation;
-		Camera cam;		
-        
-        dol is object
-        fwd = fwdDir
-        loc = oldPos
-        newLocation = newPos
-
- *              fwd = dol.getWorldForwardVector();
-				loc = dol.getWorldLocation();
-				newLocation = loc.add(fwd.mul(0.02f));
-				dol.setLocalLocation(newLocation);
-
- */
