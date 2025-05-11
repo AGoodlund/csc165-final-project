@@ -30,7 +30,7 @@ public class ProtocolClient extends GameConnectionClient
 	public void createGhostNPC(Vector3f position) //TODO: Change back to private
 	{ 
 		if (ghostNPC == null)
-		ghostNPC = new GhostNPC(0, game.getGhostShape(1), game.getGhostTexture(3), position);
+		ghostNPC = new GhostNPC(0, game.getGhostShape(), game.getGhostTexture(), position);
 	}
 	
 	private void updateGhostNPC(Vector3f position, double gsize)

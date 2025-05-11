@@ -21,6 +21,11 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	{	super(localPort, ProtocolType.UDP);
 		npcCtrl = npc; 
 		this.ID = UUID.randomUUID();
+		npcCtrl.setupNPCs();
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(0).getPosition());
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(1).getPosition());
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(2).getPosition());
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(3).getPosition());
 		sendCreateAll();
 	}
 		
@@ -31,19 +36,20 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 
 	// ------------ SENDING NPC MESSAGES -----------------
 	// Informs clients of the whereabouts of the NPCs.
-	public void sendCreateNPCmsg(UUID clientID, String[] position)
+	public void sendCreateNPCmsg(UUID clientID, Vector3f position)
 	{ 
 		System.out.println("The server is telling clients about an NPC..."); //May need to delete this
 		
 		try 
 		{	message.addItem(Message.MessageType.CREATE_NPC);	
+			message.addItem(position);
 			forwardPacketToAll(message, clientID);
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
 	public void sendCheckForAvatarNear() //throws IOException
 	{ 
-		message.addItem(npcCtrl.getNPC().getPosition());
+		message.addItem(npcCtrl.getNPC(0).getPosition());
 		sendToAll(); //TODO: Check that this is accurate with our system
 		//message.addItem((npcCtrl.getNPC()).getCriteria());
 /* 		try
@@ -57,7 +63,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	public void sendNPCinfo()
 	{ 
 	//TODO: Re-implement
-		message.addItem(npcCtrl.getNPC().getPosition());
+		message.addItem(npcCtrl.getNPC(0).getPosition());
 		//message.addItem(npcCtrl.getNPC().getOrientation());
 		//sendToAll();
 	}
@@ -132,7 +138,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				
 			case CREATE_NPC:
 				System.out.println("CREATE_NPC");
-				//ID = message.getSenderID();
+				ID = message.getSenderID();
 				sendCreateMessages(ID);
 				sendWantsDetailsMessages(ID);
 				//addClient(ci, clientID); We'll need to add this to whichever is first

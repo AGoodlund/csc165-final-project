@@ -24,7 +24,7 @@ public class FollowPlayer extends BTAction
 	
 	protected BTStatus update(float elapsedTime)
 	{
-		//calculateDistance();
+		calculateDistance();
 		return BTStatus.BH_SUCCESS;
 	}
 	

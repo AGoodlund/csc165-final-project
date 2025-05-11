@@ -3,7 +3,7 @@ import tage.ai.behaviortrees.*;
 import tage.GhostNPC;
 public class NPCcontroller
 { 
-	private NPC npc;
+	private NPC npcA, npcB, npcC, npcD;
 	Random rn = new Random();
 	BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
 	boolean nearFlag = false;
@@ -13,7 +13,10 @@ public class NPCcontroller
 	//double criteria = 2.0;
 	
 	public void updateNPCs()
-	{ npc.updateLocation();}
+	{ npcA.updateLocation();
+	  npcB.updateLocation();
+	  npcC.updateLocation();
+	  npcD.updateLocation();}
 	
 	public void start(GameServerUDP s)
 	{ 
@@ -28,8 +31,22 @@ public class NPCcontroller
 	}
 	public void setupNPCs()
 	{ 
-		npc = new NPC();
-		npc.randomizeLocation(rn.nextInt(40),rn.nextInt(40));
+		npcA = new NPC();
+		//npcA.randomizeLocation(rn.nextInt(40),rn.nextInt(40));
+		npcB = new NPC();
+		//npcB.randomizeLocation(rn.nextInt(50), rn.nextInt(50));
+		npcC = new NPC();
+		//npcC.randomizeLocation(rn.nextInt(60),rn.nextInt(60));
+		npcD = new NPC();
+		//npcD.randomizeLocation(rn.nextInt(70), rn.nextInt(70));
+		
+		npcA.randomizeLocation(1,1);
+		
+		npcB.randomizeLocation(2,2);
+		
+		npcC.randomizeLocation(3,3);
+		
+		npcD.randomizeLocation(4,4);
 	}
 	
 	public void npcLoop()
@@ -43,7 +60,10 @@ public class NPCcontroller
 			if (elapsedTickMilliSecs >= 25.0f)
 			{ 
 				lastTickUpdateTime = currentTime;
-				npc.updateLocation();
+				npcA.updateLocation(); 
+				npcB.updateLocation();
+				npcC.updateLocation();
+				npcD.updateLocation();
 				server.sendNPCinfo();
 			}
 			
@@ -61,7 +81,10 @@ public class NPCcontroller
 		bt.insertAtRoot(new BTSequence(10));
 		//TODO: Re-implement
 		//bt.insert(10, new AvatarNear(server,this,npc,false));
-		bt.insert(10, new FollowPlayer(server, this, npc));
+		bt.insert(10, new FollowPlayer(server, this, npcA));
+		bt.insert(10, new FollowPlayer(server, this, npcB));
+		bt.insert(10, new FollowPlayer(server, this, npcC));
+		bt.insert(10, new FollowPlayer(server, this, npcD));
 		//TODO Add a player to follow and figure out a way to do that
 		
 		
@@ -85,8 +108,26 @@ public class NPCcontroller
 		return nearFlag;
 	}
 	
-	public NPC getNPC ()
+	public NPC getNPC (int id)
 	{
+		NPC npc;
+		
+		if (id == 0)
+		{
+			npc = npcA;
+		}
+		else if (id == 1)
+		{
+			npc = npcB;
+		}
+		else if (id == 2)
+		{
+			npc = npcC;
+		}
+		else
+		{
+			npc = npcD;
+		}
 		return npc;
 	}
 }

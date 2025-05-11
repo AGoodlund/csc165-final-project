@@ -20,7 +20,7 @@ public class GhostNPC extends GameObject
 		setLocalLocation(new Vector3f(0f,0f,0f));
 		setLocalRotation(new Matrix4f().identity());
 		
-		System.out.println("A generic ghostNPC has ben created."); //TODO: remove
+		System.out.println("A generic ghostNPC has been created."); //TODO: remove
 	}
 	
 	public void setPosition (Vector3f move)
