@@ -4,7 +4,7 @@ import tage.GhostNPC;
 public class FollowPlayer extends BTAction
 { //TODO: Follow the player if in range
 
-	Vector3f playerPosition = new Vector3f(0,0,0); //TODO: Implement code to fetch the player position.
+	Vector3f playerPosition = new Vector3f(0,0,0); //TODO: Update to player location
 	
 	Vector3f npcPosition;
 	NPC npc;
@@ -32,11 +32,12 @@ public class FollowPlayer extends BTAction
 	//TODO: This may be best served in its own node.
 	private void calculateDistance ()
 	{
+		//	playerPosition = server.sendWantsDetailsMessages(server.ID);
 		distance = npcPosition.distance(playerPosition);
 		
 		if (distance < 5.0f)
 		{
-			System.out.println("Player is near, woop woop");
+			//System.out.println("Player is near, woop woop");
 		}
 	}
 }

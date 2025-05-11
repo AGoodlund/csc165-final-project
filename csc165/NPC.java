@@ -10,7 +10,6 @@ public class NPC
 		locationX=0.0;
 		locationY=0.0;
 		locationZ=0.0;
-		System.out.println("A generic Normal NPC has ben created."); //TODO: remove
 		id = 3621;
 	}
 	

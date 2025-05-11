@@ -79,7 +79,6 @@ public class NPCcontroller
 	public void setupBehaviorTree()
 	{ 
 		bt.insertAtRoot(new BTSequence(10));
-		//TODO: Re-implement
 		//bt.insert(10, new AvatarNear(server,this,npc,false));
 		bt.insert(10, new FollowPlayer(server, this, npcA));
 		bt.insert(10, new FollowPlayer(server, this, npcB));
@@ -94,8 +93,6 @@ public class NPCcontroller
 		//bt.insert(20, new GetBig(npc));
 		
 		//TODO: removed this behavior for now to add new behavior. Reinstate to test the code (otherwise this doesn't work).
-		//TODO: Make new class files to dictate npc behavior
-		//SEE ghostNPC for npc behavior as well
 	} 
 	
 	public void setNearFlag (boolean flag)

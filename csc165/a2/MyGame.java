@@ -45,6 +45,10 @@ public class MyGame extends VariableFrameRateGame
 	private double lastFrameTime, currFrameTime, elapsTime;
 
 	private int health = 10;
+	
+	int hit = 0;
+	
+	boolean physicsDebug = false;
 
 //-------------HUD elements--------------
 //	private float[] hud1Color = spot.red;
@@ -68,7 +72,7 @@ public class MyGame extends VariableFrameRateGame
 	private GameObject 	laser, gun, 
 						harpoon1, harpoon2, harpoon3, harpoon4, harpoon5; 
 
-	private PhysicsObject bullet1, bullet2, bullet3, bullet4, bullet5;
+	private PhysicsObject bullet1, bullet2, bullet3, bullet4, bullet5, bulletJuicy;
 	private Matrix4f bulletStorage = new Matrix4f();
 
 	private ArrayList<GameObject> harpoons = new ArrayList<GameObject>();
@@ -116,8 +120,8 @@ public class MyGame extends VariableFrameRateGame
 	
 //-------------Physics----------------
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject dolP, ghostP, raftP, groundPlaneP, avatarP, groundingP;//, pufferP;
-	private float[] gravity = {0f, 0f,0f};//-20f, 0f};//-6f, 0f};
+	private PhysicsObject dolP, ghostP, raftP, groundPlaneP, avatarP, groundingP, pufferP;
+	private float[] gravity = {0f, 0f,0f};
 	private float vals[] = new float[16]; 
 	
 //Networking
@@ -218,7 +222,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		avatar.getRenderStates().setPositionalColor(true);
 		avatar.takesDamage = true;
 
-//weapons and ammo section
+		//weapons and ammo section
 		gun = new GameObject(GameObject.root(), gunS);
 		initialTranslation = new Matrix4f().translation(0,1f,0);
 		gun.setLocalTranslation(initialTranslation);
@@ -472,7 +476,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		float pufferRadius = 1.5f;
 		float dolRadius = 1.0f;
 		float tempHeight = 2.0f;
-		boolean physicsDebug = false;
 
 		
 		double[ ] tempTransform;
@@ -493,6 +496,16 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 //		groundingP = engine.getSceneGraph().addPhysicsBox(0f, tempTransform, new float[]{4f,2f,4f});
 //		groundingP.setBounciness(0.02f);
+
+		//Puffer Fish
+		//Gravity
+		enemy.getLocalTranslation(physicsTranslation);
+		tempTransform = toDoubleArray(physicsTranslation.get(vals));
+		pufferP = (engine.getSceneGraph()).addPhysicsSphere(tempMass, tempTransform, pufferRadius);
+		//pufferP.isDynamic() = true;
+		pufferP.setSleepThresholds(5.0f,5.0f);
+		pufferP.setBounciness(0.8f);
+		enemy.setPhysicsObject(pufferP);
 
 		//avatar
 		avatar.getLocalTranslation(physicsTranslation);
@@ -515,13 +528,13 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		if (physicsDebug)
 		{
 			engine.enablePhysicsWorldRender();
-//			engine.disableGraphicsWorldRender();
+			engine.enableGraphicsWorldRender();
 		}
 		
 		
 		// ------------- NPCs/AI section ------------------
 		
-		protClient.createGhostNPC(new Vector3f()); //TODO and change to instantiate a regular npc. ghostNPC must be made private again
+		//protClient.createGhostNPC(new Vector3f()); 
 		
 		// ------------- inputs section ------------------
 		//NOTE: associateActionWithAllKeyboards means you're using Identifier.Key to get a keyboard key
@@ -557,6 +570,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 		ShootAction shoot = new ShootAction(harpoons, avatar, protClient);
 		shoot.addSound(bow);
+		shoot.setBulletSpeed(5);
 		im.associateActionWithAllKeyboards(net.java.games.input.Component.Identifier.Key.SPACE, shoot, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
 		ChangeCharacterAction change = new ChangeCharacterAction(avatar, protClient);
@@ -572,7 +586,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 //all three axes need to be sent at the same time or else only the first item assigned to the key is hidden
 			//controller
 		if(gamepad != null){	//if a gamepad is plugged in
-//TODO: update controls to work with controller to fit requirements
 			LorRTurnAction rc = new LorRTurnAction(this, protClient);
 			ForBAction fc = new ForBAction(this, cam, -1, protClient);
 			rc.addLight(diverVision);
@@ -642,7 +655,6 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 	}
 	
 //-------------Physics----------------
-//TODO:
 	private float[] toFloatArray(double[] arr)
 	{ 
 		if (arr == null) return null;
@@ -666,27 +678,27 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		return ret;
 	}
 	
-	private void calculateAvatarCollision(GameObject obj)
+	private void calculateAvatarCollision(GameObject obj) //This was a special function made for the avatar specifically
 	{
-		float strength = 1.0f; //We can make this a parameter
-		float radiusOfEffect = 4.0f; //We can make this a parameter
-		Vector3f avatarLocalLocation = new Vector3f(0.9f,0.0f,0.0f);  //It mostly feels right with these numbers
+		float strength = 1.0f; 
+		float radiusOfEffect = 4.0f; 
+		Vector3f avatarLocalLocation = new Vector3f(0f,0.0f,0.0f);  
 		Vector3f distance = distanceFromAvatar(obj);
 		
-		Vector3f force = distance;
+		//Vector3f force = distance;
 		
-		force.mul((-1 * strength)); 
+		//force.mul((-1 * strength)); 
 		
 		//System.out.println("Distance: " + distance + "Force: " + force);
 		
 		
-		if (distance.equals(avatarLocalLocation, radiusOfEffect))//TODO:turn this into regular collision monitoring
+		if (distance.equals(avatarLocalLocation, radiusOfEffect))
 		{
-//			obj.getPhysicsObject().applyForce(force.x(), force.y(), force.z(),0.0f,0.0f,0.0f);
+			//obj.getPhysicsObject().applyForce(force.x(), force.y(), force.z(),0.0f,0.0f,0.0f);
+			hit++;
 		}
 	}
 	
-	//TODO: YEEEEEEEET
 	private Vector3f distanceFromAvatar (GameObject obj) 
 	{
 		Vector3f avatarLoc = new Vector3f();
@@ -700,7 +712,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		return distanceBetween;
 	}
 	
-	private void checkForCollisions() //TODO: when a collision is detected run resolveCollision
+	private void checkForCollisions() 
 	{ 
 		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
@@ -712,6 +724,13 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		dispatcher = dynamicsWorld.getDispatcher();
 		int manifoldCount = dispatcher.getNumManifolds();
 		
+		//For Damage Calculation
+		/*if (manifoldCount > 0 )
+			hit = true;
+		else 
+			hit = false;*/
+		
+		//Enact Physics
 		for (int i=0; i < manifoldCount; i++)
 		{ 
 			manifold = dispatcher.getManifoldByIndexInternal(i);
@@ -726,16 +745,19 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 			} 
 		} 
 	}
-/*
-	private void resolveCollision(GameObject a, GameObject b){ //determine what special collision needs to happen
-		if(a.dealsDamage && b.takesDamage){
-			if(b == avatar)
-				health--;
-			else return;
-				protClient.dealDamage(b); //protClient tells the server which ghostNPC needs to take damage
-		}
-	} 
-*/	
+
+
+	private void rollDamage()
+	{
+		//health--;
+		//if (go == avatar)	
+		
+			health = health - hit;
+		
+		hit = 0;
+	}
+
+	
 //-------------Terrain---------------- 
 /*	public void applyHeightMap(){
 		for(GameObject obj: mappable){ 
@@ -779,7 +801,8 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 		physicsEngine.update((float)elapsTime);
 		for (GameObject go:engine.getSceneGraph().getGameObjects())
-		{ if (go.getPhysicsObject() != null)
+		{ 
+			if (go.getPhysicsObject() != null)
 			{ // set translation
 			mat.set(toFloatArray(go.getPhysicsObject().getTransform())); 
 			mat2.set(3,0,mat.m30());
@@ -789,14 +812,11 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 			// set rotation
 //			to make enemies turn just have them run lookAt(avatar) whenever Think updates their pathing
 			} 
-		} 
 
-//		calculateAvatarCollision(puffer);//TODO:just find special interactions in the loop
-		//when something in the bullets arraylist hits something send a hit message and move it to bulletStorage's location
-		//when the player gets hit then lower the private int health from MyGame and put the bullet in storage
-			//	if(bulletStorate.m31() > spot.cameraOffset+20f); bulletStorage.m31(spot.cameraOffset+10f);
-			//statement to put somewhere so the storage is reusable instead of slowly building toward an overflow
+		} 
 		
+		calculateAvatarCollision(enemy);
+		rollDamage();
 
 		//----------------Height Map-----------------
 		avatar.getWorldLocation(v);
@@ -958,6 +978,10 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 					protClient.sendByeMessage();
 				shutdown();
 				System.exit(0);
+				break;
+				
+			case KeyEvent.VK_Y:
+				physicsDebug = !physicsDebug;
 				break;
 		}
 	}

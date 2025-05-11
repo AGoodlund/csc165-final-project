@@ -28,7 +28,7 @@ public class ProtocolClient extends GameConnectionClient
 	
 	
 	// ------------- GHOST NPC SECTION --------------
-	public void createGhostNPC(Vector3f position) //TODO: Change back to private
+	private void createGhostNPC(Vector3f position) 
 	{ 
 		if (ghostNPC == null)
 		ghostNPC = new GhostNPC(0, game.getGhostShape(), game.getGhostTexture(), position);
@@ -116,7 +116,6 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 				ghostID = message.getSenderID();
 				game.getPlayerPosition(ghostVector);
 				sendDetailsForMessage(ghostID, ghostVector);//game.getPlayerPosition());
-				//TODO: also needs to get the player's ObjShape and TextureImage name
 				break;
 			case MOVE:
 
@@ -141,10 +140,10 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 				catch (Exception m) {System.out.println("Error making ghosts");}
 				break;
 				
-			case MNPC: //TODO: Add to these
+			/*case MNPC: 
 				break;
 			case IS_NEAR:
-				break;
+				break;*/
 
 			case CHANGE_NPC:
 				ghostID = message.getSenderID();
@@ -162,7 +161,7 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 		}
 	}
 	
-//TODO: this is where messages are created	
+//This is where messages are created	
 	// The initial message from the game client requesting to join the 
 	// server. localId is a unique identifier for the client. Recommend 
 	// a random UUID.

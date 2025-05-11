@@ -10,7 +10,8 @@ import org.joml.*;
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
 	private Message message = Message.getMessage();
-	private UUID clientID, ghostID, ID;
+	private UUID clientID, ghostID;
+	public UUID ID;
 	private Message.MessageType t;
 	private NPCcontroller npcCtrl;
 
@@ -50,19 +51,11 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	public void sendCheckForAvatarNear() //throws IOException
 	{ 
 		message.addItem(npcCtrl.getNPC(0).getPosition());
-		sendToAll(); //TODO: Check that this is accurate with our system
-		//message.addItem((npcCtrl.getNPC()).getCriteria());
-/* 		try
-		{ 	
-			sendPacketToAll(message);
-		}
-	  catch (IOException e)
-	  { System.out.println("couldnt send msg"); e.printStackTrace(); } 
-*/	}	
+		sendToAll(); 
+	}	
 	
 	public void sendNPCinfo()
 	{ 
-	//TODO: Re-implement
 		message.addItem(npcCtrl.getNPC(0).getPosition());
 		//message.addItem(npcCtrl.getNPC().getOrientation());
 		//sendToAll();
@@ -78,7 +71,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			sendPacketToAll(message);
 		}
 		catch(IOException e){
-			System.out.println("couldnt send msg"); e.printStackTrace();
+			System.out.println("couldn't send msg"); e.printStackTrace();
 		}
 	}
 	@Override

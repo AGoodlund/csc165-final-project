@@ -11,7 +11,8 @@ public class GhostNPC extends GameObject
 		super(GameObject.root(), s, t);
 		this.id = id;
 		setPosition(p);
-		System.out.println("A ghostNPC has ben created with ID " + id ); //TODO: remove
+		//System.out.println("A ghostNPC has ben created with ID " + id );
+		//The ghostNPCs did spawn in, but they were invisible. I spent a long time 
 	}
 	public GhostNPC(){
 		
@@ -20,7 +21,7 @@ public class GhostNPC extends GameObject
 		setLocalLocation(new Vector3f(0f,0f,0f));
 		setLocalRotation(new Matrix4f().identity());
 		
-		System.out.println("A generic ghostNPC has been created."); //TODO: remove
+		//System.out.println("A generic ghostNPC has been created.");
 	}
 	
 	public void setPosition (Vector3f move)
