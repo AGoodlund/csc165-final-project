@@ -140,7 +140,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 
 				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
 				break;
-<<<<<<< HEAD:csc165/GameServerUDP.java
 				
 			case CREATE_NPC:
 				System.out.println("CREATE_NPC");
@@ -166,9 +165,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				sendNPCstart(clientID);
 				break;
 				
-=======
-
->>>>>>> misc-additions:165/GameServerUDP.java
 			case DEFAULT:
 
 				System.out.println("received blank message");

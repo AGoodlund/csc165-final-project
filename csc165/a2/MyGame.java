@@ -79,7 +79,7 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape jellyfish;
 	private Light red, green, yellow, diverVision;
 
-	private float height;
+	//private float height;
 
 //-------------Sounds--------------
 	private Sound bubbles, bow;

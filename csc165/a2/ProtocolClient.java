@@ -49,8 +49,8 @@ public class ProtocolClient extends GameConnectionClient
 	
 	else 
 		gs=true;
-	ghostNPC.setSize(gs);
-}*/
+	ghostNPC.setSize(gs);*/
+}
 
 public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
