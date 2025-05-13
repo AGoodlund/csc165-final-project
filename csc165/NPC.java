@@ -9,6 +9,8 @@ public class NPC
 	private boolean hunting = false;
 	private Vector4f v = new Vector4f();
 
+	private int hp = 2;
+
 	public NPC()
 	{ 
 		id = UUID.randomUUID();
@@ -40,6 +42,10 @@ public class NPC
 	}
 
 	public void setHunt(boolean s){ hunting = s; }
+	public void takeDamage(int dmg){ hp -= dmg; if(hp <= 0) die(); }
+	private void die(){
+//		reset position and hp
+	}
 }
 /* lookAt() from Camera.java
 	Forward facing vector	N (dir)

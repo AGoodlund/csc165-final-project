@@ -106,6 +106,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				System.out.println("Exit request received from - " + clientID.toString());
 				sendByeMessages(clientID);
 				removeClient(clientID);
+//TODO: remove player from npcCtrl too
 				break;
 			case CREATE:
 				clientID = message.getSenderID();
@@ -129,13 +130,13 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			case WSDS:
 				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
 				break;
-				
-			case CHANGE_NPC:
+			case CHANGE_NPC: //change_Avatar
 //System.out.println("CHANGE_NPC command being forwarded" + message.toString());
 				ghostID = message.getSenderID();
 				sendChangeMessage(ghostID);
 				break;
 			case CREATE_NPC:
+//TODO: this should never be called by client so it should be moved into its own function that the server can reach
 				System.out.println("CREATE_NPC");
 				ID = message.getSenderID();
 				sendCreateMessages(ID);
@@ -143,18 +144,18 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				//addClient(ci, clientID); We'll need to add this to whichever is first
 				break;
 		
-			case MNPC://move npc
+			case MNPC://move npc. should only be called by the server
 //TODO: put npc position and rotation into a message and sendToAll();
 				System.out.println("MNPC");
 				break;
 		
-			case IS_NEAR:
+			case IS_NEAR:	//shouldn't be called
 				System.out.println("NEAR");
 				//UUID clientID = UUID.fromString(messageTokens[1])
 				//handleNearTiming(clientID);
 				break;
 			
-			case NPC_REQUEST:
+			case NPC_REQUEST:	//shouldn't be called
 				System.out.println("AI server got a needNPC message");
 				//UUID clientID = UUID.fromString(messageTokens[1]); //TODO Change this
 //				sendNPCstart(clientID);

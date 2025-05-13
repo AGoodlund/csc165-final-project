@@ -19,7 +19,7 @@ public class GhostManager
 	private GhostAvatar ghostAvatar;
 	private int characterFlag = 0;
 
-	private Vector<GhostNPC> ghostNPCs = new Vector<GhostNPC>();		//TODO: all ghostAvatar functions should have a ghostNPC twin, aside setters NPCs don't need
+	private Vector<GhostNPC> ghostNPCs = new Vector<GhostNPC>();
 	private GhostNPC ghostBot;
 	private Matrix4f m = new Matrix4f();
 	
@@ -58,6 +58,8 @@ public class GhostManager
 		game.getEnemySize(m);
 		newNPC.setLocalScale(m);
 		ghostNPCs.add(newNPC);
+
+//TODO: add physics object to NPC
 	}
 
 	public void removeGhostAvatar(UUID id)
@@ -130,6 +132,8 @@ public class GhostManager
 
 		if(ghostBot == null) return;
 		ghostBot.setPosition(p);
+//TODO: move physics object to same positions as is done in player move actions
+		//if desired could make it so NPC only sends its facing and a physics object moves the ghost and sends back the physics object's location when it's time to think
 	}
 
 	public void turnGhostAvatar(UUID id, Matrix4f orientation){

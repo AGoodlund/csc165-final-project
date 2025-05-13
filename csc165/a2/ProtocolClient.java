@@ -1,12 +1,12 @@
 package a2;
 
-import tage.GhostNPC;
-import java.awt.Color;
+//import tage.GhostNPC;
+//import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Iterator;
+//import java.util.Iterator;
 import java.util.UUID;
-import java.util.Vector;
+//import java.util.Vector;
 import org.joml.*;
 
 import tage.*;
@@ -24,10 +24,11 @@ public class ProtocolClient extends GameConnectionClient
 	private Vector3f ghostVector = new Vector3f();
 	private Message message = Message.getMessage();
 	private Message.MessageType t;
-	private GhostNPC ghostNPC;
+//	private GhostNPC ghostNPC;
 	
 	
-	// ------------- GHOST NPC SECTION --------------
+/* 	// ------------- GHOST NPC SECTION --------------
+
 	private void createGhostNPC(Vector3f position) 
 	{ 
 		if (ghostNPC == null)
@@ -49,9 +50,9 @@ public class ProtocolClient extends GameConnectionClient
 	
 	else 
 		gs=true;
-	ghostNPC.setSize(gs);*/
+	ghostNPC.setSize(gs);* /
 }
-
+*/
 public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
@@ -82,17 +83,15 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 				}
 				break;
 			case BYE:
-
 				ghostID = message.getSenderID();
 				ghostManager.removeGhostAvatar(ghostID);
 				break;
 			case DSFR: 
-
 				message.getVector(ghostVector);
 				message.getMatrix(ghostMatrix);
 				ghostID = message.getSenderID();
 				try
-				{	//ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, message.getShape(), message.getTexture(), spot.startingScale);
+				{	
 					ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
 //System.out.println("This ghost was made by ID" + id+" in ProtocolClient DSFR at position " + ghostVector.toString());
 				}	catch (IOException e)
@@ -104,7 +103,7 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 				message.getMatrix(ghostMatrix);
 				ghostID = message.getSenderID();
 				try
-				{	//ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, message.getShape(), message.getTexture(), spot.startingScale);
+				{	
 					ghostManager.createGhostAvatar(ghostID, ghostVector, ghostMatrix, spot.startingScale);
 //					ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
 //System.out.println("This ghost was made by "+id+" in ProtocolClient CREATE at position " + ghostVector.toString());
@@ -118,45 +117,35 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 				sendDetailsForMessage(ghostID, ghostVector);//game.getPlayerPosition());
 				break;
 			case MOVE:
-
 				message.getVector(ghostVector);
 				ghostID = message.getSenderID();
 				ghostManager.updateGhostAvatar(ghostID, ghostVector);
 //System.out.println("in Protocol the ghostVector = " + ghostVector);
 				break;
 			case TURN:
-
 				message.getMatrix(ghostMatrix);
 				ghostID = message.getSenderID();
 				ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
 				break;
-				
 			case CREATE_NPC:
 				//using ghostMatrix and ghostVector to get their normals
 				ghostID = message.getSenderID();
-			
+				message.getVector(ghostVector);
+				message.getMatrix(ghostMatrix);
+				
 				try{
-				createGhostNPC(ghostVector);}
+					ghostManager.createGhostNPC(ghostID, ghostVector, ghostMatrix);
+//				createGhostNPC(ghostVector);
+				}
 				catch (Exception m) {System.out.println("Error making ghosts");}
 				break;
-				
-			/*case MNPC: 
-				break;
-			case IS_NEAR:
-				break;*/
-
-			case CHANGE_NPC:
+			case CHANGE_NPC: //this should be "CHANGE_AVATAR" but I used it wrong and am too tired to fix it
 				ghostID = message.getSenderID();
 				message.getVector(ghostVector);
-//				Message.CharacterType s = message.getCharacter();
-//System.out.println("message recieved as\n" + message.toString());
 				ghostManager.changeGhostAvatar(ghostID, (int)ghostVector.x());//, message.character);
-				break;				
-			case DEFAULT:
-
-				break;
+				break;	
 			default:
-				System.out.println("an unknown MessageType was sent to ProtocolClient");
+				System.out.println("an unknown MessageType was sent to ProtocolClient" + message.toString());
 				break;
 		}
 	}
