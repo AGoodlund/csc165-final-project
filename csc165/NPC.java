@@ -22,7 +22,7 @@ public class NPC
 	
 	public void randomizeLocation(int seedX, int seedZ)
 	{ 
-System.out.println("NPC " + id + " seeded at " + seedX + ", " + seedZ);
+//System.out.println("NPC " + id + " seeded at " + seedX + ", " + seedZ);
 		pos.set((float)seedX/4f-5f, 2f, (float)seedZ/4f-5f);
 		defaultPos = new float[] {pos.x(), pos.y(), pos.z()};
 //System.out.println("NPC spawning at pos " + pos + "\n");

@@ -290,7 +290,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		initialScale = (new Matrix4f()).scaling(10f);
 		enemy.setLocalTranslation(initialTranslation);
 		enemy.setLocalScale(initialScale);
-		enemy.getRenderStates().disableRendering();
+//		enemy.getRenderStates().disableRendering();
 
 		dol = new GameObject(GameObject.root(), dolS, dolX);
 		initialTranslation = new Matrix4f().translation(0,2,0);
@@ -338,7 +338,6 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		diver.setLocalRotation(initialRotation);
 		diver.getRenderStates().disableRendering();
 	}
-	
 		
 	@Override
 	public void initializeLights()
@@ -496,7 +495,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 //		groundingP = engine.getSceneGraph().addPhysicsBox(0f, tempTransform, new float[]{4f,2f,4f});
 //		groundingP.setBounciness(0.02f);
-/* 
+ 
 		//Puffer Fish
 		//Gravity
 		enemy.getLocalTranslation(physicsTranslation);
@@ -506,7 +505,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		pufferP.setSleepThresholds(5.0f,5.0f);
 		pufferP.setBounciness(0.8f);
 		enemy.setPhysicsObject(pufferP);
-*/
+
 		//avatar
 		avatar.getLocalTranslation(physicsTranslation);
 		physicsTranslation.m31(physicsTranslation.m31()+0.5f);
@@ -768,19 +767,11 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		obj.heightAdjust(height);
 		obj.getWorldTranslation(m);
 //        obj.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
+//TODO: add physics objects to ghostNPCs so this line can function
 	}
 	public void applyHeightMap(GameObject obj){
 		applyHeightMap(obj, 2f);
 	}
-/*	public void applyHeightMap(){
-		for(GameObject obj: mappable){ 
-			obj.getWorldLocation(v);
-			height = terr.getHeight(); //height map + y position of the plane
-			if(obj.getHeight() < height)
-				obj.heightAdjust(height);
-		}
-	}
-*/
 	@Override
 	public void update()
 	{
@@ -828,15 +819,11 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 		} 
 		
-//		calculateAvatarCollision(enemy);
-//		rollDamage();
+		calculateAvatarCollision(enemy);
+		rollDamage();
 
 		//----------------Height Map-----------------
 		applyHeightMap(avatar, 3.5f);
-//		avatar.getWorldLocation(v);
-//		height = terr.getHeight(v.x(), v.z())+3.5f;
-//		avatar.heightAdjust(height);//avatar is the only one that needs to follow the heightmap
-//		avatar.getWorldTranslation(m);
 		avatar.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
 	
 		//--------------HUD drawing----------------
