@@ -70,7 +70,7 @@ public class MyGame extends VariableFrameRateGame
 
 //weapon objects
 	private GameObject 	laser, gun, 
-						harpoon1, harpoon2, harpoon3, harpoon4, harpoon5; 
+						harpoon1, harpoon2, harpoon3, harpoon4, harpoon5;  //TODO: if time allows have ghostAvatars shoot something else
 
 	private PhysicsObject bullet1, bullet2, bullet3, bullet4, bullet5, bulletJuicy;
 	private Matrix4f bulletStorage = new Matrix4f();
