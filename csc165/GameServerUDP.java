@@ -7,6 +7,8 @@ import tage.networking.server.IClientInfo;
 import tage.networking.Message;
 import org.joml.*;
 
+import a2.spot;
+
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
 	private Message message = Message.getMessage();
@@ -15,57 +17,62 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	private Message.MessageType t;
 	private NPCcontroller npcCtrl;
 
-//	private Vector3f v = new Vector3f(); //helper objects for Message
-//	private Matrix4f m = new Matrix4f();
+	private Vector3f v = new Vector3f(); //helper objects for Message
+	private Matrix4f m = new Matrix4f();
 
 	public GameServerUDP(int localPort, NPCcontroller npc) throws IOException 
 	{	super(localPort, ProtocolType.UDP);
 		npcCtrl = npc; 
 		this.ID = UUID.randomUUID();
 		npcCtrl.setupNPCs();
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(0).getPosition());
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(1).getPosition());
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(2).getPosition());
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(3).getPosition());
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(0));
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(1));
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(2));
+		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(3));
 		sendCreateAll();
 	}
 		
 	// --- additional protocol for NPCs ----
-	
-	public void handleNearTiming(UUID clientID)
-	{ npcCtrl.setNearFlag(true);}
+	public void handleNearTiming(UUID clientID) { npcCtrl.setNearFlag(true);}
 
 	// ------------ SENDING NPC MESSAGES -----------------
 	// Informs clients of the whereabouts of the NPCs.
-	public void sendCreateNPCmsg(UUID clientID, Vector3f position)
+	public void sendCreateNPCmsg(UUID clientID, NPC npc) //TODO: call this in JOIN case. send the position of every NPC to the new user
 	{ 
 		System.out.println("The server is telling clients about an NPC..."); //May need to delete this
 		
 		try 
 		{	message.addItem(Message.MessageType.CREATE_NPC);	
-			message.addItem(position);
-			forwardPacketToAll(message, clientID);
+			npc.getPosition(v);
+			message.addItem(v);
+			forwardPacketToAll(message, clientID);	//TODO: change this to sending to a specific receiver
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
-	public void sendCheckForAvatarNear() //throws IOException
-	{ 
-		message.addItem(npcCtrl.getNPC(0).getPosition());
-		sendToAll(); 
-	}	
-	
 	public void sendNPCinfo()
 	{ 
-		message.addItem(npcCtrl.getNPC(0).getPosition());
+		for(int i = 0; i < 4; i++){
+			message.addItem(npcCtrl.getNPC(i).getPosition(v));
+			message.addItem(npcCtrl.getNPC(i).getRotation(m));
+			message.addItem(ID);
+			sendToAll();
+		}
 		//message.addItem(npcCtrl.getNPC().getOrientation());
 		//sendToAll();
 	}
+/* 
+	public void sendCheckForAvatarNear() //throws IOException
+	{ 
+		npcCtrl.getNPC(0).getPosition(v);
+		message.addItem(v);
+		sendToAll(); 
+	}	
 	public void sendNPCstart(UUID clientID) 
 	{
 //		message.addItem();
 //		sendPacketToAll(message);
 	}
-
+*/
 	private void sendToAll(){
 		try{	
 			sendPacketToAll(message);
@@ -82,7 +89,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 					//RemoteID is the sender (protocolClient), ID is receiver (here) 
 		switch(t){
 			case JOIN:
-
 				try{	
 					IClientInfo ci;					
 					ci = getServerSocket().createClientInfo(senderIP, senderPort);
@@ -90,50 +96,45 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 					addClient(ci, clientID);
 					System.out.println("Join request received from - " + clientID.toString());
 					sendJoinedMessage(clientID, true);
+//TODO: call npcCtrl.addPlayer(clientID, clientPosition); This means adding position to the join message in ProtocolClient.java					
+//TODO: send createNPC requests with all of the current NPC positions
 				} 
 				catch (IOException e) { e.printStackTrace(); }
 				break;
 			case BYE:
-
 				clientID = message.getSenderID();
 				System.out.println("Exit request received from - " + clientID.toString());
 				sendByeMessages(clientID);
 				removeClient(clientID);
 				break;
 			case CREATE:
-
 				clientID = message.getSenderID();
-//				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendCreateMessages(clientID);//v);
 				sendWantsDetailsMessages(clientID);
 				break;
 			case DSFR:
-
 				ghostID = message.getReceiverID();
-//				String[] pos = {messageTokens[3], messageTokens[4], messageTokens[5]};
 				sendDetailsForMessage(ghostID);//v);
 				break;
 			case TURN:
-
 				ghostID = message.getSenderID();
 				sendTurnMessages(ghostID);//m);
 				break;
 			case MOVE:
-
 				ghostID = message.getSenderID();
 //System.out.println("message in case MOVE in GameServer\n" + message.toString());
+//TODO: send along to npcCtrl.updatePlayerLocation(ghostID, message.getVector(v));
 				sendMoveMessages(ghostID);//vf);
 				break;
+			case WSDS:
+				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
+				break;
+				
 			case CHANGE_NPC:
 //System.out.println("CHANGE_NPC command being forwarded" + message.toString());
 				ghostID = message.getSenderID();
 				sendChangeMessage(ghostID);
 				break;
-			case WSDS:
-
-				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
-				break;
-				
 			case CREATE_NPC:
 				System.out.println("CREATE_NPC");
 				ID = message.getSenderID();
@@ -142,7 +143,8 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				//addClient(ci, clientID); We'll need to add this to whichever is first
 				break;
 		
-			case MNPC:
+			case MNPC://move npc
+//TODO: put npc position and rotation into a message and sendToAll();
 				System.out.println("MNPC");
 				break;
 		
@@ -155,7 +157,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			case NPC_REQUEST:
 				System.out.println("AI server got a needNPC message");
 				//UUID clientID = UUID.fromString(messageTokens[1]); //TODO Change this
-				sendNPCstart(clientID);
+//				sendNPCstart(clientID);
 				break;
 				
 			case DEFAULT:

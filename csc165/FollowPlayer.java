@@ -1,10 +1,11 @@
 import tage.ai.behaviortrees.*;
 import org.joml.*;
 import tage.GhostNPC;
-public class FollowPlayer extends BTAction
-{ //TODO: Follow the player if in range
+import a2.spot;
 
-	Vector3f playerPosition = new Vector3f(0,0,0); //TODO: Update to player location
+public class FollowPlayer extends BTAction{ //TODO: Follow the player if in range
+
+	Vector3f playerPosition = new Vector3f(0,0,0);
 	
 	Vector3f npcPosition;
 	NPC npc;
@@ -16,15 +17,18 @@ public class FollowPlayer extends BTAction
 	public FollowPlayer(GameServerUDP s, NPCcontroller c, NPC n)
 	{ 
 		super();
-		server = s; npcCtrl = c; npc = n; npcPosition = n.getPosition();
+		server = s; npcCtrl = c; npc = n; n.getPosition(npcPosition);
 	}
 	
 	//TODO: Keep adding to this
 	
 	
-	protected BTStatus update(float elapsedTime)
+	protected BTStatus update(float elapsedTime) //THINK
 	{
-		calculateDistance();
+		playerPosition.set(npcCtrl.closestPlayer(npc));	//returns the position of the closest player
+		calculateDistance(); //find closest player in range
+
+		//if distance flag is ticked then look at the player and move toward them
 		return BTStatus.BH_SUCCESS;
 	}
 	
@@ -35,9 +39,12 @@ public class FollowPlayer extends BTAction
 		//	playerPosition = server.sendWantsDetailsMessages(server.ID);
 		distance = npcPosition.distance(playerPosition);
 		
-		if (distance < 5.0f)
+		if (distance < spot.aggroRange)	//if closest player is in aggro range move toward it
 		{
+			npc.setHunt(true);
+			npc.lookAt(playerPosition);
 			//System.out.println("Player is near, woop woop");
 		}
+		else npc.setHunt(false);
 	}
 }

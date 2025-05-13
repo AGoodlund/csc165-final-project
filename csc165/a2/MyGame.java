@@ -57,7 +57,7 @@ public class MyGame extends VariableFrameRateGame
 	private int HUDscore, HUDCoords;
 
 //-------------Visuals--------------
-	private GameObject avatar, x, y, z, terr, diver, enemy, dol;//, puffer;
+	private GameObject avatar, x, y, z, terr, diver, enemy, dol, mirrorCube;//, puffer;
 
 	private AnimatedShape diverS;
 	public boolean isAnimating = false, hasLooped = false;
@@ -174,7 +174,6 @@ public class MyGame extends VariableFrameRateGame
 
 		terrS = new TerrainPlane(1000); //pixels per axis is 1000 X 1000
 
-
 		diverS = new AnimatedShape("Diver.rkm", "Diver.rks");
 			diverS.loadAnimation("WALK", "Diver_walk.rka");
 		gunS = new ImportedModel("crossbow_loaded.obj");
@@ -191,7 +190,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	@Override
-	public void loadTextures(){	
+	public void loadTextures(){
 		dolX = new TextureImage("ULPDuv.png");
 		ghostT = new TextureImage("oiter.png");
 		pufferX = new TextureImage("Pufferfish_Angry_Spiney.png");
@@ -235,6 +234,13 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		gun.propagateRotation(true);
 		gun.propagateTranslation(true);
 		gun.propagateScale(false);
+
+		mirrorCube = new GameObject(GameObject.root(), new Sphere());
+		initialScale = new Matrix4f().scaling(3f);
+		initialTranslation = new Matrix4f().translation(35f,3f,35f);
+		mirrorCube.setLocalScale(initialScale);
+		mirrorCube.setLocalTranslation(initialTranslation);
+		mirrorCube.getRenderStates().isEnvironmentMapped(true); //this is just so the whole skybox can be more easily seen
    		
 		harpoon1 = new GameObject(GameObject.root(), harpoonS);
 		harpoon2 = new GameObject(GameObject.root(), harpoonS);
@@ -715,7 +721,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		return distanceBetween;
 	}
 	
-	private void checkForCollisions() 
+	private void checkForCollisions() //TODO: once NPCs spawn use collision to look for player or NPC.
 	{ 
 		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
@@ -840,91 +846,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		processNetworking((float)elapsTime);
 	}
 
-// ---------- NETWORKING SECTION ----------------
-
-	/*public AnimatedShape getAnimatedGhostShape(int ghostShapeID) 
-	{
-		AnimatedShape ghostShape;
-		switch(ghostShapeID)
-		{
-			case 0:
-			ghostShape = diverS;
-			break;
-			
-			default:
-			ghostShape = diverS;
-			break;
-			
-		}
-		return ghostShape;
-	}
-	
-	public ObjShape getGhostShape(int ghostShapeID) 
-	{
-		ObjShape ghostShape;
-		switch(ghostShapeID)
-		{
-			
-			case 0:
-			ghostShape = dolS;
-			break;
-			case 1:
-			ghostShape = pufferS;
-			break;
-			case 2:
-			ghostShape = pufferCalmS;
-			break;
-			//case 3:
-			//ghostShape = sphereS;
-			//break;
-			//case 4:
-			//ghostShape = torusS;
-			//break;
-			//case 5:
-			//ghostShape = crystalS;
-			//break;
-			//case 6:
-			//ghostShape = cubeS;
-			//break;
-			
-			default:
-			ghostShape = pufferS;
-			break;
-		}
-		return ghostShape;
-	}
-	public TextureImage getGhostTexture(int ghostTexID) 
-	{
-		TextureImage ghostTex;
-		switch(ghostTexID)
-		{
-			case 0:
-			ghostTex = ghostT;
-			break;
-			
-			case 1:
-			ghostTex = doltx;
-			break;
-			
-			case 2:
-			ghostTex = pufferX;
-			break;
-			
-			case 3:
-			ghostTex = pufferAltX;
-			break;
-			
-			//case 4:
-			//ghostTex = pufferCalmX;
-			//break; //add if time
-			
-			default:
-			ghostTex = pufferX;
-			break;
-		}
-		return ghostTex;
-	}*/
-	
+// ---------- NETWORKING SECTION ----------------	
 	public ObjShape getGhostShape() { return ghostS; }
 	public TextureImage getGhostTexture() { return ghostT; }
 	public GhostManager getGhostManager() { return gm; }

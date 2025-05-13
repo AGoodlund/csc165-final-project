@@ -4,7 +4,7 @@ public class spot {
 //---------------------------   Movement    ---------------------------
     public static float turnSpeed = 0.007f, runSpeed = .03f, deadzoneBounds = 0.02f, mountingDistance = 5.0f, maxDistanceFromMount = 10f,
         closeFactor = 1.8f, tooCloseFactor = .7f, sphereClose = 8f, torusClose = 12.4f, cubeClose = 10.2f;
-    public static float close = 10f, tooClose = 6f;
+    public static float close = 10f, tooClose = 6f, NPCSpeed = 0.01f;
 
 //---------------------------   Points      ---------------------------
     public static int capture = 1000;
@@ -34,7 +34,10 @@ public class spot {
                             grey = {.5f,.5f,.5f};
 
 //---------------------------   Ghosts      ---------------------------
-    public static float startingScale = 3f;
+    public static float startingScale = 3f; 
+
+//---------------------------   NPCs        ---------------------------
+    public static float aggroRange = 5f, tickSpeed = 100f, thinkSpeed = 1000f;
 
 //---------------------------   Sound       ---------------------------    
     public static int bubbleVolume = 25, bowVolume = 5;

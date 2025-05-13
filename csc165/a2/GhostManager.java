@@ -9,6 +9,7 @@ import java.util.Vector;
 import org.joml.*;
 
 import tage.*;
+import tage.GhostNPC;
 //import tage.networking.Message.MessageType;
 
 public class GhostManager
@@ -17,6 +18,11 @@ public class GhostManager
 	private Vector<GhostAvatar> ghostAvatars = new Vector<GhostAvatar>();
 	private GhostAvatar ghostAvatar;
 	private int characterFlag = 0;
+
+	private Vector<GhostNPC> ghostNPCs = new Vector<GhostNPC>();		//TODO: all ghostAvatar functions should have a ghostNPC twin, aside setters NPCs don't need
+	private GhostNPC ghostBot;
+	private Matrix4f m = new Matrix4f();
+	
 
 	public GhostManager(VariableFrameRateGame vfrg)
 	{	game = (MyGame)vfrg;
@@ -45,22 +51,30 @@ public class GhostManager
 		ghostAvatars.add(newAvatar);
 		
 	}
-	public void createGhostAvatar(UUID id, Vector3f position, Matrix4f rotation, String ghostShape, String ghostTexture, float scale) throws IOException{
-		System.out.println("adding ghost with ID --> " + id);
-		ObjShape s = game.getGhostShape();
-		TextureImage t = game.getGhostTexture();
-		GhostAvatar newAvatar = new GhostAvatar(id, s, t, position);
-		Matrix4f initialScale = (new Matrix4f()).scaling(scale);
-		newAvatar.setLocalScale(initialScale);
-		newAvatar.setLocalRotation(rotation);
-		ghostAvatars.add(newAvatar);
-		
+	public void createGhostNPC(UUID id, Vector3f pos, Matrix4f rot) throws IOException{
+		System.out.println("adding NPC with ID --> " + id);
+		GhostNPC newNPC = new GhostNPC(id, game.getEnemyShape(), game.getEnemyTexture(), pos);
+		newNPC.setLocalRotation(rot);
+		game.getEnemySize(m);
+		newNPC.setLocalScale(m);
+		ghostNPCs.add(newNPC);
 	}
+
 	public void removeGhostAvatar(UUID id)
 	{	ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
 		{	game.getEngine().getSceneGraph().removeGameObject(ghostAvatar);
 			ghostAvatars.remove(ghostAvatar);
+		}
+		else
+		{	System.out.println("tried to remove, but unable to find ghost in list\n" + "Cannot find UUID " + id);
+		}
+	}
+	public void removeGhostNPC(UUID id)
+	{	ghostBot = findNPC(id);
+		if(ghostBot != null)
+		{	game.getEngine().getSceneGraph().removeGameObject(ghostBot);
+			ghostNPCs.remove(ghostBot);
 		}
 		else
 		{	System.out.println("tried to remove, but unable to find ghost in list\n" + "Cannot find UUID " + id);
@@ -77,6 +91,16 @@ public class GhostManager
 		}		
 		return null;
 	}
+	private GhostNPC findNPC(UUID id)
+	{	Iterator<GhostNPC> it = ghostNPCs.iterator();
+		while(it.hasNext())
+		{	ghostBot = it.next();
+			if(ghostBot.getID().compareTo(id) == 0)
+			{	return ghostBot;
+			}
+		}		
+		return null;
+	}
 	
 	public void updateGhostAvatar(UUID id, Vector3f position)
 	{		
@@ -84,6 +108,10 @@ public class GhostManager
 	}
 	public void updateGhostAvatar(UUID id, Matrix4f orientation){
 		turnGhostAvatar(id, orientation);
+	}
+	public void updateGhostNPC(UUID id, Vector3f p, Matrix4f o){
+		setNPCPosition(id, p);
+		setNPCRotation(id, o);
 	}
 	
 	public void setGhostPosition (UUID id, Vector3f position)
@@ -97,11 +125,22 @@ public class GhostManager
 		{	System.out.println("Tried to update ghost avatar position, but unable to find ghost in list\nCannot find UUID " + id);
 		}
 	}
+	public void setNPCPosition(UUID id, Vector3f p){
+		ghostBot = findNPC(id);
+
+		if(ghostBot == null) return;
+		ghostBot.setPosition(p);
+	}
 
 	public void turnGhostAvatar(UUID id, Matrix4f orientation){
 		ghostAvatar = findAvatar(id);
 		if(ghostAvatar != null)
 			ghostAvatar.setLocalRotation(orientation);
+	}
+	public void setNPCRotation(UUID id, Matrix4f o){
+		ghostBot = findNPC(id);
+		if(ghostBot == null) return;
+		ghostBot.setLocalRotation(o);
 	}
 
 	public void setGhostScale(UUID id, float scale){ 

@@ -1,19 +1,26 @@
 package tage;
 import org.joml.*;
+import java.util.UUID;
 
-
-public class GhostNPC extends GameObject
+public class GhostNPC extends GameObject	//TODO:This is just GhostAvatar for NPCs. Simplify it!
 { 
 	private int id;
+	private UUID uuid;
 
 	public GhostNPC(int id, ObjShape s, TextureImage t, Vector3f p) 
 	{ 
 		super(GameObject.root(), s, t);
 		this.id = id;
-		setPosition(p);
+		setLocalLocation(p);
 		//System.out.println("A ghostNPC has ben created with ID " + id );
 		//The ghostNPCs did spawn in, but they were invisible. I spent a long time 
 	}
+	public GhostNPC(UUID id, ObjShape s, TextureImage t, Vector3f p){
+		super(GameObject.root(), s, t);
+		uuid = id;
+		setPosition(p);
+	}
+/* 
 	public GhostNPC(){
 		
 		super(GameObject.root());
@@ -23,12 +30,11 @@ public class GhostNPC extends GameObject
 		
 		//System.out.println("A generic ghostNPC has been created.");
 	}
-	
-	public void setPosition (Vector3f move)
-	{ 
-		this.translate(move.x(), move.y(), move.z()); 
-	}
-	
+*/
+	public void setPosition (Vector3f move) { setLocalLocation(move); }
+
+	public UUID getID(){ return uuid; }
+/* 
 	public Vector3f getPosition ()
 	{
 		Vector3f loc = new Vector3f();
@@ -42,9 +48,5 @@ public class GhostNPC extends GameObject
 		this.getWorldRotation(ori);
 		return ori;
 	}
-
-	public void updateLocation(){}
-	public void randomizeLocation(int seedX, int seedZ){
-		setLocalLocation(new Vector3f((float)seedX/4.0f - 5.0f, 0f, (float)seedZ/4.0f - 5.0f));
-	}
+*/	
 }

@@ -12,9 +12,9 @@ public class AvatarNear extends BTCondition
 	
 	protected boolean check()
 	{ 
-		try
-		{server.sendCheckForAvatarNear();}
-		catch (Exception e) { System.out.println("Error in checking for avatar near.");}
+//		try
+//		{server.sendCheckForAvatarNear();}
+//		catch (Exception e) { System.out.println("Error in checking for avatar near.");}
 		return npcc.getNearFlag();
 	} 
 }
