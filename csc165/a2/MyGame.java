@@ -110,7 +110,7 @@ public class MyGame extends VariableFrameRateGame
 //-------------Physics----------------
 	private PhysicsEngine physicsEngine;
 	private PhysicsObject dolP, ghostP, raftP, groundPlaneP, avatarP, groundingP, pufferP;
-	private float[] gravity = {0f, 0f,0f};
+	private float[] gravity = {0f, -2f,0f};
 	private float vals[] = new float[16]; 
 	
 //Networking
