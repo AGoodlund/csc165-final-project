@@ -44,7 +44,7 @@ public class MyGame extends VariableFrameRateGame
 	
 	private double lastFrameTime, currFrameTime, elapsTime;
 
-	private int health = 10;
+	private int health = 100;
 	
 	int hit = 0;
 	
@@ -99,20 +99,9 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape ghostS;
 	private TextureImage ghostT;
 
-
-//-------------Mouse Controls----------------
-	private Robot robot;
-	private float curMouseX, curMouseY, centerX, centerY;
-	private float prevMouseX, prevMouseY; // loc of mouse prior to move
-	private boolean isRecentering; //indicates the Robot is in action
-	private float tilt;
-	//private float sensitivity = 1.0f;
-
 //-------------Height Map----------------
 	private float height;
 	private ArrayList<GameObject> mappable = new ArrayList<GameObject>(); //objects that follow height map
-	//private ArrayList<PhysicsObject> mappableP = new ArrayList<PhysicsObject>(); //Physics objects that follow height map
-	private Vector3f loc = new Vector3f();
 
 //-------------Helpers----------------
 	private Vector3f v = new Vector3f();
@@ -125,9 +114,12 @@ public class MyGame extends VariableFrameRateGame
 	private float vals[] = new float[16]; 
 	
 //Networking
-	public ObjShape getEnemyShape() { return enemy.getShape(); }
-	public TextureImage getEnemyTexture() { return enemy.getTextureImage(); }
-	public Matrix4f getEnemySize(Matrix4f dest){ enemy.getWorldScale(dest); return dest; }
+	public ObjShape getEnemyShape() { return pufferS; }
+	public TextureImage getEnemyTexture() { return pufferAltX; }
+	public void  getEnemySize(Matrix4f dest){ enemy.getWorldScale(dest); }
+
+	public ObjShape getNPCShape(){ return pufferCalmS; }
+	public TextureImage getNPCTexture(){ return pufferX; }
 
 	public ObjShape getDiverShape(){ return diverS; }
 	public TextureImage getDiverTexture(){ return diver.getTextureImage(); }
@@ -199,6 +191,7 @@ public class MyGame extends VariableFrameRateGame
 		grass = new TextureImage("sand_watery.png");
 		hills = new TextureImage("heightmap map.png");
 	}
+
 private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale, float[] color){
 	Matrix4f initialScale;
 	initialScale = new Matrix4f().scaling(scale);
@@ -297,6 +290,7 @@ private void createBullet(GameObject g, ArrayList<GameObject> goal, float scale,
 		initialScale = (new Matrix4f()).scaling(10f);
 		enemy.setLocalTranslation(initialTranslation);
 		enemy.setLocalScale(initialScale);
+		enemy.getRenderStates().disableRendering();
 
 		dol = new GameObject(GameObject.root(), dolS, dolX);
 		initialTranslation = new Matrix4f().translation(0,2,0);
@@ -477,7 +471,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		float tempMass = 1.0f;
 		float diverMass = 10.0f;
 //		float tempUp[ ] = {0,1,0};
-		float raftSize[ ] = {1,1,1,1};
+//		float raftSize[ ] = {1,1,1,1};
 		float tempUp[ ] = {0,1,0};
 		float pufferRadius = 1.5f;
 		float dolRadius = 1.0f;
@@ -487,7 +481,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		double[ ] tempTransform;
 		Matrix4f physicsTranslation = new Matrix4f();
 
-		bulletStorage.translate(0f,spot.cameraOffset+10,0f);
+		bulletStorage.translate(0f,spot.cameraOffset+10f,0f);
 		
 		//Doesn't take movement into account
 		//Add force in a direction to a physics object
@@ -502,7 +496,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 //		groundingP = engine.getSceneGraph().addPhysicsBox(0f, tempTransform, new float[]{4f,2f,4f});
 //		groundingP.setBounciness(0.02f);
-
+/* 
 		//Puffer Fish
 		//Gravity
 		enemy.getLocalTranslation(physicsTranslation);
@@ -512,7 +506,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		pufferP.setSleepThresholds(5.0f,5.0f);
 		pufferP.setBounciness(0.8f);
 		enemy.setPhysicsObject(pufferP);
-
+*/
 		//avatar
 		avatar.getLocalTranslation(physicsTranslation);
 		physicsTranslation.m31(physicsTranslation.m31()+0.5f);
@@ -721,7 +715,7 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 		return distanceBetween;
 	}
 	
-	private void checkForCollisions() //TODO: once NPCs spawn use collision to look for player or NPC.
+	private void checkForCollisions() //TODO: once NPCs spawn use collision to look for player or NPC to cause damage
 	{ 
 		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
@@ -768,6 +762,16 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 	
 //-------------Terrain---------------- 
+	public void applyHeightMap(GameObject obj, float offset){
+		obj.getWorldLocation(v);
+		height = terr.getHeight(v.x(), v.z())+offset;
+		obj.heightAdjust(height);
+		obj.getWorldTranslation(m);
+//        obj.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
+	}
+	public void applyHeightMap(GameObject obj){
+		applyHeightMap(obj, 2f);
+	}
 /*	public void applyHeightMap(){
 		for(GameObject obj: mappable){ 
 			obj.getWorldLocation(v);
@@ -824,16 +828,17 @@ private void setAmmoPhysics(GameObject g, PhysicsObject p){
 
 		} 
 		
-		calculateAvatarCollision(enemy);
-		rollDamage();
+//		calculateAvatarCollision(enemy);
+//		rollDamage();
 
 		//----------------Height Map-----------------
-		avatar.getWorldLocation(v);
-		height = terr.getHeight(v.x(), v.z())+3.5f;
-		avatar.heightAdjust(height);//avatar is the only one that needs to follow the heightmap
-		avatar.getWorldTranslation(m);
-        avatar.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
-		
+		applyHeightMap(avatar, 3.5f);
+//		avatar.getWorldLocation(v);
+//		height = terr.getHeight(v.x(), v.z())+3.5f;
+//		avatar.heightAdjust(height);//avatar is the only one that needs to follow the heightmap
+//		avatar.getWorldTranslation(m);
+		avatar.getPhysicsObject().setTransform(toDoubleArray(m.get(vals))); 
+	
 		//--------------HUD drawing----------------
 		dispStr2 = "HEALTH: " + health;
 		engine.getHUDmanager().setHUDValue(HUDCoords, dispStr2);

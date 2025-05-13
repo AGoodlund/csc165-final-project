@@ -56,9 +56,11 @@ public class GhostManager
 		GhostNPC newNPC = new GhostNPC(id, game.getEnemyShape(), game.getEnemyTexture(), pos);
 		newNPC.setLocalRotation(rot);
 		game.getEnemySize(m);
-		newNPC.setLocalScale(m);
+			newNPC.setLocalScale(m);
+
 		ghostNPCs.add(newNPC);
 
+System.out.println("npc creation successful at location " + pos);
 //TODO: add physics object to NPC
 	}
 
@@ -112,8 +114,9 @@ public class GhostManager
 		turnGhostAvatar(id, orientation);
 	}
 	public void updateGhostNPC(UUID id, Vector3f p, Matrix4f o){
+
 		setNPCPosition(id, p);
-		setNPCRotation(id, o);
+//		setNPCRotation(id, o);
 	}
 	
 	public void setGhostPosition (UUID id, Vector3f position)
@@ -129,9 +132,14 @@ public class GhostManager
 	}
 	public void setNPCPosition(UUID id, Vector3f p){
 		ghostBot = findNPC(id);
-
 		if(ghostBot == null) return;
+
+		ghostBot.lookAt(p);
+
 		ghostBot.setPosition(p);
+		game.applyHeightMap(ghostBot, 3.5f);
+
+//System.out.println("NPC ID "+ id + " moved to " + p);
 //TODO: move physics object to same positions as is done in player move actions
 		//if desired could make it so NPC only sends its facing and a physics object moves the ghost and sends back the physics object's location when it's time to think
 	}

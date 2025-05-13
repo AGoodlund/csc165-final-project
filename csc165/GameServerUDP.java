@@ -24,12 +24,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	{	super(localPort, ProtocolType.UDP);
 		npcCtrl = npc; 
 		this.ID = UUID.randomUUID();
-		npcCtrl.setupNPCs();
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(0));
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(1));
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(2));
-		sendCreateNPCmsg(this.ID, npcCtrl.getNPC(3));
-		sendCreateAll();
 	}
 		
 	// --- additional protocol for NPCs ----
@@ -37,42 +31,37 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 
 	// ------------ SENDING NPC MESSAGES -----------------
 	// Informs clients of the whereabouts of the NPCs.
-	public void sendCreateNPCmsg(UUID clientID, NPC npc) //TODO: call this in JOIN case. send the position of every NPC to the new user
+	public void sendCreateNPCmsg(UUID clientID, NPC npc)
 	{ 
-		System.out.println("The server is telling clients about an NPC..."); //May need to delete this
+//System.out.println("The server is telling clients about an NPC...");
 		
 		try 
-		{	message.addItem(Message.MessageType.CREATE_NPC);	
+		{	message.addItem(Message.MessageType.CREATE_NPC);
+			message.addItem(npc.getID());
 			npc.getPosition(v);
-			message.addItem(v);
-			forwardPacketToAll(message, clientID);	//TODO: change this to sending to a specific receiver
+//System.out.println("server.npc.getPosition is " + v);
+				message.addItem(v);
+//			npc.getRotation(m);
+//				message.addItem(m);
+
+			sendPacket(message, clientID);
 		} catch (IOException e) { e.printStackTrace(); }
 	}
 	
 	public void sendNPCinfo()
 	{ 
+		message.addItem(Message.MessageType.MNPC);
+//		int i = 0;
 		for(int i = 0; i < 4; i++){
-			message.addItem(npcCtrl.getNPC(i).getPosition(v));
-			message.addItem(npcCtrl.getNPC(i).getRotation(m));
-			message.addItem(ID);
+			message.addItem(npcCtrl.getNPC(i).getID());
+			npcCtrl.getNPC(i).getPosition(v);
+				message.addItem(v);
+			npcCtrl.getNPC(i).getRotation(m);
+				message.addItem(m);
 			sendToAll();
 		}
-		//message.addItem(npcCtrl.getNPC().getOrientation());
-		//sendToAll();
 	}
-/* 
-	public void sendCheckForAvatarNear() //throws IOException
-	{ 
-		npcCtrl.getNPC(0).getPosition(v);
-		message.addItem(v);
-		sendToAll(); 
-	}	
-	public void sendNPCstart(UUID clientID) 
-	{
-//		message.addItem();
-//		sendPacketToAll(message);
-	}
-*/
+
 	private void sendToAll(){
 		try{	
 			sendPacketToAll(message);
@@ -96,7 +85,13 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 					addClient(ci, clientID);
 					System.out.println("Join request received from - " + clientID.toString());
 					sendJoinedMessage(clientID, true);
-//TODO: call npcCtrl.addPlayer(clientID, clientPosition); This means adding position to the join message in ProtocolClient.java					
+
+					message.getVector(v);
+					npcCtrl.addPlayer(clientID, v);
+					sendCreateNPCmsg(clientID, npcCtrl.getNPC(0));	
+					sendCreateNPCmsg(clientID, npcCtrl.getNPC(1));	
+					sendCreateNPCmsg(clientID, npcCtrl.getNPC(2));	
+					sendCreateNPCmsg(clientID, npcCtrl.getNPC(3));				
 //TODO: send createNPC requests with all of the current NPC positions
 				} 
 				catch (IOException e) { e.printStackTrace(); }
@@ -106,6 +101,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				System.out.println("Exit request received from - " + clientID.toString());
 				sendByeMessages(clientID);
 				removeClient(clientID);
+				npcCtrl.removePlayer(clientID);
 //TODO: remove player from npcCtrl too
 				break;
 			case CREATE:
@@ -124,8 +120,10 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			case MOVE:
 				ghostID = message.getSenderID();
 //System.out.println("message in case MOVE in GameServer\n" + message.toString());
-//TODO: send along to npcCtrl.updatePlayerLocation(ghostID, message.getVector(v));
 				sendMoveMessages(ghostID);//vf);
+				message.getVector(v);
+				
+				npcCtrl.updatePlayerLocation(ghostID, v);
 				break;
 			case WSDS:
 				System.out.println("WSDS was sent to 165/GameServerUDP.java for some reason");
@@ -145,7 +143,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				break;
 		
 			case MNPC://move npc. should only be called by the server
-//TODO: put npc position and rotation into a message and sendToAll();
 				System.out.println("MNPC");
 				break;
 		
@@ -157,16 +154,14 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			
 			case NPC_REQUEST:	//shouldn't be called
 				System.out.println("AI server got a needNPC message");
-				//UUID clientID = UUID.fromString(messageTokens[1]); //TODO Change this
+				//UUID clientID = UUID.fromString(messageTokens[1]);
 //				sendNPCstart(clientID);
 				break;
 				
 			case DEFAULT:
-
 				System.out.println("received blank message");
 				break;
 			default:
-
 				System.out.println("an unknown MessageType was sent to GameServerUDP.java");
 		}
 	}

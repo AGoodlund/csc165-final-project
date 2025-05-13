@@ -7,7 +7,7 @@ public class FollowPlayer extends BTAction{ //TODO: Follow the player if in rang
 
 	Vector3f playerPosition = new Vector3f(0,0,0);
 	
-	Vector3f npcPosition;
+	Vector3f npcPosition = new Vector3f();
 	NPC npc;
 	NPCcontroller npcCtrl;
 	GameServerUDP server;
@@ -20,8 +20,6 @@ public class FollowPlayer extends BTAction{ //TODO: Follow the player if in rang
 		server = s; npcCtrl = c; npc = n; n.getPosition(npcPosition);
 	}
 	
-	//TODO: Keep adding to this
-	
 	
 	protected BTStatus update(float elapsedTime) //THINK
 	{
@@ -32,8 +30,6 @@ public class FollowPlayer extends BTAction{ //TODO: Follow the player if in rang
 		return BTStatus.BH_SUCCESS;
 	}
 	
-	
-	//TODO: This may be best served in its own node.
 	private void calculateDistance ()
 	{
 		//	playerPosition = server.sendWantsDetailsMessages(server.ID);
@@ -43,7 +39,7 @@ public class FollowPlayer extends BTAction{ //TODO: Follow the player if in rang
 		{
 			npc.setHunt(true);
 			npc.lookAt(playerPosition);
-			//System.out.println("Player is near, woop woop");
+//System.out.println("Player is near, woop woop\nPlayer is " + distance + " away");
 		}
 		else npc.setHunt(false);
 	}

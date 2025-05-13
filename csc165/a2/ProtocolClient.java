@@ -53,6 +53,7 @@ public class ProtocolClient extends GameConnectionClient
 	ghostNPC.setSize(gs);* /
 }
 */
+
 public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
 		this.game = game;
@@ -70,7 +71,6 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 					//getID is receiver (here), getRemoteID is sender(GameServer)
 		switch(t){	//making a switch statement because it's faster than if/else
 			case JOIN:
-
 				if(message.getSuccess())
 				{	System.out.println("join success confirmed");
 					game.setIsConnected(true);
@@ -127,23 +127,29 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 				ghostID = message.getSenderID();
 				ghostManager.turnGhostAvatar(ghostID, ghostMatrix);
 				break;
-			case CREATE_NPC:
-				//using ghostMatrix and ghostVector to get their normals
-				ghostID = message.getSenderID();
-				message.getVector(ghostVector);
-				message.getMatrix(ghostMatrix);
-				
-				try{
-					ghostManager.createGhostNPC(ghostID, ghostVector, ghostMatrix);
-//				createGhostNPC(ghostVector);
-				}
-				catch (Exception m) {System.out.println("Error making ghosts");}
-				break;
 			case CHANGE_NPC: //this should be "CHANGE_AVATAR" but I used it wrong and am too tired to fix it
 				ghostID = message.getSenderID();
 				message.getVector(ghostVector);
 				ghostManager.changeGhostAvatar(ghostID, (int)ghostVector.x());//, message.character);
 				break;	
+
+			case CREATE_NPC:
+				//using ghostMatrix and ghostVector to get their normals
+				ghostID = message.getSenderID();
+				message.getVector(ghostVector);
+				message.getMatrix(ghostMatrix);		
+System.out.println("protocolClient.message" + message.toString());
+				try{
+					ghostManager.createGhostNPC(ghostID, ghostVector, ghostMatrix);
+				}
+				catch (Exception m) {System.out.println("Error making ghosts");}
+				break;
+			case MNPC:
+//System.out.println("MNPC message is" + message.toString());
+				ghostID = message.getSenderID();
+				ghostManager.updateGhostNPC(ghostID, message.getVector(ghostVector), message.getMatrix(ghostMatrix));
+				break;
+				
 			default:
 				System.out.println("an unknown MessageType was sent to ProtocolClient" + message.toString());
 				break;
@@ -157,8 +163,11 @@ public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType proto
 	// Message Format: (join,localId)
 	
 	public void sendJoinMessage()
-	{	try 
+	{	
+		game.getAvatar().getWorldLocation(ghostVector);
+		try 
 		{	message.addItem(id);
+			message.addItem(ghostVector);
 			message.addItem(Message.MessageType.JOIN);
 			
 			sendPacket(message);

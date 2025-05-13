@@ -22,10 +22,8 @@ public class Message implements Serializable{
     private Matrix4f m; 
 
     public MessageType type, character;    //left as public so it's easier to access
-
-//    public CharacterType character;
     
-/** an enum that holds the type of message is being sent/received. This may need to be its own thing */
+/** an enum that holds the type of message is being sent/received */
     public enum MessageType{
     DEFAULT,
     JOIN,
@@ -47,14 +45,7 @@ public class Message implements Serializable{
     DOL,
     GAY_DOL
     }
-/* * enum to hold ghost avatar looks because it was sending Strings as null 
-    public enum CharacterType{
-    DIVER,
-    ENEMY,
-    DOL,
-    GAY_DOL
-    }
-*/
+
     private Message(){
         v = new Vector3f();
         m = new Matrix4f();
@@ -100,9 +91,9 @@ public class Message implements Serializable{
 /** add a receiver UUID to the message */
     public void addDestination(UUID receiver){ receiverID = receiver; }
 /** fill dest with values from message's Vector */
-    public void getVector(Vector3f dest){ dest.set(v); }
+    public Vector3f getVector(Vector3f dest){ dest.set(v); return dest; }
 /** fill dest with values from message's Matrix */
-    public void getMatrix(Matrix4f dest){ dest.set(m); }
+    public Matrix4f getMatrix(Matrix4f dest){ dest.set(m); return dest; }
 /** get UUID number of the sender */
     public UUID getSenderID(){ return senderID; }
 /** get UUID number of the receiver */

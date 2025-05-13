@@ -4,7 +4,7 @@ public class spot {
 //---------------------------   Movement    ---------------------------
     public static float turnSpeed = 0.007f, runSpeed = .03f, deadzoneBounds = 0.02f, mountingDistance = 5.0f, maxDistanceFromMount = 10f,
         closeFactor = 1.8f, tooCloseFactor = .7f, sphereClose = 8f, torusClose = 12.4f, cubeClose = 10.2f;
-    public static float close = 10f, tooClose = 6f, NPCSpeed = 0.01f;
+    public static float close = 10f, tooClose = 6f;
 
 //---------------------------   Points      ---------------------------
     public static int capture = 1000;
@@ -37,10 +37,11 @@ public class spot {
     public static float startingScale = 3f; 
 
 //---------------------------   NPCs        ---------------------------
-    public static float aggroRange = 5f, tickSpeed = 100f, thinkSpeed = 1000f;
+    public static float aggroRange = 50f, tickSpeed = 100f, thinkSpeed = 1000f, NPCSpeed = 1f;
 
 //---------------------------   Sound       ---------------------------    
-    public static int bubbleVolume = 25, bowVolume = 5;
+    public static int bubbleVolume = 0,//25, 
+                        bowVolume = 0;//5;
 
 //---------------------------   Scale       ---------------------------   
     public static float[] mapSize = {120f,2f,120f};//30,1,30};

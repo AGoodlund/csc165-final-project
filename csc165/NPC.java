@@ -7,43 +7,61 @@ public class NPC
 	private Vector3f pos, dir;
 	private UUID id;
 	private boolean hunting = false;
+
 	private Vector4f v = new Vector4f();
+	private float[] defaultPos;
 
 	private int hp = 2;
 
 	public NPC()
 	{ 
 		id = UUID.randomUUID();
-		dir = new Vector3f(0,0,-1);
+		dir = new Vector3f(0,0,1);
+		pos = new Vector3f();
 	}
 	
 	public void randomizeLocation(int seedX, int seedZ)
 	{ 
-		pos = new Vector3f((float)seedX/4f-5f, 2f, (float)seedZ/4f-5f);
-
+System.out.println("NPC " + id + " seeded at " + seedX + ", " + seedZ);
+		pos.set((float)seedX/4f-5f, 2f, (float)seedZ/4f-5f);
+		defaultPos = new float[] {pos.x(), pos.y(), pos.z()};
+//System.out.println("NPC spawning at pos " + pos + "\n");
 	}
 	public void updateLocation(float elapsedTime) 	//TICK
 	{ 
 		if(hunting){
-			dir.mul(spot.NPCSpeed*elapsedTime);
-			pos.add(dir);			//move at (speed) in current direction
+			dir.mul(spot.NPCSpeed);
+			pos.add(dir);			//move at <speed> in current direction
+//System.out.println("npc.updateLocation changed to " + pos);
 		}
 	} 
 
 	public UUID getID() { return id; }
 	
-	public Vector3f getPosition (Vector3f dest) { dest.set(pos); return dest; }
+	public void getPosition (Vector3f dest) { 
+//System.out.println("getPosition of NPC is " + pos);
+		dest.set(pos); 
+//System.out.println("getPosition of dest is " + dest);	
+	}
 	public void setPosition (Vector3f position) { pos.set(position); }
 
-	public Matrix4f getRotation(Matrix4f dest) {v.set(dir.x(), dir.y(), dir.z(), 0f); dest.setColumn(2, v); return dest; }
+	public void getRotation(Matrix4f dest) {
+		dest.m20(dir.x());
+		dest.m21(dir.y());
+		dest.m22(dir.z());
+	}
 
 	public void lookAt(Vector3f p){ //set dir to be pointing towards the target position
-		dir.set(p.x()-pos.x(), p.y() - pos.y(), p.z()-pos.z()).normalize();
+//System.out.println("running npc.lookAt");
+		Vector3f temp = new Vector3f(pos);
+		dir.set(p.x()-temp.x(), p.y() - temp.y(), p.z()-temp.z()).normalize();
 	}
 
 	public void setHunt(boolean s){ hunting = s; }
-	public void takeDamage(int dmg){ hp -= dmg; if(hp <= 0) die(); }
+	public void takeDamage(int dmg){ hp -= dmg; if(hp < 1) die(); }
 	private void die(){
+		pos.set(defaultPos);
+		hp = 2;
 //		reset position and hp
 	}
 }
